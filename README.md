@@ -1,5 +1,7 @@
 # Flipster
 
+![Flipster logo](./logo.svg)
+
 Flash card revision tool with latex support
 
 # Set Up
