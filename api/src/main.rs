@@ -21,6 +21,11 @@ async fn main() -> std::io::Result<()> {
             .unwrap(),
     );
 
+    sqlx::migrate!()
+        .run(db_pool.as_ref())
+        .await
+        .expect("Database migration failed");
+
     HttpServer::new(move || {
         // TODO: properly configure cors
         let cors = Cors::default()
