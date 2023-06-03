@@ -5,6 +5,7 @@ use actix_web_httpauth::extractors::{
     bearer::{self, BearerAuth},
     AuthenticationError,
 };
+use google_oauth::AsyncClient;
 use reqwest::{
     self,
     header::{HeaderName, HeaderValue},
@@ -38,17 +39,11 @@ pub struct JwtResponse {
 }
 
 async fn get_email(token: &str) -> Result<String, ()> {
-    let client = reqwest::Client::new();
-    let result = client
-        .get("https://oauth2.googleapis.com/tokeninfo")
-        .query(&vec![("id_token", token)])
-        .send()
-        .await
-        .map_err(|_| ())?;
+    let client_id = std::env::var("VITE_GOOGLE_CLIENT_ID").expect("Client ID not specified");
+    let client = AsyncClient::new(client_id);
+    let data = client.validate_id_token(token).await.map_err(|_| ())?;
 
-    let parsed: JwtResponse =
-        serde_json::from_str(&result.text().await.map_err(|_| ())?).map_err(|_| ())?;
-    Ok(parsed.email)
+    data.email.ok_or(())
 }
 
 pub async fn validator(
@@ -59,8 +54,6 @@ pub async fn validator(
     // Get token from creds
     let jwt = credentials.token();
 
-    // TODO: Verify without contacting google: https://ncona.com/2015/02/consuming-a-google-id-token-from-a-server/
-    // Make request to https://oauth2.googleapis.com/tokeninfo?id_token=<id>
     match get_email(jwt).await {
         Ok(email) => {
             let user = sqlx::query!("SELECT id FROM app_user WHERE email = $1", email)

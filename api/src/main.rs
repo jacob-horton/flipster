@@ -15,12 +15,12 @@ pub struct AppState {
     db_pool: Arc<Pool<Postgres>>,
 }
 
-// #[get("/test")]
-// pub async fn test(data: Data<AppState>, req: HttpRequest) -> impl Responder {
-//     println!("{:?}", req.headers().get("email"));
-//     println!("{:?}", req.headers().get("user_id"));
-//     HttpResponse::Ok().body("Working!")
-// }
+#[get("/test")]
+pub async fn test(data: Data<AppState>, req: HttpRequest) -> impl Responder {
+    println!("{:?}", req.headers().get("email"));
+    println!("{:?}", req.headers().get("user_id"));
+    HttpResponse::Ok().body("Working!")
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
