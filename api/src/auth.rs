@@ -1,11 +1,12 @@
-use std::sync::Arc;
+use core::fmt;
+use std::{error::Error, sync::Arc};
 
 use actix_web::dev::ServiceRequest;
 use actix_web_httpauth::extractors::{
     bearer::{self, BearerAuth},
     AuthenticationError,
 };
-use google_oauth::AsyncClient;
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use reqwest::{
     self,
     header::{HeaderName, HeaderValue},
@@ -15,35 +16,62 @@ use sqlx::PgPool;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct JwtResponse {
-    pub iss: String,
-    pub nbf: String,
-    pub aud: String,
-    pub sub: String,
-    pub email: String,
-    #[serde(rename = "email_verified")]
-    pub email_verified: String,
-    pub azp: String,
-    pub name: String,
-    pub picture: String,
-    #[serde(rename = "given_name")]
-    pub given_name: String,
-    pub iat: String,
-    pub exp: String,
-    pub jti: String,
-    pub alg: String,
-    pub kid: String,
-    pub typ: String,
+#[derive(Debug, Clone)]
+struct InvalidIssuer;
+impl Error for InvalidIssuer {}
+impl fmt::Display for InvalidIssuer {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "InvalidIssuer")
+    }
 }
 
-async fn get_email(token: &str) -> Result<String, ()> {
-    let client_id = std::env::var("VITE_GOOGLE_CLIENT_ID").expect("Client ID not specified");
-    let client = AsyncClient::new(client_id);
-    let data = client.validate_id_token(token).await.map_err(|_| ())?;
+#[derive(Clone, Debug, Deserialize)]
+pub struct JWK {
+    alg: String,
+    n: String,
+    e: String,
+}
 
-    data.email.ok_or(())
+#[derive(Clone, Debug, Deserialize)]
+pub struct JWKS {
+    keys: Vec<JWK>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Claims {
+    exp: usize,  // Expiry
+    iss: String, // Issuer
+    sub: String, // Subject (user ID)
+}
+
+async fn fetch_jwks(uri: &str) -> Result<JWKS, Box<dyn Error>> {
+    let res = reqwest::get(uri).await?;
+    let body = res.text().await?;
+    let val: JWKS = serde_json::from_str(&body)?;
+    Ok(val)
+}
+
+async fn get_sub(token: &str) -> Result<String, Box<dyn Error>> {
+    // TODO: get url from env file
+    let jwks = fetch_jwks("http://localhost:8180/auth/realms/master/protocol/openid-connect/certs")
+        .await?;
+
+    let jwk = jwks
+        .keys
+        .iter()
+        .filter(|k| k.alg == "RS256")
+        .next()
+        .unwrap();
+
+    let decoding_key = DecodingKey::from_rsa_components(&jwk.n, &jwk.e)?;
+    let token = decode::<Claims>(token, &decoding_key, &Validation::new(Algorithm::RS256))?;
+
+    // TODO: get url from env file
+    if token.claims.iss != "http://localhost:8180/auth/realms/master" {
+        return Err(Box::new(InvalidIssuer));
+    }
+
+    Ok(token.claims.sub)
 }
 
 pub async fn validator(
@@ -54,9 +82,9 @@ pub async fn validator(
     // Get token from creds
     let jwt = credentials.token();
 
-    match get_email(jwt).await {
-        Ok(email) => {
-            let user = sqlx::query!("SELECT id FROM app_user WHERE email = $1", email)
+    match get_sub(jwt).await {
+        Ok(sub) => {
+            let user = sqlx::query!("SELECT id FROM app_user WHERE jwt_sub = $1", sub)
                 .fetch_one(db_pool.as_ref())
                 .await
                 .ok();
@@ -64,8 +92,8 @@ pub async fn validator(
             let mut req = req; // Make mutable
             let headers = req.headers_mut();
             headers.insert(
-                HeaderName::from_lowercase(b"email").unwrap(),
-                HeaderValue::from_str(&email).unwrap(),
+                HeaderName::from_lowercase(b"sub").unwrap(),
+                HeaderValue::from_str(&sub).unwrap(),
             );
 
             if let Some(user) = user {

@@ -17,7 +17,7 @@ pub struct AppState {
 
 #[get("/test")]
 pub async fn test(data: Data<AppState>, req: HttpRequest) -> impl Responder {
-    println!("{:?}", req.headers().get("email"));
+    println!("{:?}", req.headers().get("sub"));
     println!("{:?}", req.headers().get("user_id"));
     HttpResponse::Ok().body("Working!")
 }
@@ -44,7 +44,8 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::default()
             .allow_any_origin()
             .allowed_methods(vec!["GET", "POST"])
-            .allowed_header(http::header::CONTENT_TYPE);
+            .allowed_header(http::header::CONTENT_TYPE)
+            .allowed_header(http::header::AUTHORIZATION);
 
         let state = AppState {
             db_pool: db_pool.clone(),
@@ -57,8 +58,8 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .app_data(Data::new(state))
-            .wrap(cors)
             .wrap(auth)
+            .wrap(cors)
             .service(test)
             .service(add_flashcard)
     })
