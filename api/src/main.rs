@@ -1,12 +1,25 @@
 use std::{env, sync::Arc};
 
 use actix_cors::Cors;
-use actix_web::{http, web::Data, App, HttpServer};
+use actix_web::{get, http, web::Data, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web_httpauth::middleware::HttpAuthentication;
+use auth::validator;
+use routes::flashcard::add_flashcard;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+
+mod auth;
+mod routes;
 
 #[derive(Clone, Debug)]
 pub struct AppState {
     db_pool: Arc<Pool<Postgres>>,
+}
+
+#[get("/test")]
+pub async fn test(data: Data<AppState>, req: HttpRequest) -> impl Responder {
+    println!("{:?}", req.headers().get("sub"));
+    println!("{:?}", req.headers().get("user_id"));
+    HttpResponse::Ok().body("Working!")
 }
 
 #[actix_web::main]
@@ -31,13 +44,24 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::default()
             .allow_any_origin()
             .allowed_methods(vec!["GET", "POST"])
-            .allowed_header(http::header::CONTENT_TYPE);
+            .allowed_header(http::header::CONTENT_TYPE)
+            .allowed_header(http::header::AUTHORIZATION);
 
         let state = AppState {
             db_pool: db_pool.clone(),
         };
 
-        App::new().app_data(Data::new(state)).wrap(cors)
+        let auth_db_pool = db_pool.clone();
+        let auth = HttpAuthentication::bearer(move |req, creds| {
+            validator(auth_db_pool.clone(), req, creds)
+        });
+
+        App::new()
+            .app_data(Data::new(state))
+            .wrap(auth)
+            .wrap(cors)
+            .service(test)
+            .service(add_flashcard)
     })
     .bind(("0.0.0.0", 8080))?
     .run()
