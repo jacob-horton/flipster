@@ -12,7 +12,7 @@ Copy the `.env.example` file to `.env`, and fill out the details. This also need
 
 ## API
 
-- The backend of the website
+- The backend api of the website
 - Handles connecting to database
 - Uses `actix` for serving the API and `sqlx` to connect to the database
 - Written in Rust 🦀
@@ -21,7 +21,7 @@ Copy the `.env.example` file to `.env`, and fill out the details. This also need
 
 - The frontend of the website
 - Uses React, Vite and Typescript
-- Tailwindcss for styling
+- Tailwind CSS for styling
 
 ## DB
 
