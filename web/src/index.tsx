@@ -10,11 +10,13 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <AuthProvider
       {...keycloak}
+      redirect_uri={window.location.origin}
       onSigninCallback={async (a) => {
         // TODO: remove, but keep function (documentation says it needs to be defined for auto refresh or smth)
         if (a instanceof User) {
           console.log(a.id_token);
-          const result = await fetch("http://localhost:8080/test", {
+          console.log(`${import.meta.env.VITE_API_URL}/test`);
+          const result = await fetch(`${import.meta.env.VITE_API_URL}/test`, {
             method: "GET",
             headers: {
               Authorization: "Bearer " + a.id_token,

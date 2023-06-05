@@ -1,7 +1,6 @@
 const keycloak = {
-  authority: "http://localhost:8180/auth/realms/master",
-  client_id: "react-auth",
-  redirect_uri: "http://localhost:5173",
+  authority: import.meta.env.VITE_AUTH_SERVER_URL,
+  client_id: import.meta.env.VITE_AUTH_CLIENT_ID,
 };
 
 export default keycloak;

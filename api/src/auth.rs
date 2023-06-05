@@ -1,5 +1,5 @@
 use core::fmt;
-use std::{error::Error, sync::Arc};
+use std::{env, error::Error, sync::Arc};
 
 use actix_web::dev::ServiceRequest;
 use actix_web_httpauth::extractors::{
@@ -52,10 +52,7 @@ async fn fetch_jwks(uri: &str) -> Result<JWKS, Box<dyn Error>> {
 }
 
 async fn get_sub(token: &str) -> Result<String, Box<dyn Error>> {
-    // TODO: get url from env file
-    let jwks = fetch_jwks("http://localhost:8180/auth/realms/master/protocol/openid-connect/certs")
-        .await?;
-
+    let jwks = fetch_jwks(&env::var("JWKS_URL").expect("No JWKS URL provided")).await?;
     let jwk = jwks
         .keys
         .iter()
@@ -66,8 +63,7 @@ async fn get_sub(token: &str) -> Result<String, Box<dyn Error>> {
     let decoding_key = DecodingKey::from_rsa_components(&jwk.n, &jwk.e)?;
     let token = decode::<Claims>(token, &decoding_key, &Validation::new(Algorithm::RS256))?;
 
-    // TODO: get url from env file
-    if token.claims.iss != "http://localhost:8180/auth/realms/master" {
+    if token.claims.iss != env::var("VITE_AUTH_SERVER_URL").expect("No auth server URL provided") {
         return Err(Box::new(InvalidIssuer));
     }
 
