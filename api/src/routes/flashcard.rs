@@ -5,6 +5,7 @@ use actix_web::{
 };
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use ts_rs::TS;
 
 use crate::AppState;
 
@@ -30,8 +31,9 @@ pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<i32> {
     )
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../web/src/types/")]
 pub struct FlashcardInsert {
     term: String,
     definition: String,
