@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  postgres_auth:
+    container_name: postgres_auth
+    image: "postgres:latest"
+    env_file:
+      - ./auth/database.dev.env
+    networks:
+      - backend
+    volumes:
+      - ./auth/db-data:/var/lib/postgresql/data/
+      - ./auth/sql:/docker-entrypoint-initdb.d/:ro
+    ports:
+      - 5432:5432
+
+  # pgadmin_auth:
+  #   container_name: pgadmin_auth
+  #   image: dpage/pgadmin4
+  #   env_file:
+  #     - ./auth/database.dev.env
+  #   ports:
+  #     - 5050:80
+  #   networks:
+  #     - backend
+
+  keycloak_auth:
+    container_name: keycloak_auth
+    image: jboss/keycloak
+    depends_on:
+      - "postgres_auth"
+      # - "pgadmin_auth"
+    env_file:
+      - ./auth/keycloak.dev.env
+    ports:
+      - 8180:8080
+      - 8787:8787 # debug port
+    networks:
+      - backend
+
+  database:
+    image: "postgres:latest"
+    ports:
+      - 5433:5432
+
+    environment:
+      POSTGRES_USER: ${DBUSER}
+      POSTGRES_PASSWORD: ${DBPASSWORD}
+      POSTGRES_DB: ${DBNAME}
+
+    volumes:
+      - ./db/db-data/:/var/lib/postgresql/data/
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
