@@ -17,7 +17,7 @@ const App = () => {
         <button onClick={() => auth.signinRedirect()}>Login</button>
       )}
       {auth.isAuthenticated && (
-        <button onClick={() => auth.removeUser()}>
+        <button onClick={() => auth.signoutSilent()}>
           Logout ({auth.user?.profile.preferred_username})
         </button>
       )}
