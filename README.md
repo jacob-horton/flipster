@@ -15,7 +15,6 @@ The default settings should work if everything runs on the same machine, but are
 
 ## 2. Running Containers
 
-Make a folder called `./data/`, or change the volume mappings in `docker-compose.yml`
 Run the containers with `docker-compose up -d`
 
 ## 3. Database

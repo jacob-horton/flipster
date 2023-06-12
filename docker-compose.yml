@@ -9,7 +9,7 @@ services:
     networks:
       - backend
     volumes:
-      - ./data/auth-db:/var/lib/postgresql/data/
+      - auth_db:/var/lib/postgresql/data/
     ports:
       - 5432:5432
 
@@ -38,9 +38,13 @@ services:
       POSTGRES_DB: ${DBNAME}
 
     volumes:
-      - ./data/db/:/var/lib/postgresql/data/
+      - db:/var/lib/postgresql/data/
 
 networks:
   backend:
     name: backend
     driver: bridge
+
+volumes:
+  db:
+  auth_db:
