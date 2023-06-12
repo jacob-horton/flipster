@@ -9,8 +9,7 @@ services:
     networks:
       - backend
     volumes:
-      - ./auth/db-data:/var/lib/postgresql/data/
-      - ./auth/sql:/docker-entrypoint-initdb.d/:ro
+      - ./data/auth-db:/var/lib/postgresql/data/
     ports:
       - 5432:5432
 
@@ -39,7 +38,7 @@ services:
       POSTGRES_DB: ${DBNAME}
 
     volumes:
-      - ./db/db-data/:/var/lib/postgresql/data/
+      - ./data/db/:/var/lib/postgresql/data/
 
 networks:
   backend:

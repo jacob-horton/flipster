@@ -15,6 +15,7 @@ The default settings should work if everything runs on the same machine, but are
 
 ## 2. Running Containers
 
+Make a folder called `./data/`, or change the volume mappings in `docker-compose.yml`
 Run the containers with `docker-compose up -d`
 
 ## 3. Database
@@ -36,7 +37,7 @@ This requires `sqlx-cli` to be installed (`cargo install sqlx-cli`)
 
 ## API
 
-- The backend api of the website
+- The backend API of the website
 - Handles connecting to database
 - Uses `actix` for serving the API and `sqlx` to connect to the database
 - Written in Rust 🦀
@@ -44,10 +45,10 @@ This requires `sqlx-cli` to be installed (`cargo install sqlx-cli`)
 ## Web
 
 - The frontend of the website
-- Uses React, Vite and Typescript
+- Uses React, Vite and TypeScript
 - Tailwind CSS for styling
 
-## DB
+## Data (needs to be created)
 
-- The database
-- Uses PostgreSQL in a Docker container
+- Where data for the auth database and api database is stored
+- Uses PostgreSQL in a Docker container for both
