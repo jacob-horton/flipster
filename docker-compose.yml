@@ -5,7 +5,7 @@ services:
     container_name: postgres_auth
     image: "postgres:latest"
     env_file:
-      - ./auth/database.dev.env
+      - ./.env
     networks:
       - backend
     volumes:
@@ -14,24 +14,13 @@ services:
     ports:
       - 5432:5432
 
-  # pgadmin_auth:
-  #   container_name: pgadmin_auth
-  #   image: dpage/pgadmin4
-  #   env_file:
-  #     - ./auth/database.dev.env
-  #   ports:
-  #     - 5050:80
-  #   networks:
-  #     - backend
-
   keycloak_auth:
     container_name: keycloak_auth
-    image: jboss/keycloak
+    image: "jboss/keycloak:latest"
     depends_on:
       - "postgres_auth"
-      # - "pgadmin_auth"
     env_file:
-      - ./auth/keycloak.dev.env
+      - ./.env
     ports:
       - 8180:8080
       - 8787:8787 # debug port
@@ -39,6 +28,7 @@ services:
       - backend
 
   database:
+    container_name: database
     image: "postgres:latest"
     ports:
       - 5433:5432
