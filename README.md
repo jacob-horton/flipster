@@ -32,6 +32,11 @@ This requires `sqlx-cli` to be installed (`cargo install sqlx-cli`)
 6. Click save, then put `http://localhost:5173` in `Valid redirect URIs` and `Web origins`
 7. To add Google login or similar, go to `Identity providers` and `Add provider`, then fill in the details
 
+## 5. Web/API
+
+Run the API by navigating to `./api` and running `cargo run`
+Run the web frontend by navigating to `./web` and running `npm run dev`
+
 # Directories
 
 ## API
@@ -44,7 +49,7 @@ This requires `sqlx-cli` to be installed (`cargo install sqlx-cli`)
 ## Web
 
 - The frontend of the website
-- Uses React, Vite and TypeScript
+- Uses React, NextJS and TypeScript
 - Tailwind CSS for styling
 
 ## Data (needs to be created)
