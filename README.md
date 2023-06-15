@@ -35,7 +35,7 @@ This requires `sqlx-cli` to be installed (`cargo install sqlx-cli`)
 ## 5. Web/API
 
 Run the API by navigating to `./api` and running `cargo run`
-Run the web frontend by navigating to `./web` and running `npm run dev`
+Run the web frontend by navigating to `./web` and running `yarn dev`
 
 # Directories
 
