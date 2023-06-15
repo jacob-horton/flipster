@@ -24,13 +24,14 @@ This requires `sqlx-cli` to be installed (`cargo install sqlx-cli`)
 
 ## 4. Keycloak
 
-1. Go to the the keycloak web interface (`http://<ip>:8180`)
-2. Login with the credentials in `keycloak.dev.env` and go to the administration console
-3. Create a new realm called `flipster` (lower case) by hovering over `Master` in the top left
-4. In `Realm Settings`, click on the `Login` tab, and choose desired settings (`User registration`, `Remember me`, `Require SSL: none`, etc.)
+1. Go to the the keycloak web interface (`http://<ip>:8180/admin`)
+2. Login with the credentials in `.env` and go to the administration console
+3. Create a new realm called `flipster` (lower case) by clicking on `Master` in the top left
+4. In `Realm Settings`, click on the `Login` tab, and choose desired settings (`User registration`, `Forgot password`, etc.)
 5. In `Clients`, click `Create` and name the client the same as in `.env` (`react-auth` by default)
-6. Click save, then put `http://localhost:5173` in `Valid redirect URIs` and `Web origins`
-7. To add Google login or similar, go to `Identity providers` and `Add provider`, then fill in the details
+6. Put `http://localhost:5173` in `Valid redirect URIs` and `Web origins`
+7. Go to `Credentials` and copy the client secret into `.env` where it says `<client_secret>`
+8. To add Google login or similar, go to `Identity providers` and `Add provider`, then fill in the details
 
 ## 5. Web/API
 

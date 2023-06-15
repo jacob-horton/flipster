@@ -23,7 +23,10 @@ export default function Index() {
         </button>
       )}
       {auth.isAuthenticated && (
-        <button onClick={() => auth.signoutSilent()}>
+        <button
+          className="bg-gray-300 rounded-lg px-4 py-1 border-opacity-50 border-gray-400 border"
+          onClick={() => auth.signoutSilent()}
+        >
           Logout ({auth.user?.profile.preferred_username})
         </button>
       )}

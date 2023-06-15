@@ -15,7 +15,8 @@ services:
 
   keycloak_auth:
     container_name: keycloak_auth
-    image: "jboss/keycloak:latest"
+    image: "quay.io/keycloak/keycloak:latest"
+    command: start-dev
     depends_on:
       - "postgres_auth"
     env_file:
