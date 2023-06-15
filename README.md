@@ -9,6 +9,7 @@ Flash card revision tool with latex support
 ## 1. Env
 
 Copy the `.env.example` file to `.env`. Make necessary changes
+
 Note: keycloak uses PostgreSQL, but this is separate from the other PostgreSQL container, so can (and should) have different credentials
 
 The default settings should work if everything runs on the same machine, but are not secure (i.e. credentials)
@@ -20,6 +21,7 @@ Run the containers with `docker-compose up -d`
 ## 3. Database
 
 Set up the database by first going into `api` (`cd api`), then running `sqlx migrate run`
+
 This requires `sqlx-cli` to be installed (`cargo install sqlx-cli`)
 
 ## 4. Keycloak
@@ -36,7 +38,8 @@ This requires `sqlx-cli` to be installed (`cargo install sqlx-cli`)
 ## 5. Web/API
 
 Run the API by navigating to `./api` and running `cargo run`
-Run the web frontend by navigating to `./web` and running `npm run dev`
+
+Run the web frontend by navigating to `./web` and running `yarn dev`
 
 # Directories
 
