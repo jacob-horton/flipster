@@ -39,9 +39,12 @@ pub struct JWKS {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
-    exp: usize,  // Expiry
-    iss: String, // Issuer
-    sub: String, // Subject (user ID)
+    exp: usize,                 // Expiry
+    iss: String,                // Issuer
+    sub: String,                // Subject (user ID)
+    given_name: String,         // First name
+    family_name: String,        // Last name
+    preferred_username: String, // Username
 }
 
 async fn fetch_jwks(uri: &str) -> Result<JWKS, Box<dyn Error>> {
@@ -51,7 +54,7 @@ async fn fetch_jwks(uri: &str) -> Result<JWKS, Box<dyn Error>> {
     Ok(val)
 }
 
-async fn get_sub(token: &str) -> Result<String, Box<dyn Error>> {
+async fn get_claims(token: &str) -> Result<Claims, Box<dyn Error>> {
     let jwks = fetch_jwks(&env::var("JWKS_URL").expect("No JWKS URL provided")).await?;
     let jwk = jwks
         .keys
@@ -67,7 +70,7 @@ async fn get_sub(token: &str) -> Result<String, Box<dyn Error>> {
         return Err(Box::new(InvalidIssuer));
     }
 
-    Ok(token.claims.sub)
+    Ok(token.claims)
 }
 
 pub async fn validator(
@@ -78,26 +81,51 @@ pub async fn validator(
     // Get token from creds
     let jwt = credentials.token();
 
-    match get_sub(jwt).await {
-        Ok(sub) => {
-            let user = sqlx::query!("SELECT id FROM app_user WHERE jwt_sub = $1", sub)
-                .fetch_one(db_pool.as_ref())
+    match get_claims(jwt).await {
+        Ok(claims) => {
+            let user = sqlx::query!("SELECT id FROM app_user WHERE jwt_sub = $1", claims.sub)
+                .fetch_optional(db_pool.as_ref())
                 .await
-                .ok();
+                .expect("Failed to search for user");
 
             let mut req = req; // Make mutable
             let headers = req.headers_mut();
             headers.insert(
                 HeaderName::from_lowercase(b"sub").unwrap(),
-                HeaderValue::from_str(&sub).unwrap(),
+                HeaderValue::from_str(&claims.sub).unwrap(),
             );
 
-            if let Some(user) = user {
-                headers.insert(
-                    HeaderName::from_lowercase(b"user_id").unwrap(),
-                    HeaderValue::from(user.id),
-                );
-            }
+            let user_id = match user {
+                Some(user) => user.id,
+                None => {
+                    let flashcards = sqlx::query!(
+                        "INSERT INTO folder (name) VALUES ($1) RETURNING id",
+                        format!("__{}_top_level", claims.preferred_username)
+                    )
+                    .fetch_one(db_pool.as_ref())
+                    .await
+                    .expect("Failed to create folder for new user");
+
+                    let user = sqlx::query!(
+                            "INSERT INTO app_user (first_name, last_name, username, flashcards, jwt_sub) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+                            claims.given_name,
+                            claims.family_name,
+                            claims.preferred_username,
+                            flashcards.id,
+                            claims.sub)
+                        .fetch_one(db_pool.as_ref())
+                        .await
+                        .expect("Failed to insert new user");
+
+                    user.id
+                }
+            };
+
+            headers.insert(
+                HeaderName::from_lowercase(b"user_id").unwrap(),
+                HeaderValue::from(user_id),
+            );
+
             Ok(req)
         }
         Err(_) => {
