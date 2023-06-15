@@ -64,7 +64,6 @@ async fn get_claims(token: &str) -> Result<Claims, Box<dyn Error>> {
         .unwrap();
 
     let decoding_key = DecodingKey::from_rsa_components(&jwk.n, &jwk.e)?;
-    println!("{token}");
     let token = decode::<Claims>(token, &decoding_key, &Validation::new(Algorithm::RS256))?;
 
     if token.claims.iss != env::var("NEXT_PUBLIC_AUTH_URL").expect("No auth server URL provided") {
