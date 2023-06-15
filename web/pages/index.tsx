@@ -1,7 +1,8 @@
+import React from "react";
 import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
-const App = () => {
+export default function Index() {
   const auth = useAuth();
 
   useEffect(() => {
@@ -11,10 +12,15 @@ const App = () => {
   }, [auth.isAuthenticated]);
 
   return (
-    <div>
+    <div className="p-2">
       <h1 className="text-center text-2xl p-10">Flipster</h1>
       {!auth.isAuthenticated && (
-        <button onClick={() => auth.signinRedirect()}>Login</button>
+        <button
+          className="bg-gray-300 rounded-lg px-4 py-1 border-opacity-50 border-gray-400 border"
+          onClick={() => auth.signinRedirect()}
+        >
+          Login
+        </button>
       )}
       {auth.isAuthenticated && (
         <button onClick={() => auth.signoutSilent()}>
@@ -23,6 +29,4 @@ const App = () => {
       )}
     </div>
   );
-};
-
-export default App;
+}

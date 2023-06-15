@@ -63,7 +63,7 @@ async fn get_sub(token: &str) -> Result<String, Box<dyn Error>> {
     let decoding_key = DecodingKey::from_rsa_components(&jwk.n, &jwk.e)?;
     let token = decode::<Claims>(token, &decoding_key, &Validation::new(Algorithm::RS256))?;
 
-    if token.claims.iss != env::var("VITE_AUTH_SERVER_URL").expect("No auth server URL provided") {
+    if token.claims.iss != env::var("NEXT_PUBLIC_AUTH_URL").expect("No auth server URL provided") {
         return Err(Box::new(InvalidIssuer));
     }
 
