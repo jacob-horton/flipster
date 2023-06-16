@@ -10,7 +10,7 @@ import { BiCopy } from "react-icons/bi";
 import { HiOutlineDocumentMagnifyingGlass } from "react-icons/hi2";
 import Button from "../src/components/Button";
 
-export default function Index() {
+const Index = () => {
   const auth = useAuth();
   const tiers = [
     { colour: "bg-red-400", numberFlashcards: 25 },
@@ -20,6 +20,7 @@ export default function Index() {
     { colour: "bg-green-300", numberFlashcards: 30 },
   ];
 
+  // TODO: refactor
   return (
     <div className="w-full h-full flex grow flex-col p-4 space-y-4">
       {auth.isAuthenticated ? (
@@ -105,4 +106,6 @@ export default function Index() {
       )}
     </div>
   );
-}
+};
+
+export default Index;

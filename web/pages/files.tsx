@@ -3,8 +3,16 @@ import PageSection from "../src/components/PageSection";
 import { FiFolder } from "react-icons/fi";
 import { FiFolderPlus } from "react-icons/fi";
 
-export default function Files() {
-  const fileList = ["Physics", "Poetry", "Music"];
+const Files = () => {
+  const fileList = [
+    "Physics",
+    "Poetry",
+    "Music",
+    "dkghfgkjdfglasldfdslfhsk",
+    "Computer Science",
+    "ksjdfh akjalfjhslgkjdslfkghlkdsf",
+    "ksjdfh akjalfjhs lgkjdslfkghlkdsf",
+  ];
 
   return (
     <PageSection
@@ -20,13 +28,10 @@ export default function Files() {
       }
     >
       <div className="flex">
-        <div className="flex-1 px-4">
+        <div className="flex-1">
           {fileList.map((filename, index) => (
             // TODO: Extract into component
-            <button
-              key={index}
-              className="p-4 text-gray-800 mb-4 w-32 align-top"
-            >
+            <button key={index} className="m-4 text-gray-800 w-24 align-top">
               <div className="flex justify-center">
                 <span className="text-lg">
                   <FiFolder
@@ -36,10 +41,12 @@ export default function Files() {
                   />
                 </span>
               </div>
-              <p className="truncate">{filename}</p>
+              <p className="line-clamp-2 overflow-hidden text-ellipsis">
+                {filename}
+              </p>
             </button>
           ))}
-          <button className="p-4 text-gray-400 mb-4 w-32">
+          <button className="p-4 text-gray-400 mb-4">
             <div className="flex justify-center">
               <span className="text-lg">
                 <FiFolderPlus size={80} strokeWidth={1} strokeDasharray={2} />{" "}
@@ -50,4 +57,6 @@ export default function Files() {
       </div>
     </PageSection>
   );
-}
+};
+
+export default Files;
