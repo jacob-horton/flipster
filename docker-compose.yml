@@ -4,8 +4,11 @@ services:
   postgres_auth:
     container_name: postgres_auth
     image: "postgres:latest"
-    env_file:
-      - ./.env
+    environment:
+      POSTGRES_USER: ${KC_DB_USER}
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
+      POSTGRES_DB: ${KC_DB_NAME}
+
     networks:
       - backend
     volumes:
@@ -16,7 +19,7 @@ services:
   keycloak_auth:
     container_name: keycloak_auth
     image: "quay.io/keycloak/keycloak:latest"
-    command: start-dev
+    command: start-dev --db postgres --db-url-host postgres_auth --db-username ${KC_DB_USER} --db-password ${KC_DB_PASSWORD}
     depends_on:
       - "postgres_auth"
     env_file:
