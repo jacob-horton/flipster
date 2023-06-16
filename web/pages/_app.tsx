@@ -4,7 +4,7 @@ import keycloak from "../src/keycloak";
 import { User } from "oidc-client-ts";
 import getPublicURL from "../src/getPublicURL";
 import "./globals.css";
-import Navbar from "../src/components/Navbar";
+import Navbar from "../src/components/navbar/Navbar";
 
 const App = ({ Component, pageProps }) => {
   return (
