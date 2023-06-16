@@ -7,7 +7,6 @@ import "./globals.css";
 import Navbar from "../src/components/Navbar"
 
 export default function App({ Component, pageProps }) {
-  console.log(keycloak);
   return (
     <React.StrictMode>
       <AuthProvider
@@ -33,8 +32,8 @@ export default function App({ Component, pageProps }) {
           }
         }}
       >
-        <div>
-            <Navbar></Navbar>
+        <div className="flex flex-col h-screen bg-gray-100">
+            <Navbar/>
             <Component {...pageProps} />
         </div>
       </AuthProvider>

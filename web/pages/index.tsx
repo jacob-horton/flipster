@@ -1,8 +1,16 @@
-import React from "react";
+"use client";
 import { useEffect } from "react";
-import { useAuth } from "react-oidc-context";
-import Profile from "../src/components/Profile"
+import { useRouter } from "next/navigation";
+import React from "react";
 
-export default function Index() {
-    return <div />;
-}
+const Index = () => {
+  const { push } = useRouter();
+
+  useEffect(() => {
+    push("/home");
+  }, []);
+
+  return <p></p>;
+};
+
+export default Index;
