@@ -29,12 +29,12 @@ export default function Index() {
           <div className="grid grid-cols-7 h-full w-full space-x-4">
             <PageSection
               className="col-span-3"
-              title="Jump back in..."
+              titleBar="Jump back in..."
             ></PageSection>
             <div className="grid grid-rows-2 col-span-4 space-y-4">
               <div className="grid grid-cols-2 span-4 space-x-4">
                 <PageSection
-                  title="Spaced Repetition"
+                  titleBar="Spaced Repetition"
                   icon={<FiRepeat size={18} className="text-gray-800" />}
                   bgIcon={<FiRepeat size={200} />}
                 >
@@ -75,7 +75,7 @@ export default function Index() {
                   </div>
                 </PageSection>
                 <PageSection
-                  title="Groups"
+                  titleBar="Groups"
                   icon={
                     <MdGroups
                       size={28}
@@ -86,7 +86,7 @@ export default function Index() {
                 ></PageSection>
               </div>
               <PageSection
-                title="Calendar"
+                titleBar="Calendar"
                 icon={
                   <BsCalendar2Week
                     size={28}
