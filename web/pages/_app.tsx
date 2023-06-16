@@ -6,7 +6,6 @@ import getPublicURL from "../src/getPublicURL";
 import "./globals.css";
 
 export default function App({ Component, pageProps }) {
-  console.log(keycloak);
   return (
     <React.StrictMode>
       <AuthProvider
@@ -32,7 +31,9 @@ export default function App({ Component, pageProps }) {
           }
         }}
       >
-        <Component {...pageProps} />
+        <div className="flex flex-col h-screen bg-gray-100">
+          <Component {...pageProps} />
+        </div>
       </AuthProvider>
     </React.StrictMode>
   );
