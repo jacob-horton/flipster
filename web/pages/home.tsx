@@ -21,90 +21,87 @@ export default function Index() {
 
   return (
     <div className="w-full h-full flex grow flex-col p-4 space-y-4">
-      <div className="flex flex-row justify-between items-center">
-        {auth.isAuthenticated && (
+      {auth.isAuthenticated ? (
+        <>
           <Header>
             Welcome back {auth.user?.profile.given_name ?? "Unknown"}!
           </Header>
-        )}
-        {auth.isAuthenticated ? (
-          <Button onClick={() => auth.signoutSilent()}>
-            Logout ({auth.user?.profile.preferred_username ?? "Unknown"})
-          </Button>
-        ) : (
-          <Button onClick={() => auth.signinRedirect()}>Login</Button>
-        )}
-      </div>
-      <div className="grid grid-cols-7 h-full w-full space-x-4">
-        <PageSection
-          className="col-span-3"
-          title="Jump back in..."
-        ></PageSection>
-        <div className="grid grid-rows-2 col-span-4 space-y-4">
-          <div className="grid grid-cols-2 span-4 space-x-4">
+          <div className="grid grid-cols-7 h-full w-full space-x-4">
             <PageSection
-              title="Spaced Repetition"
-              icon={<FiRepeat size={18} className="text-gray-800" />}
-              bgIcon={<FiRepeat size={200} />}
-            >
-              <div className="flex flex-col grow justify-between items-center">
-                <div className="w-full space-y-1">
-                  {tiers.map((tier, i) => {
-                    const priority = ((i + 1) * 751391) % 25;
-                    return (
-                      <div
-                        key={`tier-${i + 1}`}
-                        className="flex flex-row grow justify-between items-center"
-                      >
-                        <div className="flex flex-row items-center space-x-2">
-                          <div
-                            className={`aspect-square h-4 w-4 rounded-lg ${tier.colour}`}
-                          />
-                          <p>Tier {i + 1}</p>
-                        </div>
-                        <div className="flex flex-row space-x-2">
-                          <div className="flex flex-row items-center space-x-1">
-                            <BiCopy className="text-gray-800" />
-                            <p className={`aspect-square w-6`}>{priority}</p>
-                          </div>
-                          <button>
-                            <HiOutlineDocumentMagnifyingGlass
-                              size={20}
-                              className="text-gray-800"
-                            />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <Button>Review All</Button>
-              </div>
-            </PageSection>
-            <PageSection
-              title="Groups"
-              icon={
-                <MdGroups
-                  size={28}
-                  className="text-gray-800 space-x-4 space-y-4"
-                />
-              }
-              bgIcon={<MdGroups size={200} />}
+              className="col-span-3"
+              title="Jump back in..."
             ></PageSection>
+            <div className="grid grid-rows-2 col-span-4 space-y-4">
+              <div className="grid grid-cols-2 span-4 space-x-4">
+                <PageSection
+                  title="Spaced Repetition"
+                  icon={<FiRepeat size={18} className="text-gray-800" />}
+                  bgIcon={<FiRepeat size={200} />}
+                >
+                  <div className="flex flex-col grow justify-between items-center">
+                    <div className="w-full space-y-1">
+                      {tiers.map((tier, i) => {
+                        const priority = ((i + 1) * 751391) % 25;
+                        return (
+                          <div
+                            key={`tier-${i + 1}`}
+                            className="flex flex-row grow justify-between items-center"
+                          >
+                            <div className="flex flex-row items-center space-x-2">
+                              <div
+                                className={`aspect-square h-4 w-4 rounded-lg ${tier.colour}`}
+                              />
+                              <p>Tier {i + 1}</p>
+                            </div>
+                            <div className="flex flex-row space-x-2">
+                              <div className="flex flex-row items-center space-x-1">
+                                <BiCopy className="text-gray-800" />
+                                <p className={`aspect-square w-6`}>
+                                  {priority}
+                                </p>
+                              </div>
+                              <button>
+                                <HiOutlineDocumentMagnifyingGlass
+                                  size={20}
+                                  className="text-gray-800"
+                                />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <Button>Review All</Button>
+                  </div>
+                </PageSection>
+                <PageSection
+                  title="Groups"
+                  icon={
+                    <MdGroups
+                      size={28}
+                      className="text-gray-800 space-x-4 space-y-4"
+                    />
+                  }
+                  bgIcon={<MdGroups size={200} />}
+                ></PageSection>
+              </div>
+              <PageSection
+                title="Calendar"
+                icon={
+                  <BsCalendar2Week
+                    size={28}
+                    className="text-gray-800"
+                    strokeWidth={0.2}
+                  />
+                }
+                bgIcon={<BsCalendar2Week size={200} />}
+              ></PageSection>
+            </div>
           </div>
-          <PageSection
-            title="Calendar"
-            icon={
-              <BsCalendar2Week
-                size={28}
-                className="text-gray-800"
-                strokeWidth={0.2}
-              />
-            }
-            bgIcon={<BsCalendar2Week size={200} />}
-          ></PageSection>
-        </div>
-      </div>
+        </>
+      ) : (
+        <div className="text-center pt-10">Please login to view this page</div>
+      )}
     </div>
   );
 }
