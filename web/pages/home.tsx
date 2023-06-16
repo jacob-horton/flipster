@@ -12,7 +12,6 @@ import Calendar from "../src/components/routeHome/Calendar";
 const Index = () => {
   const auth = useAuth();
 
-  // TODO: refactor
   return (
     <ProtectedRoute>
       <div className="w-full h-full flex grow flex-col p-4 space-y-4">
