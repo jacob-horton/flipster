@@ -1,7 +1,11 @@
 import React from "react";
 import PageSection from "../src/components/PageSection";
+import { FiFolder } from "react-icons/fi";
+import { FiFolderPlus } from "react-icons/fi";
 
 export default function Files() {
+  const fileList = ["Physics", "Poetry", "Music"];
+
   return (
     <PageSection
       className="h-full p-4"
@@ -16,22 +20,29 @@ export default function Files() {
       }
     >
       <div className="flex">
-        <div className="flex-1 space-x-4 px-4">
-          <button className="p-4 bg-gray-800 text-white mb-4 rounded-lg">
+        <div className="flex-1 px-4">
+          {fileList.map((filename, index) => (
+            <button
+              key={index}
+              className="p-4 text-gray-800 mb-4 rounded-lg w-32"
+            >
+              <div className="flex justify-center">
+                <span className="text-lg">
+                  <FiFolder
+                    size={80}
+                    strokeWidth={1}
+                    className="text-violet-600"
+                  />
+                </span>
+              </div>
+              <p className="truncate">{filename}</p>
+            </button>
+          ))}
+          <button className="p-4 text-gray-800 mb-4 rounded-lg">
             <div className="flex">
-              <span className="text-lg">Folder Icon</span>
-            </div>
-            <div className="mt-auto">Physics</div>
-          </button>
-          <button className="p-4 bg-gray-800 text-white rounded-lg mb-4">
-            <div className="flex">
-              <span className="text-lg">Folder Icon</span>
-            </div>
-            <div className="mt-auto">Poetry</div>
-          </button>
-          <button className="p-4 bg-gray-800 text-white rounded-lg">
-            <div className="flex">
-              <span className="text-lg">Add Folder </span>
+              <span className="text-lg">
+                <FiFolderPlus size={80} strokeWidth={1} strokeDasharray={2} />{" "}
+              </span>
             </div>
           </button>
         </div>
