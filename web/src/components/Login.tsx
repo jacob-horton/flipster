@@ -11,7 +11,6 @@ const Login = () => {
         auth.isAuthenticated ? auth.signoutSilent() : auth.signinRedirect()
       }
     >
-      {/* TODO: profile icon */}
       <CgProfile />
       <p>
         {auth.isAuthenticated
