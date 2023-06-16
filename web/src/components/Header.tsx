@@ -1,5 +1,3 @@
-import { ReactNode } from "react";
-
 interface HeaderProps {
   children?: string | string[];
 }
