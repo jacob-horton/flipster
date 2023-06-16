@@ -1,10 +1,12 @@
 import Login from "./Login";
+import { IoRibbon } from "react-icons/io5";
 
 const Profile = () => {
   return (
     <div className="h-full flex space-x-4 items-center mr-4">
-      {/* TODO: achievement icon */}
-      <button className="w-6 h-6 bg-red-500" />
+      <button>
+        <IoRibbon />
+      </button>
       <Login />
     </div>
   );
