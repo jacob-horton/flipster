@@ -1,7 +1,6 @@
 import React from "react";
 import PageSection from "../src/components/PageSection";
-import { FiFolder } from "react-icons/fi";
-import { FiFolderPlus } from "react-icons/fi";
+import Folder from "../src/components/routeFiles/Folder";
 import ProtectedRoute from "../src/components/ProtectedRoute";
 
 const Files = () => {
@@ -32,29 +31,9 @@ const Files = () => {
         <div className="flex">
           <div className="flex-1">
             {fileList.map((filename, index) => (
-              // TODO: Extract into component
-              <button key={index} className="m-4 text-gray-800 w-24 align-top">
-                <div className="flex justify-center">
-                  <span className="text-lg">
-                    <FiFolder
-                      size={80}
-                      strokeWidth={1}
-                      className="text-violet-600"
-                    />
-                  </span>
-                </div>
-                <p className="line-clamp-2 overflow-hidden text-ellipsis">
-                  {filename}
-                </p>
-              </button>
+              <Folder name={filename} key={index} />
             ))}
-            <button className="p-4 text-gray-400 mb-4">
-              <div className="flex justify-center">
-                <span className="text-lg">
-                  <FiFolderPlus size={80} strokeWidth={1} strokeDasharray={2} />{" "}
-                </span>
-              </div>
-            </button>
+            <Folder add={true} />
           </div>
         </div>
       </PageSection>
