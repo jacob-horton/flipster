@@ -26,7 +26,7 @@ export default function Files() {
               key={index}
               className="p-4 text-gray-800 mb-4 rounded-lg overflow-ellipsis w-32"
             >
-              <div className="flex">
+              <div className="flex justify-center">
                 <span className="text-lg">
                   <FiFolder
                     size={80}
