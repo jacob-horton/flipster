@@ -12,7 +12,7 @@ export default function Files() {
       titleBar={
         <div className="flex flex-row justify-between p-4">
           <header className="text-2xl">Your Files</header>
-          <select className="px-4 bg-gray-800 text-white rounded-lg">
+          <select className="px-4 bg-gray-300 text-base rounded-lg">
             <option value="icon">Icon</option>
             <option value="list">List</option>
           </select>
@@ -22,9 +22,10 @@ export default function Files() {
       <div className="flex">
         <div className="flex-1 px-4">
           {fileList.map((filename, index) => (
+            // TODO: Extract into component
             <button
               key={index}
-              className="p-4 text-gray-800 mb-4 rounded-lg w-32"
+              className="p-4 text-gray-800 mb-4 w-32 align-top"
             >
               <div className="flex justify-center">
                 <span className="text-lg">
@@ -38,8 +39,8 @@ export default function Files() {
               <p className="truncate">{filename}</p>
             </button>
           ))}
-          <button className="p-4 text-gray-800 mb-4 rounded-lg">
-            <div className="flex">
+          <button className="p-4 text-gray-400 mb-4 w-32">
+            <div className="flex justify-center">
               <span className="text-lg">
                 <FiFolderPlus size={80} strokeWidth={1} strokeDasharray={2} />{" "}
               </span>
