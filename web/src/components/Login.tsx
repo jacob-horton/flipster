@@ -9,7 +9,7 @@ const Login = () => {
     >
         {/* TODO: profile icon */}
         <div className="w-6 h-6 bg-gray-500" />
-        {auth.isAuthenticated ? `${auth.user?.profile.preferred_username} (Logout)` : "Login"}
+        <p>{auth.isAuthenticated ? `${auth.user?.profile.preferred_username} (Logout)` : "Login"}</p>
     </button>
 }
 
