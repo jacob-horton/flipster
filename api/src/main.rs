@@ -1,13 +1,13 @@
 use std::{env, sync::Arc};
 
 use actix_cors::Cors;
-use actix_web::{get, http, web::Data, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{http, web::Data, App, HttpServer};
 use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::validator;
 use routes::{
     flashcard::add_flashcard,
+    folder::add_folder,
     user::{get_subfolders, get_top_level_folder},
-    folder::{add_folder}
 };
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
@@ -18,13 +18,6 @@ mod utils;
 #[derive(Clone, Debug)]
 pub struct AppState {
     db_pool: Arc<Pool<Postgres>>,
-}
-
-#[get("/test")]
-pub async fn test(data: Data<AppState>, req: HttpRequest) -> impl Responder {
-    println!("{:?}", req.headers().get("sub"));
-    println!("{:?}", req.headers().get("user_id"));
-    HttpResponse::Ok().body("Working!")
 }
 
 #[actix_web::main]
@@ -65,7 +58,6 @@ async fn main() -> std::io::Result<()> {
             .app_data(Data::new(state))
             .wrap(auth)
             .wrap(cors)
-            .service(test)
             .service(add_flashcard)
             .service(get_top_level_folder)
             .service(get_subfolders)

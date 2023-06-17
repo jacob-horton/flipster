@@ -4,9 +4,8 @@ use actix_web::{
     HttpRequest, HttpResponse, Responder,
 };
 use serde::{Deserialize, Serialize};
-use ts_rs::TS;
 
-use crate::{utils, AppState};
+use crate::{routes::folder::get_folder_owner, utils, AppState};
 
 #[get("/user/top_level_folder")]
 pub async fn get_top_level_folder(data: Data<AppState>, req: HttpRequest) -> impl Responder {
@@ -25,7 +24,6 @@ pub async fn get_top_level_folder(data: Data<AppState>, req: HttpRequest) -> imp
 pub struct SubFolderGet {
     folder_id: i32,
 }
-//TODO check user owns folder
 
 #[get("/user/sub_folders")]
 pub async fn get_subfolders(
@@ -34,6 +32,11 @@ pub async fn get_subfolders(
     info: web::Query<SubFolderGet>,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
+    let owner = get_folder_owner(info.folder_id, data.db_pool.as_ref()).await;
+
+    if Some(user_id) != owner {
+        return HttpResponse::Unauthorized().body("User does not own that folder");
+    }
 
     let folders = sqlx::query!(
         "SELECT name FROM folder WHERE parent_id = $1",
