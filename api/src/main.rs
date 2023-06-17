@@ -13,6 +13,7 @@ use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
 mod auth;
 mod routes;
+mod struct_annotations;
 mod utils;
 
 #[derive(Clone, Debug)]

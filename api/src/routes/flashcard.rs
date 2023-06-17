@@ -3,18 +3,15 @@ use actix_web::{
     web::{self, Data},
     HttpRequest, HttpResponse, Responder,
 };
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
 
-use crate::{routes::folder::get_folder_owner, AppState};
+use crate::{exportable, routes::folder::get_folder_owner, AppState};
 
-#[derive(Serialize, Deserialize, Debug, Clone, TS)]
-#[serde(rename_all = "camelCase")]
-#[ts(export, export_to = "../web/src/types/")]
-pub struct FlashcardInsert {
-    term: String,
-    definition: String,
-    folder_id: i32,
+exportable! {
+    pub struct FlashcardInsert {
+        term: String,
+        definition: String,
+        folder_id: i32,
+    }
 }
 
 #[post("/flashcard/add")]

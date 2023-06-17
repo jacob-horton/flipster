@@ -3,11 +3,9 @@ use actix_web::{
     web::{self, Data},
     HttpRequest, HttpResponse, Responder,
 };
-use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use ts_rs::TS;
 
-use crate::{utils, AppState};
+use crate::{exportable, utils, AppState};
 
 pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<i32> {
     let top_level_folder = sqlx::query!(
@@ -31,12 +29,11 @@ pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<i32> {
     )
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, TS)]
-#[serde(rename_all = "camelCase")]
-#[ts(export, export_to = "../web/src/types/")]
-pub struct SubFolderInsert {
-    name: String,
-    parent_folder_id: i32,
+exportable! {
+    pub struct SubFolderInsert {
+        name: String,
+        parent_folder_id: i32,
+    }
 }
 
 #[post("/folder/add")]
@@ -63,4 +60,3 @@ pub async fn add_folder(
 
     HttpResponse::Ok().body("Folder insert successful")
 }
-
