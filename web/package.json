@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev -p 5173",
+    "dev-with-api": "next dev -p 5173 & cd ../api ; cargo watch -x run ;",
     "build": "next build",
     "start": "next start -p 5173",
     "lint": "next lint",
