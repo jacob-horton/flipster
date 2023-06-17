@@ -23,7 +23,6 @@ pub async fn add_folder(
     payload: web::Json<SubFolderInsert>,
     req: HttpRequest,
 ) -> impl Responder {
-    println!("{payload:?}");
     let user_id: i32 = utils::get_user_id(&req).unwrap();
 
     sqlx::query!(
