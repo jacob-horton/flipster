@@ -7,11 +7,26 @@ import { HiOutlineDocumentMagnifyingGlass } from "react-icons/hi2";
 
 const SpacedRepetition = () => {
   const tiers = [
-    { colour: "bg-red-400", numberFlashcards: 25 },
-    { colour: "bg-orange-300", numberFlashcards: 15 },
-    { colour: "bg-yellow-300", numberFlashcards: 5 },
-    { colour: "bg-lime-300", numberFlashcards: 20 },
-    { colour: "bg-green-300", numberFlashcards: 30 },
+    {
+      colour: "bg-red-400",
+      numberFlashcards: 25,
+    },
+    {
+      colour: "bg-orange-300",
+      numberFlashcards: 15,
+    },
+    {
+      colour: "bg-yellow-300",
+      numberFlashcards: 5,
+    },
+    {
+      colour: "bg-lime-300",
+      numberFlashcards: 20,
+    },
+    {
+      colour: "bg-green-300",
+      numberFlashcards: 30,
+    },
   ];
 
   return (

@@ -4,7 +4,7 @@ use actix_web::{
     HttpRequest, HttpResponse, Responder,
 };
 
-use crate::{routes::folder::get_folder_owner, serializable, utils, AppState};
+use crate::{exportable, routes::folder::get_folder_owner, serializable, utils, AppState};
 
 #[get("/user/top_level_folder")]
 pub async fn get_top_level_folder(data: Data<AppState>, req: HttpRequest) -> impl Responder {
@@ -18,7 +18,7 @@ pub async fn get_top_level_folder(data: Data<AppState>, req: HttpRequest) -> imp
     HttpResponse::Ok().json(user.flashcards)
 }
 
-serializable! {
+exportable! {
     pub struct SubFolderGet {
         folder_id: i32,
     }

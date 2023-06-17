@@ -4,6 +4,7 @@ import Folder from "../src/components/routeFiles/Folder";
 import ProtectedRoute from "../src/components/ProtectedRoute";
 import Button from "../src/components/Button";
 import { FlashcardInsert } from "../src/types/FlashcardInsert";
+import { SubFolderGet } from "../src/types/SubFolderGet";
 import { useAuth } from "react-oidc-context";
 import { getRequest, postRequest } from "../src/apiRequest";
 import { insertFolder } from "../src/insertFolder";
@@ -35,12 +36,13 @@ const Files = () => {
           path: "/user/top_level_folder",
           id_token: token,
         });
-        const folderId = await resp.text();
+        const folderId = parseInt(await resp.text());
 
+        const params: SubFolderGet = { folderId };
         const files = await getRequest({
           path: "/user/sub_folders",
           id_token: token,
-          queryParams: [{ parameter: "folderId", val: folderId }],
+          queryParams: params,
         });
 
         setFileList(await files.json());
@@ -62,7 +64,7 @@ const Files = () => {
 
     // Get top level folder
     // TODO: Change to use current folder
-    let resp = await getRequest({
+    const resp = await getRequest({
       path: "/user/top_level_folder",
       id_token: token,
     });

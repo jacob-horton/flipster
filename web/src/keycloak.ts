@@ -6,7 +6,7 @@ const keycloak = {
   client_secret: process.env.NEXT_PUBLIC_AUTH_CLIENT_SECRET ?? "",
 
   redirect_uri: getPublicURL("/home"),
-  onSigninCallback: () => { },
+  onSigninCallback: () => {},
 };
 
 export default keycloak;
