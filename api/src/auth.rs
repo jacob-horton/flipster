@@ -26,15 +26,15 @@ impl fmt::Display for InvalidIssuer {
 }
 
 #[derive(Clone, Debug, Deserialize)]
-pub struct JWK {
+pub struct Jwk {
     alg: String,
     n: String,
     e: String,
 }
 
 #[derive(Clone, Debug, Deserialize)]
-pub struct JWKS {
-    keys: Vec<JWK>,
+pub struct Jwks {
+    keys: Vec<Jwk>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -47,21 +47,16 @@ struct Claims {
     preferred_username: String, // Username
 }
 
-async fn fetch_jwks(uri: &str) -> Result<JWKS, Box<dyn Error>> {
+async fn fetch_jwks(uri: &str) -> Result<Jwks, Box<dyn Error>> {
     let res = reqwest::get(uri).await?;
     let body = res.text().await?;
-    let val: JWKS = serde_json::from_str(&body)?;
+    let val: Jwks = serde_json::from_str(&body)?;
     Ok(val)
 }
 
 async fn get_claims(token: &str) -> Result<Claims, Box<dyn Error>> {
     let jwks = fetch_jwks(&env::var("JWKS_URL").expect("No JWKS URL provided")).await?;
-    let jwk = jwks
-        .keys
-        .iter()
-        .filter(|k| k.alg == "RS256")
-        .next()
-        .unwrap();
+    let jwk = jwks.keys.iter().find(|k| k.alg == "RS256").unwrap();
 
     let decoding_key = DecodingKey::from_rsa_components(&jwk.n, &jwk.e)?;
     let token = decode::<Claims>(token, &decoding_key, &Validation::new(Algorithm::RS256))?;
