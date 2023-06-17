@@ -1,53 +1,44 @@
 import React from "react";
 import PageSection from "../src/components/PageSection";
-import { FiFolder } from "react-icons/fi";
-import { FiFolderPlus } from "react-icons/fi";
+import Folder from "../src/components/routeFiles/Folder";
+import ProtectedRoute from "../src/components/ProtectedRoute";
 
-export default function Files() {
-  const fileList = ["Physics", "Poetry", "Music"];
+const Files = () => {
+  const fileList = [
+    "Physics",
+    "Poetry",
+    "Music",
+    "dkghfgkjdfglasldfdslfhsk",
+    "Computer Science",
+    "ksjdfh akjalfjhslgkjdslfkghlkdsf",
+    "ksjdfh akjalfjhs lgkjdslfkghlkdsf",
+  ];
 
   return (
-    <PageSection
-      className="h-full p-4"
-      titleBar={
-        <div className="flex flex-row justify-between p-4">
-          <header className="text-2xl">Your Files</header>
-          <select className="px-4 bg-gray-300 text-base rounded-lg">
-            <option value="icon">Icon</option>
-            <option value="list">List</option>
-          </select>
+    <ProtectedRoute>
+      <PageSection
+        className="h-full p-4"
+        titleBar={
+          <div className="flex flex-row justify-between p-4">
+            <header className="text-2xl">Your Files</header>
+            <select className="px-4 bg-gray-300 text-base rounded-lg">
+              <option value="icon">Icon</option>
+              <option value="list">List</option>
+            </select>
+          </div>
+        }
+      >
+        <div className="flex">
+          <div className="flex-1">
+            {fileList.map((filename, index) => (
+              <Folder name={filename} key={index} />
+            ))}
+            <Folder add={true} />
+          </div>
         </div>
-      }
-    >
-      <div className="flex">
-        <div className="flex-1 px-4">
-          {fileList.map((filename, index) => (
-            // TODO: Extract into component
-            <button
-              key={index}
-              className="p-4 text-gray-800 mb-4 w-32 align-top"
-            >
-              <div className="flex justify-center">
-                <span className="text-lg">
-                  <FiFolder
-                    size={80}
-                    strokeWidth={1}
-                    className="text-violet-600"
-                  />
-                </span>
-              </div>
-              <p className="truncate">{filename}</p>
-            </button>
-          ))}
-          <button className="p-4 text-gray-400 mb-4 w-32">
-            <div className="flex justify-center">
-              <span className="text-lg">
-                <FiFolderPlus size={80} strokeWidth={1} strokeDasharray={2} />{" "}
-              </span>
-            </div>
-          </button>
-        </div>
-      </div>
-    </PageSection>
+      </PageSection>
+    </ProtectedRoute>
   );
-}
+};
+
+export default Files;

@@ -4,9 +4,9 @@ import keycloak from "../src/keycloak";
 import { User } from "oidc-client-ts";
 import getPublicURL from "../src/getPublicURL";
 import "./globals.css";
-import Navbar from "../src/components/Navbar";
+import Navbar from "../src/components/navbar/Navbar";
 
-export default function App({ Component, pageProps }) {
+const App = ({ Component, pageProps }) => {
   return (
     <React.StrictMode>
       <AuthProvider
@@ -39,4 +39,6 @@ export default function App({ Component, pageProps }) {
       </AuthProvider>
     </React.StrictMode>
   );
-}
+};
+
+export default App;
