@@ -19,17 +19,24 @@ const Files = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // TODO: properly handle no token
+        const token = auth.user?.id_token;
+        if (token === undefined) {
+          return;
+        }
+
         const resp = await getRequest({
           path: "/user/top_level_folder",
-          id_token: auth.user?.id_token ?? "",
+          id_token: token,
         });
         const folderId = await resp.text();
 
         const files = await getRequest({
           path: "/user/sub_folders",
-          id_token: auth.user?.id_token ?? "",
+          id_token: token,
           queryParams: [{ parameter: "folderId", val: folderId }],
         });
+
         setFileList(await files.json());
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -39,14 +46,25 @@ const Files = () => {
     fetchData();
   }, []);
 
+  // TODO: instead of useEffect, do something like https://stackoverflow.com/questions/71124909/react-useeffect-dependencies-invalidation
   const handleAddFlashcard = async () => {
+    // TODO: properly handle no token
+    const token = auth.user?.id_token;
+    if (token === undefined) {
+      return;
+    }
+
     // Get top level folder
     // TODO: Change to use current folder
-    // TODO: Handle undefined token properly
     let resp = await getRequest({
       path: "/user/top_level_folder",
-      id_token: auth.user?.id_token ?? "",
+      id_token: token,
     });
+
+    // TODO: properly handle error
+    if (resp === undefined) {
+      return;
+    }
 
     const folderId = parseInt(await resp.text());
 
@@ -58,15 +76,12 @@ const Files = () => {
     };
 
     // POST the payload
-    // TODO: Handle undefined token properly
-    resp = await postRequest({
+    // TODO: properly handle error
+    await postRequest({
       path: "/flashcard/add",
-      id_token: auth.user?.id_token ?? "",
+      id_token: token,
       payload: JSON.stringify(payload),
     });
-
-    // Print out response (not necessary)
-    console.log(await resp.text());
   };
 
   return (
