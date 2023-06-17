@@ -1,4 +1,6 @@
-use actix_web::{get, web::Data, HttpRequest, HttpResponse, Responder};
+use actix_web::{get, web::{Data, self}, HttpRequest, HttpResponse, Responder};
+use serde::{Serialize, Deserialize};
+use ts_rs::TS;
 
 use crate::{utils, AppState};
 
@@ -12,4 +14,28 @@ pub async fn get_top_level_folder(data: Data<AppState>, req: HttpRequest) -> imp
         .unwrap();
 
     HttpResponse::Ok().json(user.flashcards)
+}
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SubFolderGet {
+    folder_id: i32,
+}
+//TODO check user owns folder
+
+#[get("/user/sub_folders")]
+pub async fn get_subfolders(data: Data<AppState>,
+     req: HttpRequest,
+     info: web::Query<SubFolderGet>,)
+      -> impl Responder {
+    let user_id: i32 = utils::get_user_id(&req).unwrap();
+
+    let folders = sqlx::query!("SELECT name FROM folder WHERE parent_id = $1", info.folder_id)
+    .fetch_all(data.db_pool.as_ref())
+    .await
+    .unwrap();
+
+    HttpResponse::Ok().json(folders.iter().map(|f| f.name.clone()).collect::<Vec<_>>())
+
 }

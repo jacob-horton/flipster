@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PageSection from "../src/components/PageSection";
 import Folder from "../src/components/routeFiles/Folder";
 import ProtectedRoute from "../src/components/ProtectedRoute";
@@ -8,21 +8,36 @@ import { useAuth } from "react-oidc-context";
 import { getRequest, postRequest } from "../src/apiRequest";
 
 const Files = () => {
-  const fileList = [
-    "Physics",
-    "Poetry",
-    "Music",
-    "dkghfgkjdfglasldfdslfhsk",
-    "Computer Science",
-    "ksjdfh akjalfjhslgkjdslfkghlkdsf",
-    "ksjdfh akjalfjhs lgkjdslfkghlkdsf",
-  ];
-
-  const [showPopup, setShowPopup] = useState(true);
+  const [showPopup, setShowPopup] = useState(false);
   const [term, setTerm] = useState("");
   const [definition, setDefinition] = useState("");
 
   const auth = useAuth();
+
+  const [fileList, setFileList] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const resp = await getRequest({
+          path: "/user/top_level_folder",
+          id_token: auth.user?.id_token ?? "",
+        });
+        const folderId = await resp.text();
+
+        const files = await getRequest({
+          path: "/user/sub_folders",
+          id_token: auth.user?.id_token ?? "",
+          queryParams: [{ parameter: "folderId", val: folderId }],
+        });
+        setFileList(await files.json());
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleAddFlashcard = async () => {
     // Get top level folder

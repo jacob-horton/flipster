@@ -4,7 +4,7 @@ use actix_cors::Cors;
 use actix_web::{get, http, web::Data, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::validator;
-use routes::{flashcard::add_flashcard, user::get_top_level_folder};
+use routes::{flashcard::add_flashcard, user::{get_top_level_folder, get_subfolders}};
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
 mod auth;
@@ -64,6 +64,7 @@ async fn main() -> std::io::Result<()> {
             .service(test)
             .service(add_flashcard)
             .service(get_top_level_folder)
+            .service(get_subfolders)
     })
     .bind(("0.0.0.0", 8080))?
     .run()
