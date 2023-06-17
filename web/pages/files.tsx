@@ -7,6 +7,7 @@ import { FlashcardInsert } from "../src/types/FlashcardInsert";
 import { useAuth } from "react-oidc-context";
 import { getRequest, postRequest } from "../src/apiRequest";
 import { insertFolder } from "../src/insertFolder";
+import Popup from "../src/components/Popup";
 
 const Files = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -91,18 +92,25 @@ const Files = () => {
 
   return (
     <ProtectedRoute>
-      <div
-        className={
-          (showPopup ? "" : "hidden") +
-          " fixed w-64 h-64 bg-red-500 z-20 left-0 top-0"
-        }
-      >
-        <p>Term</p>
-        <input onChange={(e) => setTerm(e.target.value)}></input>
-        <p>Definition</p>
-        <input onChange={(e) => setDefinition(e.target.value)}></input>
-        <Button onClick={handleAddFlashcard}>Add</Button>
-      </div>
+      <Popup show={showPopup} onCancel={() => setShowPopup(false)}>
+        <div className="space-y-2">
+          <div>
+            <p>Term</p>
+            <input
+              className="px-2 py-1 border-[1.5px] border-black border-opacity-10 rounded-lg"
+              onChange={(e) => setTerm(e.target.value)}
+            />
+          </div>
+          <div>
+            <p>Definition</p>
+            <input
+              className="px-2 py-1 border-[1.5px] border-black border-opacity-10 rounded-lg"
+              onChange={(e) => setDefinition(e.target.value)}
+            />
+          </div>
+          <Button onClick={handleAddFlashcard}>Add</Button>
+        </div>
+      </Popup>
       <PageSection
         className="h-full p-4"
         titleBar={
@@ -129,6 +137,7 @@ const Files = () => {
             />
           </div>
         </div>
+        <Button onClick={() => setShowPopup(true)}>Create flashcard!</Button>
       </PageSection>
     </ProtectedRoute>
   );
