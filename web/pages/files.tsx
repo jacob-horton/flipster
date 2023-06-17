@@ -6,6 +6,7 @@ import Button from "../src/components/Button";
 import { FlashcardInsert } from "../src/types/FlashcardInsert";
 import { useAuth } from "react-oidc-context";
 import { getRequest, postRequest } from "../src/apiRequest";
+import { insertFolder } from "../src/insertFiles";
 
 const Files = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -115,7 +116,7 @@ const Files = () => {
             {fileList.map((filename, index) => (
               <Folder name={filename} key={index} />
             ))}
-            <Folder add={true} />
+            <Folder add={true} onClick={() => insertFolder(auth)} />
           </div>
         </div>
       </PageSection>

@@ -29,9 +29,13 @@ export async function getRequest(data: GetRequestData) {
 }
 
 export async function postRequest(data: PostRequestData) {
+  console.log(data);
+  console.log(process.env.NEXT_PUBLIC_API_URL);
+  console.log(data.path);
   return await fetch(`${process.env.NEXT_PUBLIC_API_URL}${data.path}`, {
     method: "POST",
     headers: {
+      Accept: "application/json",
       Authorization: "Bearer " + data.id_token,
       "Content-Type": "application/json",
     },

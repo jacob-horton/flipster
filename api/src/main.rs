@@ -7,6 +7,7 @@ use auth::validator;
 use routes::{
     flashcard::add_flashcard,
     user::{get_subfolders, get_top_level_folder},
+    folder::{add_folder}
 };
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
@@ -68,6 +69,7 @@ async fn main() -> std::io::Result<()> {
             .service(add_flashcard)
             .service(get_top_level_folder)
             .service(get_subfolders)
+            .service(add_folder)
     })
     .bind(("0.0.0.0", 8080))?
     .run()
