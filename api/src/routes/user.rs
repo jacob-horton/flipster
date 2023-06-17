@@ -1,20 +1,47 @@
-// #[post("/user/add")]
-// pub async fn add_user(
-//     data: Data<AppState>,
-//     payload: web::Json<UserInsert>,
-// ) -> Result<HttpResponse, Error> {
-//     let mut transaction = data
-//         .db_pool
-//         .begin()
-//         .await
-//         .expect("Failed to create transaction when adding flashcard");
-//
-//     // Create top level folder for user
-//     let folder_id = sqlx::query!(
-//         "INSERT INTO folder (name) VALUES ($1) RETURNING id",
-//         format!("user_{}_top_level", payload.user_id)
-//     )
-//     .fetch_one(&mut transaction)
-//     .await
-//     .expect("Failed to add top level folder for user");
-// }
+use actix_web::{
+    get,
+    web::{self, Data},
+    HttpRequest, HttpResponse, Responder,
+};
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
+
+use crate::{utils, AppState};
+
+#[get("/user/top_level_folder")]
+pub async fn get_top_level_folder(data: Data<AppState>, req: HttpRequest) -> impl Responder {
+    let user_id = utils::get_user_id(&req).unwrap();
+
+    let user = sqlx::query!("SELECT flashcards FROM app_user WHERE id = $1", user_id)
+        .fetch_one(data.db_pool.as_ref())
+        .await
+        .unwrap();
+
+    HttpResponse::Ok().json(user.flashcards)
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SubFolderGet {
+    folder_id: i32,
+}
+//TODO check user owns folder
+
+#[get("/user/sub_folders")]
+pub async fn get_subfolders(
+    data: Data<AppState>,
+    req: HttpRequest,
+    info: web::Query<SubFolderGet>,
+) -> impl Responder {
+    let user_id: i32 = utils::get_user_id(&req).unwrap();
+
+    let folders = sqlx::query!(
+        "SELECT name FROM folder WHERE parent_id = $1",
+        info.folder_id
+    )
+    .fetch_all(data.db_pool.as_ref())
+    .await
+    .unwrap();
+
+    HttpResponse::Ok().json(folders.iter().map(|f| f.name.clone()).collect::<Vec<_>>())
+}
