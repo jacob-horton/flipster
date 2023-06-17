@@ -4,7 +4,10 @@ use actix_cors::Cors;
 use actix_web::{get, http, web::Data, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::validator;
-use routes::{flashcard::add_flashcard, user::{get_top_level_folder, get_subfolders}};
+use routes::{
+    flashcard::add_flashcard,
+    user::{get_subfolders, get_top_level_folder},
+};
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
 mod auth;

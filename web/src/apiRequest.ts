@@ -1,4 +1,3 @@
-// TODO: query params?
 interface PostRequestData {
   path: string;
   id_token: string;
