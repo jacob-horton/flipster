@@ -6,16 +6,20 @@ import Button from "../src/components/Button";
 import { FlashcardInsert } from "../src/types/FlashcardInsert";
 import { useAuth } from "react-oidc-context";
 import { getRequest, postRequest } from "../src/apiRequest";
-import { insertFolder } from "../src/insertFiles";
+import { insertFolder } from "../src/insertFolder";
 
 const Files = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [term, setTerm] = useState("");
   const [definition, setDefinition] = useState("");
+  const [update, setUpdate] = useState(false);
+  const [fileList, setFileList] = useState<string[]>([]);
 
   const auth = useAuth();
 
-  const [fileList, setFileList] = useState<string[]>([]);
+  const refresh = () => {
+    setUpdate((prev) => !prev);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,7 +49,7 @@ const Files = () => {
     };
 
     fetchData();
-  }, []);
+  }, [auth.user?.id_token, update]);
 
   // TODO: instead of useEffect, do something like https://stackoverflow.com/questions/71124909/react-useeffect-dependencies-invalidation
   const handleAddFlashcard = async () => {
@@ -116,7 +120,13 @@ const Files = () => {
             {fileList.map((filename, index) => (
               <Folder name={filename} key={index} />
             ))}
-            <Folder add={true} onClick={() => insertFolder(auth)} />
+            <Folder
+              add={true}
+              onClick={async () => {
+                await insertFolder(auth);
+                refresh();
+              }}
+            />
           </div>
         </div>
       </PageSection>
