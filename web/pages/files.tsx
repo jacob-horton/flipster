@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import PageSection from "../src/components/PageSection";
 import Folder from "../src/components/routeFiles/Folder";
 import ProtectedRoute from "../src/components/ProtectedRoute";
+import Button from "../src/components/Button";
+import { FlashcardInsert } from "../src/types/FlashcardInsert";
+import { useAuth } from "react-oidc-context";
+import { getRequest, postRequest } from "../src/apiRequest";
 
 const Files = () => {
   const fileList = [
@@ -14,8 +18,56 @@ const Files = () => {
     "ksjdfh akjalfjhs lgkjdslfkghlkdsf",
   ];
 
+  const [showPopup, setShowPopup] = useState(true);
+  const [term, setTerm] = useState("");
+  const [definition, setDefinition] = useState("");
+
+  const auth = useAuth();
+
+  const handleAddFlashcard = async () => {
+    // Get top level folder
+    // TODO: Change to use current folder
+    // TODO: Handle undefined token properly
+    let resp = await getRequest(
+      "/user/top_level_folder",
+      auth.user?.id_token ?? ""
+    );
+
+    const folderId = parseInt(await resp.text());
+
+    // Create payload with required data
+    const payload: FlashcardInsert = {
+      term,
+      definition,
+      folderId,
+    };
+
+    // POST the payload
+    // TODO: Handle undefined token properly
+    resp = await postRequest(
+      "/flashcard/add",
+      auth.user?.id_token ?? "",
+      JSON.stringify(payload)
+    );
+
+    // Print out response (not necessary)
+    console.log(await resp.text());
+  };
+
   return (
     <ProtectedRoute>
+      <div
+        className={
+          (showPopup ? "" : "hidden") +
+          " fixed w-64 h-64 bg-red-500 z-20 left-0 top-0"
+        }
+      >
+        <p>Term</p>
+        <input onChange={(e) => setTerm(e.target.value)}></input>
+        <p>Definition</p>
+        <input onChange={(e) => setDefinition(e.target.value)}></input>
+        <Button onClick={handleAddFlashcard}>Add</Button>
+      </div>
       <PageSection
         className="h-full p-4"
         titleBar={
