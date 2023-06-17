@@ -1,5 +1,5 @@
 import NavbarTab from "./NavbarTab";
-import Logo from "../Logo";
+import Logo from "./Logo";
 import Profile from "./Profile";
 import { useRouter } from "next/router";
 
