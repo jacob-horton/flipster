@@ -28,10 +28,10 @@ const Files = () => {
     // Get top level folder
     // TODO: Change to use current folder
     // TODO: Handle undefined token properly
-    let resp = await getRequest(
-      "/user/top_level_folder",
-      auth.user?.id_token ?? ""
-    );
+    let resp = await getRequest({
+      path: "/user/top_level_folder",
+      id_token: auth.user?.id_token ?? "",
+    });
 
     const folderId = parseInt(await resp.text());
 
@@ -44,11 +44,11 @@ const Files = () => {
 
     // POST the payload
     // TODO: Handle undefined token properly
-    resp = await postRequest(
-      "/flashcard/add",
-      auth.user?.id_token ?? "",
-      JSON.stringify(payload)
-    );
+    resp = await postRequest({
+      path: "/flashcard/add",
+      id_token: auth.user?.id_token ?? "",
+      payload: JSON.stringify(payload),
+    });
 
     // Print out response (not necessary)
     console.log(await resp.text());
