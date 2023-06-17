@@ -1,25 +1,28 @@
 // TODO: query params?
-export async function getRequest(path: string, id_token: string) {
-  return await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+interface RequestData {
+  path: string;
+  id_token: string;
+  payload?: string;
+}
+
+export async function getRequest(data: RequestData) {
+  return await fetch(`${process.env.NEXT_PUBLIC_API_URL}${data.path}`, {
     method: "GET",
     headers: {
-      Authorization: "Bearer " + id_token,
+      Authorization: "Bearer " + data.id_token,
       "Content-Type": "application/json",
     },
+    body: data.payload,
   });
 }
 
-export async function postRequest(
-  path: string,
-  id_token: string,
-  payload: string
-) {
-  return await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+export async function postRequest(data: RequestData) {
+  return await fetch(`${process.env.NEXT_PUBLIC_API_URL}${data.path}`, {
     method: "POST",
     headers: {
-      Authorization: "Bearer " + id_token,
+      Authorization: "Bearer " + data.id_token,
       "Content-Type": "application/json",
     },
-    body: payload,
+    body: data.payload,
   });
 }
