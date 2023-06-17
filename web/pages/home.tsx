@@ -9,7 +9,7 @@ import SpacedRepetition from "../src/components/routeHome/SpacedRepetition";
 import Groups from "../src/components/routeHome/Groups";
 import Calendar from "../src/components/routeHome/Calendar";
 
-const Index = () => {
+const Home = () => {
   const auth = useAuth();
 
   return (
@@ -33,4 +33,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Home;
