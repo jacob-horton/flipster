@@ -20,7 +20,7 @@ const Files = () => {
         className="h-full p-4"
         titleBar={
           <div className="flex flex-row justify-between p-4">
-            <header className="text-2xl">Your Files</header>
+            <h1 className="text-2xl">Your Files</h1>
             <select className="px-4 bg-gray-300 text-base rounded-lg">
               <option value="icon">Icon</option>
               <option value="list">List</option>
