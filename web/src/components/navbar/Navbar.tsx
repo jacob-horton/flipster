@@ -30,7 +30,7 @@ const Navbar = () => {
   const { asPath } = useRouter();
 
   return (
-    <div className="w-full flex flex-row items-center justify-between bg-white border-black border-[1.5px] border-opacity-10 rounded-b-lg">
+    <header className="w-full flex flex-row items-center justify-between bg-white border-black border-[1.5px] border-opacity-10 rounded-b-lg">
       <div className="flex flex-row space-x-4 p-2">
         <Logo />
         {tabs.map(({ icon, name }, i) => {
@@ -47,7 +47,7 @@ const Navbar = () => {
         })}
       </div>
       <Profile />
-    </div>
+    </header>
   );
 };
 
