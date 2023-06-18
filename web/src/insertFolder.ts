@@ -1,22 +1,10 @@
-import { AuthContextProps } from "react-oidc-context";
-import { getRequest, postRequest } from "./apiRequest";
+import { postRequest } from "./apiRequest";
 import { SubFolderInsert } from "./types/SubFolderInsert";
 
-export async function insertFolder(auth: AuthContextProps) {
-    const token = auth.user?.id_token;
-    // TODO: Handle no token properly
-    if (token === undefined) {
-        return;
-    }
-    const folderResp = await getRequest({
-        path: "/user/top_level_folder",
-        id_token: token,
-    });
-    const folderId = parseInt(await folderResp.text());
-
+export async function insertFolder(token: string, parentId: number) {
     const payload: SubFolderInsert = {
-        name: "NewFolder",
-        parentFolderId: folderId,
+        name: "Untitled",
+        parentFolderId: parentId,
     };
 
     const resp = await postRequest({

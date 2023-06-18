@@ -9,13 +9,25 @@ import { useAuth } from "react-oidc-context";
 import { getRequest, postRequest } from "@src/apiRequest";
 import { insertFolder } from "@src/insertFolder";
 import Popup from "@components/Popup";
+import { Folder as FolderType } from "@src/types/Folder";
+
+function currentFolderId(path: FolderType[]) {
+    if (path.length === 0) return undefined;
+    return path[path.length - 1].id;
+}
 
 const Files = () => {
+    // Popup state
     const [showPopup, setShowPopup] = useState(false);
     const [term, setTerm] = useState("");
     const [definition, setDefinition] = useState("");
+
+    // Refreshing UI
     const [update, setUpdate] = useState(false);
-    const [fileList, setFileList] = useState<string[]>([]);
+
+    // Current folders/path
+    const [currentFolders, setCurrentFolders] = useState<FolderType[]>([]);
+    const [currentPath, setCurrentPath] = useState<FolderType[]>([]);
 
     const auth = useAuth();
 
@@ -23,9 +35,15 @@ const Files = () => {
         setUpdate((prev) => !prev);
     };
 
+    // Load top level folder
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchTopLevelFolderId = async () => {
             try {
+                // Only put top level folder in path if its empty
+                if (currentPath.length !== 0) {
+                    return;
+                }
+
                 // TODO: properly handle no token
                 const token = auth.user?.id_token;
                 if (token === undefined) {
@@ -36,23 +54,49 @@ const Files = () => {
                     path: "/user/top_level_folder",
                     id_token: token,
                 });
+
                 const folderId = parseInt(await resp.text());
+                setCurrentPath([{ id: folderId, name: "Your Files" }]);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+
+        fetchTopLevelFolderId();
+    }, [auth.user?.id_token]);
+
+    // Load contents of current folder
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // TODO: properly handle no token
+                const token = auth.user?.id_token;
+                if (token === undefined) {
+                    return;
+                }
+
+                // Not yet loaded top level folder
+                const folderId = currentFolderId(currentPath);
+                if (folderId === undefined) {
+                    return;
+                }
 
                 const params: SubFolderGet = { folderId };
+
                 const files = await getRequest({
                     path: "/user/sub_folders",
                     id_token: token,
                     queryParams: params,
                 });
 
-                setFileList(await files.json());
+                setCurrentFolders(await files.json());
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         };
 
         fetchData();
-    }, [auth.user?.id_token, update]);
+    }, [auth.user?.id_token, currentPath, update]);
 
     // TODO: instead of useEffect, do something like https://stackoverflow.com/questions/71124909/react-useeffect-dependencies-invalidation
     const handleAddFlashcard = async () => {
@@ -62,22 +106,18 @@ const Files = () => {
             return;
         }
 
-        // Get top level folder
-        // TODO: Change to use current folder
-        const resp = await getRequest({
-            path: "/user/top_level_folder",
-            id_token: token,
-        });
-
-        // TODO: properly handle error
-        if (resp === undefined) {
+        // Not yet loaded top level folder - TODO: error?
+        const folderId = currentFolderId(currentPath);
+        if (folderId === undefined) {
             return;
         }
 
-        const folderId = parseInt(await resp.text());
-
         // Create payload with required data
-        const payload: FlashcardInsert = { term, definition, folderId };
+        const payload: FlashcardInsert = {
+            term,
+            definition,
+            folderId,
+        };
 
         // POST the payload
         // TODO: properly handle error
@@ -121,23 +161,58 @@ const Files = () => {
                     </div>
                 }
             >
-                <div className="flex">
+                <div className="flex flex-col">
+                    <div className="px-6 flex flex-row space-x-2 text-gray-600">
+                        {currentPath.map((f, i) => (
+                            <>
+                                <button
+                                    className="hover:text-gray-800"
+                                    onClick={() => {
+                                        setCurrentPath((path) =>
+                                            path.slice(0, i + 1)
+                                        );
+                                    }}
+                                >
+                                    {f.name}
+                                </button>
+                                {i !== currentPath.length - 1 && <p>{">"}</p>}
+                            </>
+                        ))}
+                    </div>
                     <div className="flex-1">
-                        {fileList.map((filename, index) => (
-                            <Folder name={filename} key={index} />
+                        {currentFolders.map((folder, index) => (
+                            <Folder
+                                name={folder.name}
+                                key={index}
+                                onClick={() => {
+                                    setCurrentPath((path) => [...path, folder]);
+                                }}
+                            />
                         ))}
                         <Folder
                             add={true}
                             onClick={async () => {
-                                await insertFolder(auth);
+                                // TODO: Handle no token properly
+                                const token = auth.user?.id_token;
+                                if (token === undefined) {
+                                    return;
+                                }
+
+                                // TODO: Handle no folder properly
+                                const folderId = currentFolderId(currentPath);
+                                if (folderId === undefined) {
+                                    return;
+                                }
+
+                                await insertFolder(token, folderId);
                                 refresh();
                             }}
                         />
                     </div>
+                    <Button onClick={() => setShowPopup(true)}>
+                        Create flashcard!
+                    </Button>
                 </div>
-                <Button onClick={() => setShowPopup(true)}>
-                    Create flashcard!
-                </Button>
             </PageSection>
         </ProtectedRoute>
     );
