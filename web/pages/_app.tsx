@@ -5,8 +5,14 @@ import "./globals.css";
 import Navbar from "@components/navbar/Navbar";
 
 const App = ({ Component, pageProps }) => {
+<<<<<<< qol-types
     return (
-        <AuthProvider {...keycloak}>
+        <AuthProvider
+            {...keycloak}
+            onSigninCallback={() => {
+                console.log("Signed in");
+            }}
+        >
             <div className="flex flex-col h-screen bg-gray-100">
                 <Navbar />
                 <Component {...pageProps} />
