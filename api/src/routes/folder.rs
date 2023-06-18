@@ -63,4 +63,3 @@ pub async fn add_folder(
 
     HttpResponse::Ok().body("Folder insert successful")
 }
-

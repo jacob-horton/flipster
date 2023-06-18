@@ -62,7 +62,7 @@ const Files = () => {
 
     // Get top level folder
     // TODO: Change to use current folder
-    let resp = await getRequest({
+    const resp = await getRequest({
       path: "/user/top_level_folder",
       id_token: token,
     });

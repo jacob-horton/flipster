@@ -7,7 +7,12 @@ import Navbar from "../src/components/navbar/Navbar";
 const App = ({ Component, pageProps }) => {
   return (
     <React.StrictMode>
-      <AuthProvider {...keycloak}>
+      <AuthProvider
+        {...keycloak}
+        onSigninCallback={() => {
+          console.log("Signed in");
+        }}
+      >
         <div className="flex flex-col h-screen bg-gray-100">
           <Navbar />
           <Component {...pageProps} />
