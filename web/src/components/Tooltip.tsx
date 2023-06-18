@@ -10,8 +10,6 @@ const Tooltip: React.FC<TooltipProps> = ({ children, tooltip }) => {
   const [showTooltip, setShowTooltip] = useState(true);
   const opacity = showTooltip ? "opacity-100 mt-2" : "opacity-0 mt-4";
 
-  // TODO: still interactable
-  console.log("i");
   return (
     <div className="relative">
       <div
