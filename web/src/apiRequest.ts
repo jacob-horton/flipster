@@ -19,8 +19,6 @@ export async function getRequest(data: GetRequestData) {
         }
     }
 
-    console.log(url);
-
     return await fetch(url, {
         method: "GET",
         headers: {

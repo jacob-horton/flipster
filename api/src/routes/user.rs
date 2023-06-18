@@ -4,7 +4,7 @@ use actix_web::{
     HttpRequest, HttpResponse, Responder,
 };
 
-use crate::{exportable, routes::folder::get_folder_owner, serializable, utils, AppState};
+use crate::{exportable, routes::folder::get_folder_owner, utils, AppState};
 
 #[get("/user/top_level_folder")]
 pub async fn get_top_level_folder(data: Data<AppState>, req: HttpRequest) -> impl Responder {
@@ -24,6 +24,13 @@ exportable! {
     }
 }
 
+exportable! {
+    pub struct Folder {
+        pub id: i32,
+        pub name: String,
+    }
+}
+
 #[get("/user/sub_folders")]
 pub async fn get_subfolders(
     data: Data<AppState>,
@@ -38,12 +45,20 @@ pub async fn get_subfolders(
     }
 
     let folders = sqlx::query!(
-        "SELECT name FROM folder WHERE parent_id = $1",
+        "SELECT id, name FROM folder WHERE parent_id = $1 ORDER BY name",
         info.folder_id
     )
     .fetch_all(data.db_pool.as_ref())
     .await
     .unwrap();
 
-    HttpResponse::Ok().json(folders.iter().map(|f| f.name.clone()).collect::<Vec<_>>())
+    HttpResponse::Ok().json(
+        folders
+            .into_iter()
+            .map(|f| Folder {
+                name: f.name,
+                id: f.id,
+            })
+            .collect::<Vec<_>>(),
+    )
 }
