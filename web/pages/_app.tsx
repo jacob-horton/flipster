@@ -5,7 +5,6 @@ import "./globals.css";
 import Navbar from "@components/navbar/Navbar";
 
 const App = ({ Component, pageProps }) => {
-<<<<<<< qol-types
     return (
         <AuthProvider
             {...keycloak}
