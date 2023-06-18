@@ -3,9 +3,8 @@ use actix_web::{
     web::{self, Data},
     HttpRequest, HttpResponse, Responder,
 };
-use serde::{Deserialize, Serialize};
 
-use crate::{routes::folder::get_folder_owner, utils, AppState};
+use crate::{exportable, routes::folder::get_folder_owner, serializable, utils, AppState};
 
 #[get("/user/top_level_folder")]
 pub async fn get_top_level_folder(data: Data<AppState>, req: HttpRequest) -> impl Responder {
@@ -19,10 +18,10 @@ pub async fn get_top_level_folder(data: Data<AppState>, req: HttpRequest) -> imp
     HttpResponse::Ok().json(user.flashcards)
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct SubFolderGet {
-    folder_id: i32,
+exportable! {
+    pub struct SubFolderGet {
+        folder_id: i32,
+    }
 }
 
 #[get("/user/sub_folders")]

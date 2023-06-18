@@ -4,13 +4,13 @@ import { useRouter } from "next/navigation";
 import React from "react";
 
 const Index = () => {
-  const { push } = useRouter();
+    const { push } = useRouter();
 
-  useEffect(() => {
-    push("/home");
-  }, []);
+    useEffect(() => {
+        push("/home");
+    }, []);
 
-  return <p></p>;
+    return <p></p>;
 };
 
 export default Index;
