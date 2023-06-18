@@ -77,11 +77,7 @@ const Files = () => {
         const folderId = parseInt(await resp.text());
 
         // Create payload with required data
-        const payload: FlashcardInsert = {
-            term,
-            definition,
-            folderId,
-        };
+        const payload: FlashcardInsert = { term, definition, folderId };
 
         // POST the payload
         // TODO: properly handle error
