@@ -24,7 +24,7 @@ pub struct AppState {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
-    let db_url = env::var(    "DATABASE_URL").unwrap();
+    let db_url = env::var("DATABASE_URL").unwrap();
     let db_pool = Arc::new(
         PgPoolOptions::new()
             .max_connections(5)
