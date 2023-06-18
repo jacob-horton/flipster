@@ -13,5 +13,5 @@ jobs:
     - uses: DerYeger/yarn-setup-action@v1.0.1
       with:
         node-version: 18
-    - run: yarn
-    - run: yarn lint
+    - run: cd web; yarn
+    - run: cd web; yarn lint
