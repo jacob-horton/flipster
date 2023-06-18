@@ -26,8 +26,8 @@ exportable! {
 
 exportable! {
     pub struct Folder {
-        id: i32,
-        name: String,
+        pub id: i32,
+        pub name: String,
     }
 }
 
@@ -45,7 +45,7 @@ pub async fn get_subfolders(
     }
 
     let folders = sqlx::query!(
-        "SELECT id, name FROM folder WHERE parent_id = $1",
+        "SELECT id, name FROM folder WHERE parent_id = $1 ORDER BY name",
         info.folder_id
     )
     .fetch_all(data.db_pool.as_ref())

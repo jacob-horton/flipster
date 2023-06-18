@@ -14,7 +14,11 @@ const NavbarTab: React.FC<NavbarTabProps> = ({
     path,
 }) => {
     return (
-        <Link href={path} className="flex flex-row items-center space-x-2">
+        <Link
+            key={path}
+            href={path}
+            className="flex flex-row items-center space-x-2"
+        >
             <div className={selected ? "text-orange-400" : undefined}>
                 {icon}
             </div>

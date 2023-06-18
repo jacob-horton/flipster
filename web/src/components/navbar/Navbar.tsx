@@ -27,20 +27,20 @@ const Navbar = () => {
             name: "Groups",
         },
     ];
-    const { asPath } = useRouter();
+    const { route } = useRouter();
 
     return (
         <header className="w-full flex flex-row items-center justify-between bg-white border-black border-[1.5px] border-opacity-10 rounded-b-lg">
             <div className="flex flex-row space-x-4 p-2">
                 <Logo />
-                {tabs.map(({ icon, name }, i) => {
+                {tabs.map(({ icon, name }) => {
                     const path = `/${name.toLowerCase()}`;
                     return (
                         <NavbarTab
-                            key={i}
+                            key={path}
                             name={name}
                             icon={icon}
-                            selected={asPath === path}
+                            selected={route === path}
                             path={path}
                         />
                     );

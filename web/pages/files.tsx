@@ -10,6 +10,7 @@ import { getRequest, postRequest } from "@src/apiRequest";
 import { insertFolder } from "@src/insertFolder";
 import Popup from "@components/Popup";
 import { Folder as FolderType } from "@src/types/Folder";
+import { SubFolderRename } from "@src/types/SubFolderRename";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
@@ -28,6 +29,9 @@ const Files = () => {
     // Current folders/path
     const [currentFolders, setCurrentFolders] = useState<FolderType[]>([]);
     const [currentPath, setCurrentPath] = useState<FolderType[]>([]);
+
+    // Folder name
+    const [editingFolder, setEditingFolder] = useState<number | undefined>();
 
     const auth = useAuth();
 
@@ -161,10 +165,10 @@ const Files = () => {
                     </div>
                 }
             >
-                <div className="flex flex-col">
+                <div className="flex flex-col grow">
                     <div className="px-6 flex flex-row space-x-2 text-gray-600">
                         {currentPath.map((f, i) => (
-                            <>
+                            <div key={f.id} className="flex space-x-2">
                                 <button
                                     className="hover:text-gray-800"
                                     onClick={() => {
@@ -176,16 +180,42 @@ const Files = () => {
                                     {f.name}
                                 </button>
                                 {i !== currentPath.length - 1 && <p>{">"}</p>}
-                            </>
+                            </div>
                         ))}
                     </div>
-                    <div className="flex-1">
-                        {currentFolders.map((folder, index) => (
+                    <div className="flex flex-wrap g-green-500">
+                        {currentFolders.map((folder) => (
                             <Folder
+                                key={folder.id}
+                                editingName={folder.id === editingFolder}
                                 name={folder.name}
-                                key={index}
+                                onDoubleClick={() => {
+                                    setEditingFolder(folder.id);
+                                    refresh();
+                                }}
                                 onClick={() => {
                                     setCurrentPath((path) => [...path, folder]);
+                                }}
+                                onEditingFinish={async (name) => {
+                                    setEditingFolder(undefined);
+
+                                    const token = auth.user?.id_token;
+                                    if (token === undefined) {
+                                        return;
+                                    }
+
+                                    const payload: SubFolderRename = {
+                                        newName: name,
+                                        folderId: folder.id,
+                                    };
+
+                                    await postRequest({
+                                        path: "/folder/rename",
+                                        id_token: token,
+                                        payload: JSON.stringify(payload),
+                                    });
+
+                                    refresh();
                                 }}
                             />
                         ))}
@@ -204,7 +234,8 @@ const Files = () => {
                                     return;
                                 }
 
-                                await insertFolder(token, folderId);
+                                const id = await insertFolder(token, folderId);
+                                setEditingFolder(id);
                                 refresh();
                             }}
                         />

@@ -12,4 +12,6 @@ export async function insertFolder(token: string, parentId: number) {
         id_token: token,
         payload: JSON.stringify(payload),
     });
+
+    return parseInt(await resp.text());
 }

@@ -6,7 +6,7 @@ use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::validator;
 use routes::{
     flashcard::add_flashcard,
-    folder::add_folder,
+    folder::{add_folder, rename_folder},
     user::{get_subfolders, get_top_level_folder},
 };
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
@@ -63,6 +63,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_top_level_folder)
             .service(get_subfolders)
             .service(add_folder)
+            .service(rename_folder)
     })
     .bind(("0.0.0.0", 8080))?
     .run()
