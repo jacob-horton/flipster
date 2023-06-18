@@ -1,9 +1,11 @@
 import PageSection from "../PageSection";
 import Button from "../Button";
 
+import { AiOutlineInfoCircle } from "react-icons/ai";
 import { FiRepeat } from "react-icons/fi";
 import { BiCopy } from "react-icons/bi";
 import { HiOutlineDocumentMagnifyingGlass } from "react-icons/hi2";
+import Tooltip from "@components/Tooltip";
 
 const SpacedRepetition = () => {
     const tiers = [
@@ -31,7 +33,15 @@ const SpacedRepetition = () => {
 
     return (
         <PageSection
-            titleBar="Spaced Repetition"
+            titleBar=<div className="flex flex-row items-center justify-between">
+                <p>Spaced Repetition</p>
+                <Tooltip
+                    tooltip="Focus on learning the flashcards you struggle with"
+                    mode="hover"
+                >
+                    <AiOutlineInfoCircle />
+                </Tooltip>
+            </div>
             icon={<FiRepeat size={18} className="text-gray-800" />}
             bgIcon={<FiRepeat size={200} />}
         >
