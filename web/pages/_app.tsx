@@ -1,8 +1,8 @@
 import React from "react";
 import { AuthProvider } from "react-oidc-context";
-import keycloak from "../src/keycloak";
+import keycloak from "@src/keycloak";
 import "./globals.css";
-import Navbar from "../src/components/navbar/Navbar";
+import Navbar from "@components/navbar/Navbar";
 
 const App = ({ Component, pageProps }) => {
   return (

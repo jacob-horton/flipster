@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import PageSection from "../src/components/PageSection";
-import Folder from "../src/components/routeFiles/Folder";
-import ProtectedRoute from "../src/components/ProtectedRoute";
-import Button from "../src/components/Button";
-import { FlashcardInsert } from "../src/types/FlashcardInsert";
-import { SubFolderGet } from "../src/types/SubFolderGet";
+import PageSection from "@components/PageSection";
+import Folder from "@components/routeFiles/Folder";
+import ProtectedRoute from "@components/ProtectedRoute";
+import Button from "@components/Button";
+import { FlashcardInsert } from "@type/FlashcardInsert";
+import { SubFolderGet } from "@type/SubFolderGet";
 import { useAuth } from "react-oidc-context";
-import { getRequest, postRequest } from "../src/apiRequest";
-import { insertFolder } from "../src/insertFolder";
-import Popup from "../src/components/Popup";
+import { getRequest, postRequest } from "@src/apiRequest";
+import { insertFolder } from "@src/insertFolder";
+import Popup from "@components/Popup";
 
 const Files = () => {
   const [showPopup, setShowPopup] = useState(false);

@@ -1,7 +1,3 @@
 import { config } from "dotenv";
 
-config({ path: "../.env" });
-
-module.exports = {
-  reactStrictMode: true,
-};
+config({ path: "../.env", reactStrictMode: true });

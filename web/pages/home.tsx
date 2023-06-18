@@ -1,13 +1,13 @@
 import React from "react";
 import { useAuth } from "react-oidc-context";
 
-import Header from "../src/components/Header";
-import ProtectedRoute from "../src/components/ProtectedRoute";
+import Header from "@components/Header";
+import ProtectedRoute from "@components/ProtectedRoute";
 
-import Recents from "../src/components/routeHome/Recents";
-import SpacedRepetition from "../src/components/routeHome/SpacedRepetition";
-import Groups from "../src/components/routeHome/Groups";
-import Calendar from "../src/components/routeHome/Calendar";
+import Recents from "@components/routeHome/Recents";
+import SpacedRepetition from "@components/routeHome/SpacedRepetition";
+import Groups from "@components/routeHome/Groups";
+import Calendar from "@components/routeHome/Calendar";
 
 const Home = () => {
   const auth = useAuth();

@@ -1,5 +1,17 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@src/*": [
+        "./src/*"
+      ],
+      "@type/*": [
+        "./src/types/*"
+      ]
+    },
     "target": "ESNext",
     "lib": [
       "DOM",
@@ -20,7 +32,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "allowJs": true,
+    "allowJs": false,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
     "esModuleInterop": true,
@@ -31,6 +43,9 @@
     ]
   },
   "include": [
+    ".",
+    "./src/types/*",
+    "./src/components/*",
     "src",
     ".next/types/**/*.ts"
   ],
