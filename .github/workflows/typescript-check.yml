@@ -1,0 +1,17 @@
+name: Typescript Check
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: DerYeger/yarn-setup-action@v1.0.1
+      with:
+        node-version: 18
+    - run: yarn
+    - run: yarn lint
