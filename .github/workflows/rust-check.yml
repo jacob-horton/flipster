@@ -14,11 +14,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    # TODO: Cargo clippy once there is public database
+    # TODO: Cargo clippy and test and build once there is public database
     #       - Will need to configure .env file
     steps:
     - uses: actions/checkout@v3
     - name: Check Formatting
       run: cd api; cargo fmt --check
-    - name: Run Tests
-      run: cd api; cargo test --verbose
