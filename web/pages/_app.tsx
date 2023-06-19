@@ -12,7 +12,7 @@ const App = ({ Component, pageProps }) => {
                 console.log("Signed in");
             }}
         >
-            <div className="flex flex-col h-screen bg-gray-100">
+            <div className="flex flex-col h-screen">
                 <Navbar />
                 <Component {...pageProps} />
             </div>

@@ -1,6 +1,7 @@
 import NavbarTab from "./NavbarTab";
 import Logo from "./Logo";
 import Profile from "./Profile";
+import { BORDER } from "@components/PageSection";
 import { useRouter } from "next/router";
 
 import { HiOutlineHome } from "react-icons/hi";
@@ -30,7 +31,12 @@ const Navbar = () => {
     const { route } = useRouter();
 
     return (
-        <header className="w-full flex flex-row items-center justify-between bg-white border-black border-[1.5px] border-opacity-10 rounded-b-lg">
+        <header
+            className={
+                "w-full flex flex-row items-center justify-between bg-white rounded-b-lg " +
+                BORDER
+            }
+        >
             <div className="flex flex-row space-x-4 p-2">
                 <Logo />
                 {tabs.map(({ icon, name }) => {
