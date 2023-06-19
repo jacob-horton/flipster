@@ -7,7 +7,7 @@ interface TooltipProps {
 }
 
 const Tooltip: React.FC<TooltipProps> = ({ children, tooltip }) => {
-  const [showTooltip, setShowTooltip] = useState(true);
+  const [showTooltip, setShowTooltip] = useState(false);
   const opacity = showTooltip ? "opacity-100 mt-2" : "opacity-0 mt-4";
 
   return (
