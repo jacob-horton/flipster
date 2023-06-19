@@ -99,7 +99,7 @@ const Files = () => {
         };
 
         fetchTopLevelFolderId();
-    }, [auth.user?.id_token]);
+    }, [auth.user?.id_token, currentPath.length]);
 
     // TODO: instead of useEffect, do something like https://stackoverflow.com/questions/71124909/react-useeffect-dependencies-invalidation
     const handleAddFlashcard = async () => {
