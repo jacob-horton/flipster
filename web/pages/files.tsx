@@ -12,6 +12,7 @@ import Popup from "@components/Popup";
 import { Folder as FolderType } from "@src/types/Folder";
 import { SubFolderRename } from "@src/types/SubFolderRename";
 import { useQuery } from "@tanstack/react-query";
+import { IoIosColorPalette } from "react-icons/io";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
@@ -127,25 +128,79 @@ const Files = () => {
         });
     };
 
+    const handleOnAddFlashcardClick = () => {
+        handleAddFlashcard();
+        setShowPopup(false);
+    };
+
     return (
         <ProtectedRoute>
             <Popup show={showPopup} onCancel={() => setShowPopup(false)}>
                 <div className="space-y-2">
+                    <h1 className="text-2xl">Create Flashcard</h1>
                     <div>
-                        <p>Term</p>
-                        <input
-                            className="px-2 py-1 border-[1.5px] border-black border-opacity-10 rounded-lg"
+                        <p className="text-lg">Term</p>
+                        <textarea
+                            className="px-2 pt-1 pb-2 border-[1.5px] border-black border-opacity-10 rounded-lg w-full"
                             onChange={(e) => setTerm(e.target.value)}
                         />
                     </div>
                     <div>
-                        <p>Definition</p>
-                        <input
-                            className="px-2 py-1 border-[1.5px] border-black border-opacity-10 rounded-lg"
+                        <p className="text-lg">Definition</p>
+                        <textarea
+                            className="px-2 pt-1 pb-20 border-[1.5px] border-black border-opacity-10 rounded-lg w-full"
                             onChange={(e) => setDefinition(e.target.value)}
                         />
                     </div>
-                    <Button onClick={handleAddFlashcard}>Add</Button>
+                    <div className="grid grid-cols-3 gap-1">
+                        <div>
+                            <h1 className="text-lg">Review Methods</h1>
+
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    className="form-checkbox"
+                                />
+                                <label className="text-gray-700">Flip</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    className="form-checkbox"
+                                />
+                                <label className="text-gray-700">Match</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    className="form-checkbox"
+                                />
+                                <label className="text-gray-700">Learn</label>
+                            </div>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-center text-lg">Colour</h1>
+                            <div>
+                                <button>
+                                    <IoIosColorPalette
+                                        size={50}
+                                        strokeWidth={1}
+                                    />
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <h1 className="flex justify-center text-lg">
+                                Similar Cards
+                            </h1>
+                        </div>
+                    </div>
+                    <Button
+                        onClick={handleOnAddFlashcardClick}
+                        className="flex justify-center"
+                    >
+                        + Create
+                    </Button>
                 </div>
             </Popup>
             <PageSection
