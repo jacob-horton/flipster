@@ -12,6 +12,7 @@ import Popup from "@components/Popup";
 import { Folder as FolderType } from "@src/types/Folder";
 import { SubFolderRename } from "@src/types/SubFolderRename";
 import { useQuery } from "@tanstack/react-query";
+import ListView from "@components/routeFiles/listView";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
@@ -95,7 +96,7 @@ const Files = () => {
         };
 
         fetchTopLevelFolderId();
-    }, [auth.user?.id_token, currentPath.length]);
+    }, [auth.user, currentPath.length]);
 
     // TODO: instead of useEffect, do something like https://stackoverflow.com/questions/71124909/react-useeffect-dependencies-invalidation
     const handleAddFlashcard = async () => {
@@ -160,40 +161,73 @@ const Files = () => {
                     </div>
                 }
             >
-                <div className="flex flex-col grow">
-                    <div className="px-6 flex flex-row space-x-2 text-gray-600">
-                        {currentPath.map((f, i) => (
-                            <div key={f.id} className="flex space-x-2">
-                                <button
-                                    className="hover:text-gray-800"
-                                    onClick={() => {
-                                        setCurrentPath((path) =>
-                                            path.slice(0, i + 1)
-                                        );
+                {false && (
+                    <div className="flex flex-col grow">
+                        <div className="px-6 flex flex-row space-x-2 text-gray-600">
+                            {currentPath.map((f, i) => (
+                                <div key={f.id} className="flex space-x-2">
+                                    <button
+                                        className="hover:text-gray-800"
+                                        onClick={() => {
+                                            setCurrentPath((path) =>
+                                                path.slice(0, i + 1)
+                                            );
+                                        }}
+                                    >
+                                        {f.name}
+                                    </button>
+                                    {i !== currentPath.length - 1 && (
+                                        <p>{">"}</p>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex flex-wrap g-green-500">
+                            {(currentFolders ?? []).map((folder) => (
+                                <Folder
+                                    key={folder.id}
+                                    editingName={folder.id === editingFolder}
+                                    name={folder.name}
+                                    onDoubleClick={() => {
+                                        setEditingFolder(folder.id);
+                                        refetch();
                                     }}
-                                >
-                                    {f.name}
-                                </button>
-                                {i !== currentPath.length - 1 && <p>{">"}</p>}
-                            </div>
-                        ))}
-                    </div>
-                    <div className="flex flex-wrap g-green-500">
-                        {(currentFolders ?? []).map((folder) => (
-                            <Folder
-                                key={folder.id}
-                                editingName={folder.id === editingFolder}
-                                name={folder.name}
-                                onDoubleClick={() => {
-                                    setEditingFolder(folder.id);
-                                    refetch();
-                                }}
-                                onClick={() => {
-                                    setCurrentPath((path) => [...path, folder]);
-                                }}
-                                onEditingFinish={async (name) => {
-                                    setEditingFolder(undefined);
+                                    onClick={() => {
+                                        setCurrentPath((path) => [
+                                            ...path,
+                                            folder,
+                                        ]);
+                                    }}
+                                    onEditingFinish={async (name) => {
+                                        setEditingFolder(undefined);
 
+                                        const token = auth.user?.id_token;
+                                        if (
+                                            token === undefined ||
+                                            auth.user?.expired
+                                        ) {
+                                            return;
+                                        }
+
+                                        const payload: SubFolderRename = {
+                                            newName: name,
+                                            folderId: folder.id,
+                                        };
+
+                                        await postRequest({
+                                            path: "/folder/rename",
+                                            id_token: token,
+                                            payload: JSON.stringify(payload),
+                                        });
+
+                                        refetch();
+                                    }}
+                                />
+                            ))}
+                            <Folder
+                                add={true}
+                                onClick={async () => {
+                                    // TODO: Handle no token properly
                                     const token = auth.user?.id_token;
                                     if (
                                         token === undefined ||
@@ -202,46 +236,28 @@ const Files = () => {
                                         return;
                                     }
 
-                                    const payload: SubFolderRename = {
-                                        newName: name,
-                                        folderId: folder.id,
-                                    };
+                                    // TODO: Handle no folder properly
+                                    const folderId =
+                                        currentFolderId(currentPath);
+                                    if (folderId === undefined) {
+                                        return;
+                                    }
 
-                                    await postRequest({
-                                        path: "/folder/rename",
-                                        id_token: token,
-                                        payload: JSON.stringify(payload),
-                                    });
-
+                                    const id = await insertFolder(
+                                        token,
+                                        folderId
+                                    );
+                                    setEditingFolder(id);
                                     refetch();
                                 }}
                             />
-                        ))}
-                        <Folder
-                            add={true}
-                            onClick={async () => {
-                                // TODO: Handle no token properly
-                                const token = auth.user?.id_token;
-                                if (token === undefined || auth.user?.expired) {
-                                    return;
-                                }
-
-                                // TODO: Handle no folder properly
-                                const folderId = currentFolderId(currentPath);
-                                if (folderId === undefined) {
-                                    return;
-                                }
-
-                                const id = await insertFolder(token, folderId);
-                                setEditingFolder(id);
-                                refetch();
-                            }}
-                        />
+                        </div>
+                        <Button onClick={() => setShowPopup(true)}>
+                            Create flashcard!
+                        </Button>
                     </div>
-                    <Button onClick={() => setShowPopup(true)}>
-                        Create flashcard!
-                    </Button>
-                </div>
+                )}
+                {true && <ListView />}
             </PageSection>
         </ProtectedRoute>
     );
