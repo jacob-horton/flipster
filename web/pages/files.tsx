@@ -31,6 +31,9 @@ const Files = () => {
     const auth = useAuth();
 
     // Current folders
+    // NOTE: `isLoading` doesn't work when `initialData` is set
+    //       This is fine as `initialData` is not required if you know when its loading
+    // TODO: Some sort of loading animation? May be too fast
     const {
         isLoading,
         error,
