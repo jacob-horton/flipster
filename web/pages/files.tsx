@@ -41,7 +41,7 @@ const Files = () => {
             try {
                 // TODO: properly handle no token
                 const token = auth.user?.id_token;
-                if (token === undefined) {
+                if (token === undefined || auth.user?.expired) {
                     return currentFolders;
                 }
 
@@ -78,7 +78,7 @@ const Files = () => {
 
                 // TODO: properly handle no token
                 const token = auth.user?.id_token;
-                if (token === undefined) {
+                if (token === undefined || auth.user?.expired) {
                     return;
                 }
 
@@ -101,7 +101,7 @@ const Files = () => {
     const handleAddFlashcard = async () => {
         // TODO: properly handle no token
         const token = auth.user?.id_token;
-        if (token === undefined) {
+        if (token === undefined || auth.user?.expired) {
             return;
         }
 
@@ -195,7 +195,10 @@ const Files = () => {
                                     setEditingFolder(undefined);
 
                                     const token = auth.user?.id_token;
-                                    if (token === undefined) {
+                                    if (
+                                        token === undefined ||
+                                        auth.user?.expired
+                                    ) {
                                         return;
                                     }
 
@@ -219,7 +222,7 @@ const Files = () => {
                             onClick={async () => {
                                 // TODO: Handle no token properly
                                 const token = auth.user?.id_token;
-                                if (token === undefined) {
+                                if (token === undefined || auth.user?.expired) {
                                     return;
                                 }
 
