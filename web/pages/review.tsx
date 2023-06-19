@@ -49,11 +49,10 @@ const flashcards: FlashcardType[] = [
 const Review = () => {
     return (
         <ProtectedRoute>
-            <div className="flex flex-row p-4 space-x-4">
-                <PageSection
-                    titleBar={<h1>Review</h1>}
-                    className="w-full"
-                ></PageSection>
+            <div className="h-full max-h-full flex flex-row p-4 space-x-4 overflow-scroll">
+                <PageSection titleBar={<h1>Review</h1>} className="w-full">
+                    Hello
+                </PageSection>
                 <PageSection
                     titleBar={<h1>Flashcards</h1>}
                     className="w-full h-full max-h-full"

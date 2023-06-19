@@ -16,7 +16,7 @@ const RoundedSection: React.FC<RoundedSectionProps> = ({
         <div
             className={
                 (className ?? "") +
-                " bg-gray-50 p-4 h-1/8 my-2 mx-1" +
+                " bg-gray-50 p-4 my-1 mx-1" +
                 BORDER +
                 (side === "left" ? "rounded-l-lg" : "") +
                 (side === "right" ? "rounded-r-lg" : "")
@@ -34,9 +34,11 @@ type FlashcardProps = {
 const FlashcardUI: React.FC<FlashcardProps> = ({ flashcard }) => {
     return (
         <div className="flex flex-row w-full">
-            <RoundedSection side="left">{flashcard.flashcardId}</RoundedSection>
-            <RoundedSection className="w-full">{flashcard.term}</RoundedSection>
-            <RoundedSection side="right" className="w-full">
+            <RoundedSection side="left">
+                <div className="w-3">{flashcard.flashcardId}</div>
+            </RoundedSection>
+            <RoundedSection className="grow">{flashcard.term}</RoundedSection>
+            <RoundedSection side="right" className="grow">
                 {flashcard.definition}
             </RoundedSection>
         </div>
