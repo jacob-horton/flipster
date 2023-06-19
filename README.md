@@ -56,8 +56,3 @@ Run the web frontend by navigating to `./web` and running `yarn dev`
 - The frontend of the website
 - Uses React, NextJS and TypeScript
 - Tailwind CSS for styling
-
-## Data (needs to be created)
-
-- Where data for the auth database and api database is stored
-- Uses PostgreSQL in a Docker container for both
