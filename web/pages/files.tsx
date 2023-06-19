@@ -34,15 +34,10 @@ const Files = () => {
     // NOTE: `isLoading` doesn't work when `initialData` is set
     //       This is fine as `initialData` is not required if you know when its loading
     // TODO: Some sort of loading animation? May be too fast
-    const {
-        isLoading,
-        error,
-        data: currentFolders,
-        refetch,
-    } = useQuery({
+    const { data: currentFolders, refetch } = useQuery({
         queryKey: [auth.user?.id_token, currentPath],
         initialData: [],
-        queryFn: async () => {
+        queryFn: async (): Promise<FolderType[]> => {
             try {
                 // TODO: properly handle no token
                 const token = auth.user?.id_token;
@@ -67,6 +62,7 @@ const Files = () => {
                 return (await subFolders.json()) as FolderType[];
             } catch (error) {
                 console.error("Error fetching data:", error);
+                return currentFolders;
             }
         },
     });
