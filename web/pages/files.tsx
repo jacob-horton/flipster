@@ -11,6 +11,7 @@ import { insertFolder } from "@src/insertFolder";
 import Popup from "@components/Popup";
 import { Folder as FolderType } from "@src/types/Folder";
 import { SubFolderRename } from "@src/types/SubFolderRename";
+import { useQuery } from "@tanstack/react-query";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
@@ -19,25 +20,52 @@ function currentFolderId(path: FolderType[]) {
 
 const Files = () => {
     // Popup state
+    // TODO: Make into form?
     const [showPopup, setShowPopup] = useState(false);
     const [term, setTerm] = useState("");
     const [definition, setDefinition] = useState("");
 
-    // Refreshing UI
-    const [update, setUpdate] = useState(false);
-
-    // Current folders/path
-    const [currentFolders, setCurrentFolders] = useState<FolderType[]>([]);
     const [currentPath, setCurrentPath] = useState<FolderType[]>([]);
-
-    // Folder name
     const [editingFolder, setEditingFolder] = useState<number | undefined>();
 
     const auth = useAuth();
 
-    const refresh = () => {
-        setUpdate((prev) => !prev);
-    };
+    // Current folders
+    // NOTE: `isLoading` doesn't work when `initialData` is set
+    //       This is fine as `initialData` is not required if you know when its loading
+    // TODO: Some sort of loading animation? May be too fast
+    const { data: currentFolders, refetch } = useQuery({
+        queryKey: [auth.user?.id_token, currentPath],
+        initialData: [],
+        queryFn: async (): Promise<FolderType[]> => {
+            try {
+                // TODO: properly handle no token
+                const token = auth.user?.id_token;
+                if (token === undefined) {
+                    return currentFolders;
+                }
+
+                // Not yet loaded top level folder
+                const folderId = currentFolderId(currentPath);
+                if (folderId === undefined) {
+                    return currentFolders;
+                }
+
+                const params: SubFolderGet = { folderId };
+
+                const subFolders = await getRequest({
+                    path: "/user/sub_folders",
+                    id_token: token,
+                    queryParams: params,
+                });
+
+                return (await subFolders.json()) as FolderType[];
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                return currentFolders;
+            }
+        },
+    });
 
     // Load top level folder
     useEffect(() => {
@@ -67,40 +95,7 @@ const Files = () => {
         };
 
         fetchTopLevelFolderId();
-    }, [auth.user?.id_token]);
-
-    // Load contents of current folder
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // TODO: properly handle no token
-                const token = auth.user?.id_token;
-                if (token === undefined) {
-                    return;
-                }
-
-                // Not yet loaded top level folder
-                const folderId = currentFolderId(currentPath);
-                if (folderId === undefined) {
-                    return;
-                }
-
-                const params: SubFolderGet = { folderId };
-
-                const files = await getRequest({
-                    path: "/user/sub_folders",
-                    id_token: token,
-                    queryParams: params,
-                });
-
-                setCurrentFolders(await files.json());
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
-
-        fetchData();
-    }, [auth.user?.id_token, currentPath, update]);
+    }, [auth.user?.id_token, currentPath.length]);
 
     // TODO: instead of useEffect, do something like https://stackoverflow.com/questions/71124909/react-useeffect-dependencies-invalidation
     const handleAddFlashcard = async () => {
@@ -184,14 +179,14 @@ const Files = () => {
                         ))}
                     </div>
                     <div className="flex flex-wrap g-green-500">
-                        {currentFolders.map((folder) => (
+                        {(currentFolders ?? []).map((folder) => (
                             <Folder
                                 key={folder.id}
                                 editingName={folder.id === editingFolder}
                                 name={folder.name}
                                 onDoubleClick={() => {
                                     setEditingFolder(folder.id);
-                                    refresh();
+                                    refetch();
                                 }}
                                 onClick={() => {
                                     setCurrentPath((path) => [...path, folder]);
@@ -215,7 +210,7 @@ const Files = () => {
                                         payload: JSON.stringify(payload),
                                     });
 
-                                    refresh();
+                                    refetch();
                                 }}
                             />
                         ))}
@@ -236,7 +231,7 @@ const Files = () => {
 
                                 const id = await insertFolder(token, folderId);
                                 setEditingFolder(id);
-                                refresh();
+                                refetch();
                             }}
                         />
                     </div>

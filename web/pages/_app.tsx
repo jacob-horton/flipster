@@ -3,7 +3,9 @@ import { AuthProvider } from "react-oidc-context";
 import keycloak from "@src/keycloak";
 import "./globals.css";
 import Navbar from "@components/navbar/Navbar";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+const queryClient = new QueryClient();
 const App = ({ Component, pageProps }) => {
     return (
         <AuthProvider
@@ -12,10 +14,12 @@ const App = ({ Component, pageProps }) => {
                 console.log("Signed in");
             }}
         >
-            <div className="flex flex-col h-screen bg-gray-100">
-                <Navbar />
-                <Component {...pageProps} />
-            </div>
+            <QueryClientProvider client={queryClient}>
+                <div className="flex flex-col h-screen bg-gray-100">
+                    <Navbar />
+                    <Component {...pageProps} />
+                </div>
+            </QueryClientProvider>
         </AuthProvider>
     );
 };
