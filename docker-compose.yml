@@ -16,6 +16,7 @@ services:
     ports:
       - 5432:5432
 
+  # TODO: Proper start in prod: maybe dev profile? or get command from .env
   keycloak_auth:
     container_name: keycloak_auth
     image: "quay.io/keycloak/keycloak:latest"
@@ -43,6 +44,31 @@ services:
 
     volumes:
       - db:/var/lib/postgresql/data/
+
+  api:
+    image: api
+    build:
+      context: ./api
+      args:
+        DATABASE_URL: ${DATABASE_URL}
+    env_file: ./.env.prod
+    profiles: ["prod"]
+    ports:
+      - 8080:8080
+
+  web:
+    image: web
+    build:
+      context: ./web
+      args:
+        NEXT_PUBLIC_CLIENT_ID: ${NEXT_PUBLIC_CLIENT_ID}
+        NEXT_PUBLIC_CLIENT_SECRET: ${NEXT_PUBLIC_CLIENT_SECRET}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+    env_file: ./.env.prod
+    profiles: ["prod"]
+    ports:
+      - 5173:5173
 
 networks:
   backend:
