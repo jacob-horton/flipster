@@ -1,5 +1,4 @@
 import { FlashcardType } from "@src/types/Flashcard";
-import { BORDER } from "@components/PageSection";
 import { useState } from "react";
 import { BsCheck } from "react-icons/bs";
 import { IconContext } from "react-icons";
@@ -18,9 +17,8 @@ const RoundedSection: React.FC<RoundedSectionProps> = ({
     return (
         <div
             className={
-                (className ?? "") +
-                " bg-gray-50 p-3 my-1 mx-1" +
-                BORDER +
+                className +
+                " bg-gray-50 p-3 my-1 mx-1 yourmum " +
                 (side === "left" ? "rounded-l-lg" : "") +
                 (side === "right" ? "rounded-r-lg" : "")
             }
@@ -35,8 +33,7 @@ const SelectedButton = () => {
     return (
         <button
             className={
-                " self-center rounded-full " +
-                BORDER +
+                " self-center rounded-full yourmum " +
                 (selected ? "bg-orange-400" : "bg-orange-200")
             }
             onClick={() => {

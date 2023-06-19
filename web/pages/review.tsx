@@ -49,17 +49,14 @@ const flashcards: FlashcardType[] = [
 const Review = () => {
     return (
         <ProtectedRoute>
-            <div className="h-full max-h-full flex flex-row p-4 space-x-4 overflow-scroll">
+            <div className="h-full flex p-4 space-x-4">
                 <PageSection titleBar={<h1>Review</h1>} className="w-full">
                     Hello
                 </PageSection>
-                <PageSection
-                    titleBar={<h1>Flashcards</h1>}
-                    className="w-full h-full max-h-full"
-                >
-                    <div className="w-full flex flex-col">
+                <PageSection titleBar={<h1>Flashcards</h1>} className="w-full">
+                    <div className="flex-grow">
                         {flashcards.map((f) => (
-                            <FlashcardUI flashcard={f} />
+                            <FlashcardUI key={f.flashcardId} flashcard={f} />
                         ))}
                     </div>
                 </PageSection>

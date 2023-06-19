@@ -1,7 +1,6 @@
 import NavbarTab from "./NavbarTab";
 import Logo from "./Logo";
 import Profile from "./Profile";
-import { BORDER } from "@components/PageSection";
 import { useRouter } from "next/router";
 
 import { HiOutlineHome } from "react-icons/hi";
@@ -33,8 +32,7 @@ const Navbar = () => {
     return (
         <header
             className={
-                "w-full flex flex-row items-center justify-between bg-white rounded-b-lg " +
-                BORDER
+                "w-full flex flex-row items-center justify-between bg-white rounded-b-lg yourmum "
             }
         >
             <div className="flex flex-row space-x-4 p-2">
