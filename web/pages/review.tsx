@@ -6,8 +6,9 @@ import { FlashcardType } from "@src/types/Flashcard";
 const flashcards: FlashcardType[] = [
     {
         flashcardId: 0,
-        term: "Hello, ",
-        definition: "world!",
+        term: "Lorem ipsum crimble crumble that's just how the cookie crumbles ",
+        definition:
+            "world! I'm going to talk about my feelings for a few minutes. Lately everything has",
     },
     {
         flashcardId: 1,
@@ -54,9 +55,13 @@ const Review = () => {
                     Hello
                 </PageSection>
                 <PageSection titleBar={<h1>Flashcards</h1>} className="w-full">
-                    <div className="flex-grow">
+                    <div className="flex-grow space-y-2">
                         {flashcards.map((f) => (
-                            <FlashcardUI key={f.flashcardId} flashcard={f} />
+                            <FlashcardUI
+                                key={f.flashcardId}
+                                flashcard={f}
+                                mode="select"
+                            />
                         ))}
                     </div>
                 </PageSection>

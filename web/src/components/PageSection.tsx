@@ -19,7 +19,7 @@ const PageSection: React.FC<PageSectionProps> = ({
         <div className={className}>
             <div
                 className={
-                    "overflow-auto h-full relative flex flex-col grow bg-white rounded-lg py-2 px-3 space-y-2 yourmum "
+                    "overflow-auto h-full relative flex flex-col grow bg-white rounded-lg py-2 px-3 space-y-2 light-border "
                 }
             >
                 <div className="flex flex-row items-center space-x-2">

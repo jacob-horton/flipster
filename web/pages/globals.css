@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.yourmum {
+.light-border {
     @apply border-[1.5px] border-black border-opacity-10;
 }

@@ -32,7 +32,7 @@ const Navbar = () => {
     return (
         <header
             className={
-                "w-full flex flex-row items-center justify-between bg-white rounded-b-lg yourmum "
+                "w-full flex flex-row items-center justify-between bg-white rounded-b-lg light-border "
             }
         >
             <div className="flex flex-row space-x-4 p-2">
