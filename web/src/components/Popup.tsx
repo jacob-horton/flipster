@@ -32,7 +32,7 @@ const Popup: React.FC<PopupProps> = ({ children, show, onCancel }) => {
                     {children}
                 </div>
             </div>
-            <div className="opacity-25 fixed inset-0 z-50 bg-black"></div>
+            <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
         </div>
     ) : null;
 };
