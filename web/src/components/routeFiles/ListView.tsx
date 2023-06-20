@@ -1,8 +1,7 @@
 import { getRequest } from "@src/apiRequest";
 import { Folder } from "@src/types/Folder";
 import { SubFolderGet } from "@src/types/SubFolderGet";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "react-oidc-context";
 
 import { AiOutlineFolder, AiOutlineFolderOpen } from "react-icons/ai";
@@ -63,9 +62,8 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({ node: initialNode }) => {
                     {expanded ? <AiOutlineFolderOpen /> : <AiOutlineFolder />}
                 </div>
                 <p
-                    className={`${
-                        selected ? "bg-purple-200" : "hover:bg-gray-200"
-                    } px-2 py-1 rounded-lg`}
+                    className={`${selected ? "bg-purple-200" : "hover:bg-gray-200"
+                        } px-2 py-1 rounded-lg`}
                 >
                     {node.name}
                 </p>
@@ -76,7 +74,7 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({ node: initialNode }) => {
                 ) : (
                     <div className="flex flex-col">
                         {node.children.map((n) => (
-                            <ListViewNode node={n} />
+                            <ListViewNode key={n.id} node={n} />
                         ))}
                     </div>
                 )}
@@ -100,20 +98,19 @@ const ListView: React.FC<ListViewProps> = ({ onPathChange }) => {
 
     const auth = useAuth();
 
-    // TOOD: useEffect instead
-    const { data: topLevelFolder } = useQuery({
-        queryKey: [auth.user],
-        queryFn: async (): Promise<number> => {
-            // TODO: properly handle no token
-            const token = auth.user?.id_token;
-            if (token === undefined || auth.user?.expired) {
-                throw "Failed to authenticate";
-            }
+    useEffect(() => {
+        // TODO: properly handle no token
+        const token = auth.user?.id_token;
+        if (token === undefined || auth.user?.expired) {
+            return;
+        }
 
-            if (folders !== undefined) {
-                throw "Already got folders";
-            }
+        // Already got folders
+        if (folders !== undefined) {
+            return;
+        }
 
+        const fetchData = async () => {
             const resp = await getRequest({
                 path: "/user/top_level_folder",
                 id_token: token,
@@ -121,9 +118,10 @@ const ListView: React.FC<ListViewProps> = ({ onPathChange }) => {
 
             const id = parseInt(await resp.text());
             setFolders({ children: [], name: "Your Files", id });
-            return id;
-        },
-    });
+        };
+
+        fetchData();
+    }, [auth.user, folders]);
 
     if (folders === undefined) {
         return <p>Loading</p>;
