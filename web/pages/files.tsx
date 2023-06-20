@@ -128,11 +128,16 @@ const Files = () => {
         });
     };
 
-    const handleOnAddFlashcardClick = () => {
-        handleAddFlashcard();
-        setShowPopup(false);
+    const CheckboxItem = ({ label = "" }) => {
+        return (
+            <div className="flex items-center space-x-2">
+                <input type="checkbox" className="form-checkbox" />
+                <label className="text-gray-700">{label}</label>
+            </div>
+        );
     };
-
+    const methods: string[] = ["Flip", "Match", "Learn"];
+    //TODO don't allow creation of card if term or definition empty
     return (
         <ProtectedRoute>
             <Popup show={showPopup} onCancel={() => setShowPopup(false)}>
@@ -155,28 +160,9 @@ const Files = () => {
                     <div className="grid grid-cols-3 gap-1">
                         <div>
                             <h1 className="text-lg">Review Methods</h1>
-
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    className="form-checkbox"
-                                />
-                                <label className="text-gray-700">Flip</label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    className="form-checkbox"
-                                />
-                                <label className="text-gray-700">Match</label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    className="form-checkbox"
-                                />
-                                <label className="text-gray-700">Learn</label>
-                            </div>
+                            {methods.map((method, index) => (
+                                <CheckboxItem key={index} label={method} />
+                            ))}
                         </div>
                         <div className="flex flex-col items-center">
                             <h1 className="text-center text-lg">Colour</h1>
@@ -196,7 +182,10 @@ const Files = () => {
                         </div>
                     </div>
                     <Button
-                        onClick={handleOnAddFlashcardClick}
+                        onClick={() => {
+                            handleAddFlashcard();
+                            setShowPopup(false);
+                        }}
                         className="flex justify-center"
                     >
                         + Create
