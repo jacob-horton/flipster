@@ -5,10 +5,10 @@ import { useAuth } from "react-oidc-context";
 import ListViewNode, { NodeData } from "./ListViewNode";
 
 interface ListViewProps {
-    onPathChange?: (newPath: Folder[]) => void;
+    currentPath: Folder[];
 }
 
-const ListView: React.FC<ListViewProps> = ({ onPathChange }) => {
+const ListView: React.FC<ListViewProps> = ({ currentPath }) => {
     const [folders, setFolders] = useState<NodeData | undefined>(undefined);
     const auth = useAuth();
 
@@ -40,7 +40,9 @@ const ListView: React.FC<ListViewProps> = ({ onPathChange }) => {
     if (folders === undefined) {
         return <p>Loading</p>;
     } else {
-        return <ListViewNode node={folders} />;
+        return (
+            <ListViewNode node={folders} path={currentPath} expanded={true} />
+        );
     }
 };
 

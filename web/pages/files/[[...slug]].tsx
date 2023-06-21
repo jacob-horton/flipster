@@ -78,7 +78,7 @@ const Files = () => {
             >
                 <div className="space-y-6">
                     {view === "icon" && <IconView currentPath={currentPath} />}
-                    {view === "list" && <ListView />}
+                    {view === "list" && <ListView currentPath={currentPath} />}
                     <AddFlashcardButtonPopup
                         currentFolderId={currentFolderId(currentPath)}
                     />
