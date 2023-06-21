@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { MouseEventHandler, useState } from "react";
 import { FiFolder } from "react-icons/fi";
 import { FiFolderPlus } from "react-icons/fi";
@@ -9,6 +10,7 @@ interface FolderProps {
     editingName?: boolean;
     onEditingFinish?: (name: string) => void;
     onDoubleClick?: () => void;
+    path?: string;
 }
 
 const Folder: React.FC<FolderProps> = ({
@@ -16,6 +18,7 @@ const Folder: React.FC<FolderProps> = ({
     editingName,
     name: initialName,
     onClick,
+    path,
     onEditingFinish,
     onDoubleClick,
 }) => {
@@ -25,22 +28,27 @@ const Folder: React.FC<FolderProps> = ({
         <div className="flex flex-col text-gray-800 w-24 m-2">
             <div className="flex justify-center">
                 <span className="text-lg">
-                    <button onClick={onClick}>
-                        {add ?? false ? (
+                    {add ?? false ? (
+                        <button onClick={onClick}>
                             <FiFolderPlus
                                 size={80}
                                 strokeWidth={1}
                                 strokeDasharray={2}
                                 className="text-gray-400"
                             />
-                        ) : (
+                        </button>
+                    ) : (
+                        <Link
+                            className="hover:text-gray-800"
+                            href={`/files/${path}`}
+                        >
                             <FiFolder
                                 size={80}
                                 strokeWidth={1}
                                 className="text-violet-600"
                             />
-                        )}
-                    </button>
+                        </Link>
+                    )}
                 </span>
             </div>
             {editingName ? (

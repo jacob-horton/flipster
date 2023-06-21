@@ -69,8 +69,9 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({ node: initialNode }) => {
                     {expanded ? <AiOutlineFolderOpen /> : <AiOutlineFolder />}
                 </div>
                 <p
-                    className={`${selected ? "bg-purple-200" : "hover:bg-gray-200"
-                        } px-2 py-1 rounded-lg`}
+                    className={`${
+                        selected ? "bg-purple-200" : "hover:bg-gray-200"
+                    } px-2 py-1 rounded-lg`}
                 >
                     {node.name}
                 </p>

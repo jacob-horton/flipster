@@ -12,6 +12,7 @@ import {
     queryOrDefault,
     queryOrDefaultWithDependency,
 } from "@src/apiRequest";
+import Link from "next/link";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
@@ -19,20 +20,13 @@ function currentFolderId(path: FolderType[]) {
 }
 
 interface IconViewProps {
-    onPathChange?: (newPath: FolderType[]) => void;
+    // onPathChange?: (newPath: FolderType[]) => void;
+    currentPath: FolderType[];
 }
 
-const IconView: React.FC<IconViewProps> = ({ onPathChange }) => {
+const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
     const auth = useAuth();
-
-    const [currentPath, setCurrentPath] = useState<FolderType[]>([]);
     const [editingFolder, setEditingFolder] = useState<number | undefined>();
-
-    useEffect(() => {
-        if (onPathChange) {
-            onPathChange(currentPath);
-        }
-    }, [currentPath, onPathChange]);
 
     // Current folders
     // NOTE: `isLoading` doesn't work when `initialData` is set
@@ -62,60 +56,12 @@ const IconView: React.FC<IconViewProps> = ({ onPathChange }) => {
                     currentFolders,
                     folderId
                 );
-
-                // const token = auth.user?.id_token;
-                // if (token === undefined) {
-                //     return currentFolders;
-                // }
-                //
-                // const folderId = currentFolderId(currentPath);
-                // if (folderId === undefined) {
-                //     return currentFolders;
-                // }
-                //
-                //
-                // const params: SubFolderGet = { folderId };
-                //
-                // const subFolders = await getRequest({
-                //     path: "/user/sub_folders",
-                //     id_token: token,
-                //     queryParams: params,
-                // });
-                //
-                // return (await subFolders.json()) as FolderType[];
             } catch (error) {
                 console.error("Error fetching data:", error);
                 return currentFolders;
             }
         },
     });
-
-    // Load top level folder
-    useEffect(() => {
-        const fetchTopLevelFolderId = async () => {
-            try {
-                // Only put top level folder in path if its empty
-                if (currentPath.length !== 0) return;
-
-                queryOrDefault(
-                    async (token) => {
-                        const resp = await getRequest({
-                            path: "/user/top_level_folder",
-                            id_token: token,
-                        });
-                        const folderId = parseInt(await resp.text());
-                        setCurrentPath([{ id: folderId, name: "Your Files" }]);
-                    },
-                    auth,
-                    undefined
-                );
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
-
-        fetchTopLevelFolderId();
-    }, [auth, currentPath.length]);
 
     const handleRenameFolder = async (name: string, id: number) => {
         setEditingFolder(undefined);
@@ -163,14 +109,17 @@ const IconView: React.FC<IconViewProps> = ({ onPathChange }) => {
             <div className="px-6 flex flex-row space-x-2 text-gray-600">
                 {currentPath.map((f, i) => (
                     <div key={f.id} className="flex space-x-2">
-                        <button
+                        <Link
                             className="hover:text-gray-800"
-                            onClick={() => {
-                                setCurrentPath((path) => path.slice(0, i + 1));
-                            }}
+                            href={`${currentPath
+                                .slice(1, i + 1)
+                                .map((f) =>
+                                    encodeURIComponent(f.name.toLowerCase())
+                                )
+                                .join("/")}`}
                         >
                             {f.name}
-                        </button>
+                        </Link>
                         {i !== currentPath.length - 1 && <p>{">"}</p>}
                     </div>
                 ))}
@@ -181,12 +130,16 @@ const IconView: React.FC<IconViewProps> = ({ onPathChange }) => {
                         key={folder.id}
                         editingName={folder.id === editingFolder}
                         name={folder.name}
+                        path={`${currentPath
+                            .slice(1)
+                            .map((f) =>
+                                encodeURIComponent(f.name.toLowerCase())
+                            )
+                            .join("/")}${currentPath.length === 1 ? "" : "/"
+                            }${encodeURIComponent(folder.name.toLowerCase())}`}
                         onDoubleClick={() => {
                             setEditingFolder(folder.id);
                             refetch();
-                        }}
-                        onClick={() => {
-                            setCurrentPath((path) => [...path, folder]);
                         }}
                         onEditingFinish={(name) =>
                             handleRenameFolder(name, folder.id)

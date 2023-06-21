@@ -41,6 +41,7 @@ export async function postRequest(data: PostRequestData) {
     });
 }
 
+// TODO combine withDependency into this function
 export async function queryOrDefault<T>(
     query: (token: string) => Promise<T>,
     auth: AuthContextProps,
