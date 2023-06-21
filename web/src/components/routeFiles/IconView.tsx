@@ -6,7 +6,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Folder as FolderType } from "@src/types/Folder";
 import { useEffect, useState } from "react";
 import { SubFolderGet } from "@src/types/SubFolderGet";
-import { getRequest, postRequest } from "@src/apiRequest";
+import {
+    getRequest,
+    postRequest,
+    queryOrDefault,
+    queryOrDefaultWithDependency,
+} from "@src/apiRequest";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
@@ -38,27 +43,46 @@ const IconView: React.FC<IconViewProps> = ({ onPathChange }) => {
         initialData: [],
         queryFn: async (): Promise<FolderType[]> => {
             try {
-                // TODO: properly handle no token
-                const token = auth.user?.id_token;
-                if (token === undefined || auth.user?.expired) {
-                    return currentFolders;
-                }
-
                 // Not yet loaded top level folder
                 const folderId = currentFolderId(currentPath);
-                if (folderId === undefined) {
-                    return currentFolders;
-                }
 
-                const params: SubFolderGet = { folderId };
+                return queryOrDefaultWithDependency(
+                    async (token, folderId) => {
+                        const params: SubFolderGet = { folderId };
 
-                const subFolders = await getRequest({
-                    path: "/user/sub_folders",
-                    id_token: token,
-                    queryParams: params,
-                });
+                        const subFolders = await getRequest({
+                            path: "/user/sub_folders",
+                            id_token: token,
+                            queryParams: params,
+                        });
 
-                return (await subFolders.json()) as FolderType[];
+                        return (await subFolders.json()) as FolderType[];
+                    },
+                    auth,
+                    currentFolders,
+                    folderId
+                );
+
+                // const token = auth.user?.id_token;
+                // if (token === undefined) {
+                //     return currentFolders;
+                // }
+                //
+                // const folderId = currentFolderId(currentPath);
+                // if (folderId === undefined) {
+                //     return currentFolders;
+                // }
+                //
+                //
+                // const params: SubFolderGet = { folderId };
+                //
+                // const subFolders = await getRequest({
+                //     path: "/user/sub_folders",
+                //     id_token: token,
+                //     queryParams: params,
+                // });
+                //
+                // return (await subFolders.json()) as FolderType[];
             } catch (error) {
                 console.error("Error fetching data:", error);
                 return currentFolders;
@@ -71,30 +95,68 @@ const IconView: React.FC<IconViewProps> = ({ onPathChange }) => {
         const fetchTopLevelFolderId = async () => {
             try {
                 // Only put top level folder in path if its empty
-                if (currentPath.length !== 0) {
-                    return;
-                }
+                if (currentPath.length !== 0) return;
 
-                // TODO: properly handle no token
-                const token = auth.user?.id_token;
-                if (token === undefined || auth.user?.expired) {
-                    return;
-                }
-
-                const resp = await getRequest({
-                    path: "/user/top_level_folder",
-                    id_token: token,
-                });
-
-                const folderId = parseInt(await resp.text());
-                setCurrentPath([{ id: folderId, name: "Your Files" }]);
+                queryOrDefault(
+                    async (token) => {
+                        const resp = await getRequest({
+                            path: "/user/top_level_folder",
+                            id_token: token,
+                        });
+                        const folderId = parseInt(await resp.text());
+                        setCurrentPath([{ id: folderId, name: "Your Files" }]);
+                    },
+                    auth,
+                    undefined
+                );
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         };
 
         fetchTopLevelFolderId();
-    }, [auth.user, currentPath.length]);
+    }, [auth, currentPath.length]);
+
+    const handleRenameFolder = async (name: string, id: number) => {
+        setEditingFolder(undefined);
+
+        const payload: SubFolderRename = {
+            newName: name,
+            folderId: id,
+        };
+
+        queryOrDefault(
+            async (token) => {
+                await postRequest({
+                    path: "/folder/rename",
+                    id_token: token,
+                    payload: JSON.stringify(payload),
+                });
+
+                refetch();
+            },
+            auth,
+            undefined
+        );
+    };
+
+    const handleOpenFolder = async () => {
+        // TODO: Handle no token properly
+        const token = auth.user?.id_token;
+        if (token === undefined || auth.user?.expired) {
+            return;
+        }
+
+        // TODO: Handle no folder properly
+        const folderId = currentFolderId(currentPath);
+        if (folderId === undefined) {
+            return;
+        }
+
+        const id = await insertFolder(token, folderId);
+        setEditingFolder(id);
+        refetch();
+    };
 
     return (
         <div className="flex flex-col grow">
@@ -126,49 +188,12 @@ const IconView: React.FC<IconViewProps> = ({ onPathChange }) => {
                         onClick={() => {
                             setCurrentPath((path) => [...path, folder]);
                         }}
-                        onEditingFinish={async (name) => {
-                            setEditingFolder(undefined);
-
-                            const token = auth.user?.id_token;
-                            if (token === undefined || auth.user?.expired) {
-                                return;
-                            }
-
-                            const payload: SubFolderRename = {
-                                newName: name,
-                                folderId: folder.id,
-                            };
-
-                            await postRequest({
-                                path: "/folder/rename",
-                                id_token: token,
-                                payload: JSON.stringify(payload),
-                            });
-
-                            refetch();
-                        }}
+                        onEditingFinish={(name) =>
+                            handleRenameFolder(name, folder.id)
+                        }
                     />
                 ))}
-                <Folder
-                    add={true}
-                    onClick={async () => {
-                        // TODO: Handle no token properly
-                        const token = auth.user?.id_token;
-                        if (token === undefined || auth.user?.expired) {
-                            return;
-                        }
-
-                        // TODO: Handle no folder properly
-                        const folderId = currentFolderId(currentPath);
-                        if (folderId === undefined) {
-                            return;
-                        }
-
-                        const id = await insertFolder(token, folderId);
-                        setEditingFolder(id);
-                        refetch();
-                    }}
-                />
+                <Folder add={true} onClick={handleOpenFolder} />
             </div>
         </div>
     );
