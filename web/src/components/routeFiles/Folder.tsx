@@ -38,10 +38,7 @@ const Folder: React.FC<FolderProps> = ({
                             />
                         </button>
                     ) : (
-                        <Link
-                            className="hover:text-gray-800"
-                            href={`/files/${path}`}
-                        >
+                        <Link className="hover:text-gray-800" href={path}>
                             <FiFolder
                                 size={80}
                                 strokeWidth={1}

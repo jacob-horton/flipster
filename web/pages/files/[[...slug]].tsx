@@ -34,7 +34,7 @@ async function getFoldersFromNames(auth: AuthContextProps, names: string) {
 
 const Files = () => {
     const [currentPath, setCurrentPath] = useState<FolderType[]>([]);
-    const [view, setView] = useState<"icon" | "list">("icon");
+    const [view, setView] = useState<"icon" | "list">("list");
 
     const router = useRouter();
     const slug = router.query.slug;
@@ -56,6 +56,7 @@ const Files = () => {
         fetchData();
     }, [auth, slug]);
 
+    // TODO: path case insensitive?
     return (
         <ProtectedRoute>
             <PageSection

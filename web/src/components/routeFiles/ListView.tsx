@@ -41,7 +41,12 @@ const ListView: React.FC<ListViewProps> = ({ currentPath }) => {
         return <p>Loading</p>;
     } else {
         return (
-            <ListViewNode node={folders} path={currentPath} expanded={true} />
+            <ListViewNode
+                node={folders}
+                currentPath={currentPath}
+                expanded={true}
+                path={[]}
+            />
         );
     }
 };

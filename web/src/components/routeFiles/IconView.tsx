@@ -13,6 +13,7 @@ import {
     queryOrDefaultWithDependency,
 } from "@src/apiRequest";
 import Link from "next/link";
+import { getPathString } from "@src/getFileRoute";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
@@ -111,12 +112,7 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
                     <div key={f.id} className="flex space-x-2">
                         <Link
                             className="hover:text-gray-800"
-                            href={`${currentPath
-                                .slice(1, i + 1)
-                                .map((f) =>
-                                    encodeURIComponent(f.name.toLowerCase())
-                                )
-                                .join("/")}`}
+                            href={getPathString(currentPath.slice(1, i + 1))}
                         >
                             {f.name}
                         </Link>
@@ -130,13 +126,7 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
                         key={folder.id}
                         editingName={folder.id === editingFolder}
                         name={folder.name}
-                        path={`${currentPath
-                            .slice(1)
-                            .map((f) =>
-                                encodeURIComponent(f.name.toLowerCase())
-                            )
-                            .join("/")}${currentPath.length === 1 ? "" : "/"
-                            }${encodeURIComponent(folder.name.toLowerCase())}`}
+                        path={getPathString([...currentPath.slice(1), folder])}
                         onDoubleClick={() => {
                             setEditingFolder(folder.id);
                             refetch();

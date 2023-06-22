@@ -1,7 +1,10 @@
 import { getRequest } from "@src/apiRequest";
+import { getPathString } from "@src/getFileRoute";
 import { Folder } from "@src/types/Folder";
 import { SubFolderGet } from "@src/types/SubFolderGet";
-import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { AiOutlineFolder, AiOutlineFolderOpen } from "react-icons/ai";
 import { useAuth } from "react-oidc-context";
 
@@ -13,6 +16,7 @@ export interface NodeData {
 
 interface ListViewNodeProps {
     node: NodeData;
+    currentPath: Folder[];
     path: Folder[];
     expanded?: boolean;
 }
@@ -21,13 +25,13 @@ interface ListViewNodeProps {
 // TODO: only select one path
 const ListViewNode: React.FC<ListViewNodeProps> = ({
     node: initialNode,
-    path,
     expanded: initialExpanded,
+    currentPath,
+    path,
 }) => {
     const [node, setNode] = useState(initialNode);
     const [expanded, setExpanded] = useState(initialExpanded ?? false);
     const [loadedChilren, setLoadedChildren] = useState(false);
-    const [selected, setSelected] = useState(false);
 
     const auth = useAuth();
 
@@ -61,29 +65,39 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
             setLoadedChildren(false);
         }
 
-        if (!loadedChilren) {
+        if (!loadedChilren && expanded) {
             loadChildren();
         }
     }, [expanded, auth, loadedChilren, node.id]);
 
     useEffect(() => {
-        if (path.length > 0 && path[0].id === node.id) {
+        if (
+            currentPath.length > 0 &&
+            currentPath.some((p) => p.id === node.id)
+        ) {
             setExpanded(true);
         }
-    }, [path, node.id]);
+    }, [currentPath, node.id]);
 
+    const router = useRouter();
+
+    // TODO: Fix link paths and reloading (probably keep track of path to each node, instead of using currently selected path)
     return (
         <div>
             <button
                 className="flex flex-row items-center"
-                onClick={() => setSelected((s) => !s)}
+                onClick={(e) => {
+                    e.preventDefault();
+                    router.push(getPathString([...path.slice(1), node]));
+                }}
                 onDoubleClick={() => setExpanded((e) => !e)}
             >
                 <div className="px-2">
                     {expanded ? <AiOutlineFolderOpen /> : <AiOutlineFolder />}
                 </div>
                 <p
-                    className={`${path.length === 1 && path[0].id === node.id
+                    className={`${currentPath.length === 0 ||
+                            currentPath[currentPath.length - 1].id === node.id
                             ? "bg-purple-200"
                             : "hover:bg-gray-200"
                         } px-2 py-1 rounded-lg`}
@@ -100,7 +114,8 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
                             <ListViewNode
                                 key={n.id}
                                 node={n}
-                                path={path.slice(1)}
+                                currentPath={currentPath}
+                                path={[...path, node]}
                             />
                         ))}
                     </div>
