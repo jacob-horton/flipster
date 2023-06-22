@@ -14,6 +14,7 @@ import {
 } from "@src/apiRequest";
 import Link from "next/link";
 import { getPathString } from "@src/getFileRoute";
+import { UniqueNameGet } from "@src/types/UniqueNameGet";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
@@ -72,18 +73,27 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
             folderId: id,
         };
 
-        queryOrDefault(
+        return await queryOrDefault(
             async (token) => {
-                await postRequest({
+                const resp = await postRequest({
                     path: "/folder/rename",
                     id_token: token,
                     payload: JSON.stringify(payload),
                 });
 
+                // If conflict i.e. folder with that name already exists
+                if (resp.status === 409) {
+                    alert(
+                        "Failed to rename - Already have a folder with that name"
+                    );
+                    return false;
+                }
+
                 refetch();
+                return true;
             },
             auth,
-            undefined
+            false
         );
     };
 
@@ -100,8 +110,8 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
             return;
         }
 
-        const id = await insertFolder(token, folderId);
-        setEditingFolder(id);
+        const folder = await insertFolder(token, folderId);
+        setEditingFolder(folder.id);
         refetch();
     };
 

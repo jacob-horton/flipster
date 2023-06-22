@@ -2,7 +2,6 @@ import { getRequest } from "@src/apiRequest";
 import { getPathString } from "@src/getFileRoute";
 import { Folder } from "@src/types/Folder";
 import { SubFolderGet } from "@src/types/SubFolderGet";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { AiOutlineFolder, AiOutlineFolderOpen } from "react-icons/ai";

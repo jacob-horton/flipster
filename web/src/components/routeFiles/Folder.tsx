@@ -8,7 +8,7 @@ interface FolderProps {
     add?: boolean;
     onClick?: MouseEventHandler;
     editingName?: boolean;
-    onEditingFinish?: (name: string) => void;
+    onEditingFinish?: (name: string) => Promise<boolean>; // Returns true if rename successful
     onDoubleClick?: () => void;
     path?: string;
 }
@@ -24,6 +24,7 @@ const Folder: React.FC<FolderProps> = ({
 }) => {
     const [name, setName] = useState(initialName ?? "");
 
+    // TODO: force path to be present if add is false
     return (
         <div className="flex flex-col text-gray-800 w-24 m-2">
             <div className="flex justify-center">
@@ -54,10 +55,14 @@ const Folder: React.FC<FolderProps> = ({
                     className="border-gray-400 border rounded-md px-2 text-center"
                     onChange={(e) => setName(e.target.value)}
                     placeholder={name}
-                    onKeyUp={(e) => {
+                    onKeyUp={async (e) => {
                         if (e.code === "Enter") {
                             if (onEditingFinish !== undefined) {
-                                onEditingFinish(name);
+                                const result = await onEditingFinish(name);
+                                console.log(result);
+                                if (!result) {
+                                    setName(initialName ?? "");
+                                }
                             }
                         }
                     }}
