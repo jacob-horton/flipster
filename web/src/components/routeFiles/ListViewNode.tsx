@@ -86,10 +86,11 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
                     }}
                 >
                     <p
-                        className={`${selected === node.id
+                        className={`${
+                            selected === node.id
                                 ? "bg-purple-200"
                                 : "hover:bg-gray-200"
-                            } px-2 py-1 rounded-lg transition`}
+                        } px-2 py-1 rounded-lg transition`}
                     >
                         {node.name}
                     </p>
