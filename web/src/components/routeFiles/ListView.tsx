@@ -1,15 +1,11 @@
 import { getRequest } from "@src/apiRequest";
-import { Folder } from "@src/types/Folder";
 import { useEffect, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import ListViewNode, { NodeData } from "./ListViewNode";
 
-interface ListViewProps {
-    currentPath: Folder[];
-}
-
-const ListView: React.FC<ListViewProps> = ({ currentPath }) => {
+const ListView = () => {
     const [folders, setFolders] = useState<NodeData | undefined>(undefined);
+    const [selected, setSelected] = useState<number | undefined>(undefined);
     const auth = useAuth();
 
     useEffect(() => {
@@ -40,12 +36,14 @@ const ListView: React.FC<ListViewProps> = ({ currentPath }) => {
     if (folders === undefined) {
         return <p>Loading</p>;
     } else {
+        // TODO: load children, but not grandchlidren
         return (
             <ListViewNode
                 node={folders}
-                currentPath={currentPath}
                 expanded={true}
                 path={[]}
+                selected={selected}
+                setSelected={setSelected}
             />
         );
     }

@@ -67,9 +67,12 @@ const Files = () => {
                         <h1 className="text-2xl">Your Files</h1>
                         <select
                             className="px-4 bg-gray-300 text-base rounded-lg"
-                            onChange={(e) =>
-                                setView(e.target.value as "list" | "icon")
-                            }
+                            onChange={(e) => {
+                                setView(e.target.value as "list" | "icon");
+                                if (e.target.value === "list") {
+                                    router.replace("/files");
+                                }
+                            }}
                             value={view}
                         >
                             <option value="icon">Icon</option>
@@ -80,7 +83,7 @@ const Files = () => {
             >
                 <div className="space-y-6">
                     {view === "icon" && <IconView currentPath={currentPath} />}
-                    {view === "list" && <ListView currentPath={currentPath} />}
+                    {view === "list" && <ListView />}
                     <AddFlashcardButtonPopup
                         currentFolderId={currentFolderId(currentPath)}
                     />

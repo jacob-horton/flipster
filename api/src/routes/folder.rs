@@ -1,5 +1,3 @@
-use std::time::Instant;
-
 use actix_web::{
     get, post,
     web::{self, Data},

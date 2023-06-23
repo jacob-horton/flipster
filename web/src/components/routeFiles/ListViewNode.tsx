@@ -1,10 +1,8 @@
 import { getRequest } from "@src/apiRequest";
-import { getPathString } from "@src/getFileRoute";
 import { Folder } from "@src/types/Folder";
 import { SubFolderGet } from "@src/types/SubFolderGet";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { AiOutlineFolder, AiOutlineFolderOpen } from "react-icons/ai";
+import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import { useAuth } from "react-oidc-context";
 
 export interface NodeData {
@@ -15,17 +13,17 @@ export interface NodeData {
 
 interface ListViewNodeProps {
     node: NodeData;
-    currentPath: Folder[];
     path: Folder[];
     expanded?: boolean;
+    selected: number | undefined;
+    setSelected: (selected: number) => void;
 }
 
-// TODO: function to return current path
-// TODO: only select one path
 const ListViewNode: React.FC<ListViewNodeProps> = ({
     node: initialNode,
     expanded: initialExpanded,
-    currentPath,
+    selected,
+    setSelected,
     path,
 }) => {
     const [node, setNode] = useState(initialNode);
@@ -69,41 +67,32 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
         }
     }, [expanded, auth, loadedChilren, node.id]);
 
-    useEffect(() => {
-        if (
-            currentPath.length > 0 &&
-            currentPath.some((p) => p.id === node.id)
-        ) {
-            setExpanded(true);
-        }
-    }, [currentPath, node.id]);
-
-    const router = useRouter();
-
-    // TODO: Fix link paths and reloading (probably keep track of path to each node, instead of using currently selected path)
     return (
         <div>
-            <button
-                className="flex flex-row items-center"
-                onClick={(e) => {
-                    e.preventDefault();
-                    router.push(getPathString([...path.slice(1), node]));
-                }}
-                onDoubleClick={() => setExpanded((e) => !e)}
-            >
-                <div className="px-2">
-                    {expanded ? <AiOutlineFolderOpen /> : <AiOutlineFolder />}
-                </div>
-                <p
-                    className={`${currentPath.length === 0 ||
-                            currentPath[currentPath.length - 1].id === node.id
-                            ? "bg-purple-200"
-                            : "hover:bg-gray-200"
-                        } px-2 py-1 rounded-lg`}
+            <div className="flex flex-row items-center">
+                <button
+                    className="mx-1 p-1 hover:bg-gray-200 rounded-lg transition"
+                    onClick={() => setExpanded((e) => !e)}
                 >
-                    {node.name}
-                </p>
-            </button>
+                    {expanded ? <IoIosArrowDown /> : <IoIosArrowForward />}
+                </button>
+                <button
+                    onClick={() => setSelected(node.id)}
+                    onDoubleClick={() => {
+                        setSelected(node.id);
+                        setExpanded((e) => !e);
+                    }}
+                >
+                    <p
+                        className={`${selected === node.id
+                                ? "bg-purple-200"
+                                : "hover:bg-gray-200"
+                            } px-2 py-1 rounded-lg transition`}
+                    >
+                        {node.name}
+                    </p>
+                </button>
+            </div>
             <div className={`pl-6 ${expanded ? "" : "hidden"}`}>
                 {node.children.length === 0 ? (
                     <p className="text-gray-400 pl-4">No folders</p>
@@ -113,8 +102,9 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
                             <ListViewNode
                                 key={n.id}
                                 node={n}
-                                currentPath={currentPath}
                                 path={[...path, node]}
+                                selected={selected}
+                                setSelected={setSelected}
                             />
                         ))}
                     </div>
