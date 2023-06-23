@@ -8,7 +8,7 @@ const Index = () => {
 
     useEffect(() => {
         push("/home");
-    }, []);
+    }, [push]);
 
     return <p></p>;
 };

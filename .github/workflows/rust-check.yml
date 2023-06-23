@@ -1,0 +1,22 @@
+name: Rust Check
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    # TODO: Cargo clippy and test and build once there is public database
+    #       - Will need to configure .env file
+    steps:
+    - uses: actions/checkout@v3
+    - name: Check Formatting
+      run: cd api; cargo fmt --check

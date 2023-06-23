@@ -11,6 +11,8 @@ import { insertFolder } from "@src/insertFolder";
 import Popup from "@components/Popup";
 import { Folder as FolderType } from "@src/types/Folder";
 import { SubFolderRename } from "@src/types/SubFolderRename";
+import { useQuery } from "@tanstack/react-query";
+import { IoIosColorPalette } from "react-icons/io";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
@@ -19,25 +21,52 @@ function currentFolderId(path: FolderType[]) {
 
 const Files = () => {
     // Popup state
+    // TODO: Make into form?
     const [showPopup, setShowPopup] = useState(false);
     const [term, setTerm] = useState("");
     const [definition, setDefinition] = useState("");
 
-    // Refreshing UI
-    const [update, setUpdate] = useState(false);
-
-    // Current folders/path
-    const [currentFolders, setCurrentFolders] = useState<FolderType[]>([]);
     const [currentPath, setCurrentPath] = useState<FolderType[]>([]);
-
-    // Folder name
     const [editingFolder, setEditingFolder] = useState<number | undefined>();
 
     const auth = useAuth();
 
-    const refresh = () => {
-        setUpdate((prev) => !prev);
-    };
+    // Current folders
+    // NOTE: `isLoading` doesn't work when `initialData` is set
+    //       This is fine as `initialData` is not required if you know when its loading
+    // TODO: Some sort of loading animation? May be too fast
+    const { data: currentFolders, refetch } = useQuery({
+        queryKey: [auth.user?.id_token, currentPath],
+        initialData: [],
+        queryFn: async (): Promise<FolderType[]> => {
+            try {
+                // TODO: properly handle no token
+                const token = auth.user?.id_token;
+                if (token === undefined || auth.user?.expired) {
+                    return currentFolders;
+                }
+
+                // Not yet loaded top level folder
+                const folderId = currentFolderId(currentPath);
+                if (folderId === undefined) {
+                    return currentFolders;
+                }
+
+                const params: SubFolderGet = { folderId };
+
+                const subFolders = await getRequest({
+                    path: "/user/sub_folders",
+                    id_token: token,
+                    queryParams: params,
+                });
+
+                return (await subFolders.json()) as FolderType[];
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                return currentFolders;
+            }
+        },
+    });
 
     // Load top level folder
     useEffect(() => {
@@ -50,7 +79,7 @@ const Files = () => {
 
                 // TODO: properly handle no token
                 const token = auth.user?.id_token;
-                if (token === undefined) {
+                if (token === undefined || auth.user?.expired) {
                     return;
                 }
 
@@ -67,46 +96,13 @@ const Files = () => {
         };
 
         fetchTopLevelFolderId();
-    }, [auth.user?.id_token]);
-
-    // Load contents of current folder
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // TODO: properly handle no token
-                const token = auth.user?.id_token;
-                if (token === undefined) {
-                    return;
-                }
-
-                // Not yet loaded top level folder
-                const folderId = currentFolderId(currentPath);
-                if (folderId === undefined) {
-                    return;
-                }
-
-                const params: SubFolderGet = { folderId };
-
-                const files = await getRequest({
-                    path: "/user/sub_folders",
-                    id_token: token,
-                    queryParams: params,
-                });
-
-                setCurrentFolders(await files.json());
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
-
-        fetchData();
-    }, [auth.user?.id_token, currentPath, update]);
+    }, [auth.user?.id_token, currentPath.length]);
 
     // TODO: instead of useEffect, do something like https://stackoverflow.com/questions/71124909/react-useeffect-dependencies-invalidation
     const handleAddFlashcard = async () => {
         // TODO: properly handle no token
         const token = auth.user?.id_token;
-        if (token === undefined) {
+        if (token === undefined || auth.user?.expired) {
             return;
         }
 
@@ -132,25 +128,68 @@ const Files = () => {
         });
     };
 
+    const CheckboxItem = ({ label = "" }) => {
+        return (
+            <div className="flex items-center space-x-2">
+                <input type="checkbox" className="form-checkbox" />
+                <label className="text-gray-700">{label}</label>
+            </div>
+        );
+    };
+    const methods: string[] = ["Flip", "Match", "Learn"];
+    //TODO don't allow creation of card if term or definition empty
     return (
         <ProtectedRoute>
             <Popup show={showPopup} onCancel={() => setShowPopup(false)}>
                 <div className="space-y-2">
+                    <h1 className="text-2xl">Create Flashcard</h1>
                     <div>
-                        <p>Term</p>
-                        <input
-                            className="px-2 py-1 border-[1.5px] border-black border-opacity-10 rounded-lg"
+                        <p className="text-lg">Term</p>
+                        <textarea
+                            className="px-2 pt-1 pb-2 border-[1.5px] border-black border-opacity-10 rounded-lg w-full"
                             onChange={(e) => setTerm(e.target.value)}
                         />
                     </div>
                     <div>
-                        <p>Definition</p>
-                        <input
-                            className="px-2 py-1 border-[1.5px] border-black border-opacity-10 rounded-lg"
+                        <p className="text-lg">Definition</p>
+                        <textarea
+                            className="px-2 pt-1 pb-20 border-[1.5px] border-black border-opacity-10 rounded-lg w-full"
                             onChange={(e) => setDefinition(e.target.value)}
                         />
                     </div>
-                    <Button onClick={handleAddFlashcard}>Add</Button>
+                    <div className="grid grid-cols-3 gap-1">
+                        <div>
+                            <h1 className="text-lg">Review Methods</h1>
+                            {methods.map((method, index) => (
+                                <CheckboxItem key={index} label={method} />
+                            ))}
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-center text-lg">Colour</h1>
+                            <div>
+                                <button>
+                                    <IoIosColorPalette
+                                        size={50}
+                                        strokeWidth={1}
+                                    />
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <h1 className="flex justify-center text-lg">
+                                Similar Cards
+                            </h1>
+                        </div>
+                    </div>
+                    <Button
+                        onClick={() => {
+                            handleAddFlashcard();
+                            setShowPopup(false);
+                        }}
+                        className="flex justify-center"
+                    >
+                        + Create
+                    </Button>
                 </div>
             </Popup>
             <PageSection
@@ -184,14 +223,14 @@ const Files = () => {
                         ))}
                     </div>
                     <div className="flex flex-wrap g-green-500">
-                        {currentFolders.map((folder) => (
+                        {(currentFolders ?? []).map((folder) => (
                             <Folder
                                 key={folder.id}
                                 editingName={folder.id === editingFolder}
                                 name={folder.name}
                                 onDoubleClick={() => {
                                     setEditingFolder(folder.id);
-                                    refresh();
+                                    refetch();
                                 }}
                                 onClick={() => {
                                     setCurrentPath((path) => [...path, folder]);
@@ -200,7 +239,10 @@ const Files = () => {
                                     setEditingFolder(undefined);
 
                                     const token = auth.user?.id_token;
-                                    if (token === undefined) {
+                                    if (
+                                        token === undefined ||
+                                        auth.user?.expired
+                                    ) {
                                         return;
                                     }
 
@@ -215,7 +257,7 @@ const Files = () => {
                                         payload: JSON.stringify(payload),
                                     });
 
-                                    refresh();
+                                    refetch();
                                 }}
                             />
                         ))}
@@ -224,7 +266,7 @@ const Files = () => {
                             onClick={async () => {
                                 // TODO: Handle no token properly
                                 const token = auth.user?.id_token;
-                                if (token === undefined) {
+                                if (token === undefined || auth.user?.expired) {
                                     return;
                                 }
 
@@ -236,7 +278,7 @@ const Files = () => {
 
                                 const id = await insertFolder(token, folderId);
                                 setEditingFolder(id);
-                                refresh();
+                                refetch();
                             }}
                         />
                     </div>

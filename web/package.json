@@ -12,6 +12,7 @@
     "format": "prettier-eslint --write '**/*.{ts,js,tsx,jsx}'"
   },
   "dependencies": {
+    "@tanstack/react-query": "^4.29.14",
     "dotenv": "^16.1.4",
     "eslint-config-next": "^13.4.5",
     "next": "^13.4.5",
