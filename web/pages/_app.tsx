@@ -20,7 +20,6 @@ const App = ({ Component, pageProps }) => {
                     <Component {...pageProps} />
                 </div>
             </QueryClientProvider>
-
         </AuthProvider>
     );
 };
