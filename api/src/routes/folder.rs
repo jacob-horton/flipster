@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use actix_web::{
     get, post,
     web::{self, Data},
@@ -150,9 +152,10 @@ pub async fn resolve_path(
         "WITH RECURSIVE f AS(
           SELECT id, name, parent_id FROM folder WHERE id = (SELECT flashcards FROM app_user WHERE app_user.id = $1)
           UNION
-          SELECT folder.id as id, folder.name as name, folder.parent_id as parent_id FROM f, folder WHERE folder.parent_id = f.id
+          SELECT folder.id, folder.name, folder.parent_id FROM f, folder WHERE folder.name = ANY($2) AND folder.parent_id = f.id
         ) SELECT * FROM f",
-        user_id
+        user_id,
+        &path.iter().map(|f| f.to_string()).collect::<Vec<_>>()
     ).fetch_all(data.db_pool.as_ref()).await.unwrap().into_iter().map(|r| FolderWithParent {id: r.id.unwrap(), name: r.name.unwrap(), parent_id: r.parent_id}).collect();
 
     let mut resolved_path = vec![all_folders[0].clone()];
