@@ -1,5 +1,5 @@
 import FlashcardUI from "@components/routeFiles/Flashcard";
-import PageSection from "@components/PageSection";
+import PageSection, { SectionArticle } from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
 import { FlashcardType } from "@src/types/Flashcard";
 
@@ -51,20 +51,27 @@ const Review = () => {
     return (
         <ProtectedRoute>
             <div className="h-full flex p-4 space-x-4">
-                <PageSection titleBar={<h1>Review</h1>} className="w-full">
-                    Hello
-                </PageSection>
-                <PageSection titleBar={<h1>Flashcards</h1>} className="w-full">
-                    <div className="flex-grow space-y-2">
-                        {flashcards.map((f) => (
-                            <FlashcardUI
-                                key={f.flashcardId}
-                                flashcard={f}
-                                mode="select"
-                            />
-                        ))}
-                    </div>
-                </PageSection>
+                <PageSection
+                    articles={[
+                        <SectionArticle titleBar="Review" className="w-full">
+                            Hello
+                        </SectionArticle>,
+                        <SectionArticle
+                            titleBar="Flashcards"
+                            className="w-full"
+                        >
+                            <div className="flex-grow space-y-2">
+                                {flashcards.map((f) => (
+                                    <FlashcardUI
+                                        key={f.flashcardId}
+                                        flashcard={f}
+                                        mode="select"
+                                    />
+                                ))}
+                            </div>
+                        </SectionArticle>,
+                    ]}
+                />
             </div>
         </ProtectedRoute>
     );
