@@ -129,65 +129,54 @@ exportable! {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct FolderWithParent {
+    pub id: i32,
+    pub name: String,
+    pub parent_id: Option<i32>,
+}
+
 #[get("/folder/resolve_path")]
 pub async fn resolve_path(
     data: Data<AppState>,
     info: web::Query<ResolvePathGet>,
     req: HttpRequest,
 ) -> impl Responder {
-    // TODO: optimise
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    let path: Vec<&str> = info.path.split("/").filter(|x| x.len() > 0).collect();
+    let mut path: Vec<&str> = info.path.split('/').filter(|x| !x.is_empty()).collect();
+    path.reverse(); // Reversed path to make popping easier
 
-    let top_level_folder = sqlx::query!(
-        "SELECT folder.name, folder.id
-        FROM app_user
-        INNER JOIN folder ON folder.id = app_user.flashcards
-        WHERE app_user.id = $1",
+    let all_folders: Vec<FolderWithParent> = sqlx::query!(
+        "WITH RECURSIVE f AS(
+          SELECT id, name, parent_id FROM folder WHERE id = (SELECT flashcards FROM app_user WHERE app_user.id = $1)
+          UNION
+          SELECT folder.id as id, folder.name as name, folder.parent_id as parent_id FROM f, folder WHERE folder.parent_id = f.id
+        ) SELECT * FROM f",
         user_id
-    )
-    .fetch_one(data.db_pool.as_ref())
-    .await
-    .unwrap();
+    ).fetch_all(data.db_pool.as_ref()).await.unwrap().into_iter().map(|r| FolderWithParent {id: r.id.unwrap(), name: r.name.unwrap(), parent_id: r.parent_id}).collect();
 
-    let top_level_folder = Folder {
-        id: top_level_folder.id,
-        name: String::from("Your files"),
-    };
-
-    // If requesting top level folder, return it here
-    if path.len() == 0 {
-        return HttpResponse::Ok().json(&[top_level_folder]);
-    }
-
-    let mut result = Vec::new();
-
-    let mut i = 0;
-    let mut current_folder = Some(top_level_folder);
-
-    while let Some(folder) = current_folder {
-        result.push(folder.clone());
-
-        if i == path.len() {
+    let mut resolved_path = vec![all_folders[0].clone()];
+    for folder in all_folders {
+        if path.is_empty() {
             break;
         }
 
-        // TODO: handle path wrong
-        current_folder = sqlx::query!(
-            "SELECT id, name FROM folder WHERE parent_id = $1 AND name = $2",
-            folder.id,
-            &path.get(i).unwrap()
-        )
-        .fetch_optional(data.db_pool.as_ref())
-        .await
-        .unwrap()
-        .map(|r| Folder {
-            id: r.id,
-            name: r.name,
-        });
-
-        i += 1;
+        if let Some(parent_id) = folder.parent_id {
+            if parent_id == resolved_path.last().unwrap().id && &folder.name == path.last().unwrap()
+            {
+                resolved_path.push(folder);
+                path.pop();
+            }
+        }
     }
+
+    let result = resolved_path
+        .into_iter()
+        .map(|f| Folder {
+            id: f.id,
+            name: f.name,
+        })
+        .collect::<Vec<_>>();
 
     HttpResponse::Ok().json(result)
 }

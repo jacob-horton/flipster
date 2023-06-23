@@ -94,8 +94,7 @@ pub async fn validator(
                 Some(user) => user.id,
                 None => {
                     let flashcards = sqlx::query!(
-                        "INSERT INTO folder (name) VALUES ($1) RETURNING id",
-                        format!("__{}_top_level", claims.preferred_username)
+                        "INSERT INTO folder (name) VALUES ('Your Files') RETURNING id",
                     )
                     .fetch_one(db_pool.as_ref())
                     .await
