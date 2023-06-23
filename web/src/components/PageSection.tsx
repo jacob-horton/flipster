@@ -27,16 +27,17 @@ export const SectionArticle: React.FC<SectionArticleProps> = ({
     titleBar,
     bgIcon,
     children,
+    className,
 }) => {
     return (
-        <div className="w-full ">
-            <div className="overflow-auto flex pt-2 px-3 flex-col space-y-2 h-full relative">
+        <div className={" w-full " + className ?? ""}>
+            <div className="overflow-auto flex py-2 px-3 flex-col space-y-2 h-full relative">
                 <div className="inline-flex align-top items-center space-x-2">
                     {icon}
                     <h1 className="text-xl text-gray-800 w-full">{titleBar}</h1>
                 </div>
                 {bgIcon && <BackgroundIcon icon={bgIcon} />}
-                <div className="z-10 grow pt-2">{children}</div>
+                <div className="z-10 grow">{children}</div>
             </div>
         </div>
     );
@@ -76,7 +77,7 @@ const PageSection: React.FC<PageSectionProps> = ({
         ];
     }
     return (
-        <div className={className + " grow"}>
+        <div className={" grow " + className ?? ""}>
             <div className="bg-white rounded-lg flex flex-row h-full light-border ">
                 {articles.map((SectionArticle, i) => (
                     <>

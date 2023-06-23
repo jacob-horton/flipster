@@ -45,6 +45,26 @@ const flashcards: FlashcardType[] = [
         term: "Hello, ",
         definition: "world!",
     },
+    {
+        flashcardId: 8,
+        term: "Hello, ",
+        definition: "world!",
+    },
+    {
+        flashcardId: 9,
+        term: "Hello, ",
+        definition: "world!",
+    },
+    {
+        flashcardId: 10,
+        term: "Hello, ",
+        definition: "world!",
+    },
+    {
+        flashcardId: 11,
+        term: "Hello, ",
+        definition: "world!",
+    },
 ];
 
 const Review = () => {
@@ -58,7 +78,7 @@ const Review = () => {
                         </SectionArticle>,
                         <SectionArticle
                             titleBar="Flashcards"
-                            className="w-full"
+                            className="w-full pb-4"
                         >
                             <div className="flex-grow space-y-2">
                                 {flashcards.map((f) => (
