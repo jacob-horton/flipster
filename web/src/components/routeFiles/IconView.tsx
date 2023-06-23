@@ -22,23 +22,28 @@ function currentFolderId(path: FolderType[]) {
 }
 
 interface IconViewProps {
-    // onPathChange?: (newPath: FolderType[]) => void;
     currentPath: FolderType[];
+}
+
+function getFolders(rawFolders: string | string[] | undefined): string[] {
+    if (rawFolders === undefined) return [];
+    if (typeof rawFolders === "string") return [rawFolders];
+    return rawFolders;
 }
 
 const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
     const auth = useAuth();
     const [editingFolder, setEditingFolder] = useState<number | undefined>();
     const router = useRouter();
-    const data = router.query;
+    const folders = getFolders(router.query.folders);
 
-    // Current folders
     // NOTE: `isLoading` doesn't work when `initialData` is set
     //       This is fine as `initialData` is not required if you know when its loading
     // TODO: Some sort of loading animation? May be too fast
+    // Current folders
     const { data: currentFolders, refetch } = useQuery({
         queryKey: [auth.user?.id_token, currentPath],
-        initialData: ((data.folders as string[]) ?? []).map((f) => ({
+        initialData: folders.map((f) => ({
             name: f,
             id: -1,
         })),
