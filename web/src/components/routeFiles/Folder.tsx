@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { MouseEventHandler, useState } from "react";
 import { FiFolder } from "react-icons/fi";
 import { FiFolderPlus } from "react-icons/fi";
@@ -7,8 +8,9 @@ interface FolderProps {
     add?: boolean;
     onClick?: MouseEventHandler;
     editingName?: boolean;
-    onEditingFinish?: (name: string) => void;
+    onEditingFinish?: (name: string) => Promise<boolean>; // Returns true if rename successful
     onDoubleClick?: () => void;
+    path?: string;
 }
 
 const Folder: React.FC<FolderProps> = ({
@@ -16,31 +18,35 @@ const Folder: React.FC<FolderProps> = ({
     editingName,
     name: initialName,
     onClick,
+    path,
     onEditingFinish,
     onDoubleClick,
 }) => {
     const [name, setName] = useState(initialName ?? "");
 
+    // TODO: force path to be present if add is false
     return (
         <div className="flex flex-col text-gray-800 w-24 m-2">
             <div className="flex justify-center">
                 <span className="text-lg">
-                    <button onClick={onClick}>
-                        {add ?? false ? (
+                    {add ?? false ? (
+                        <button onClick={onClick}>
                             <FiFolderPlus
                                 size={80}
                                 strokeWidth={1}
                                 strokeDasharray={2}
                                 className="text-gray-400"
                             />
-                        ) : (
+                        </button>
+                    ) : (
+                        <Link className="hover:text-gray-800" href={path}>
                             <FiFolder
                                 size={80}
                                 strokeWidth={1}
                                 className="text-violet-600"
                             />
-                        )}
-                    </button>
+                        </Link>
+                    )}
                 </span>
             </div>
             {editingName ? (
@@ -49,10 +55,14 @@ const Folder: React.FC<FolderProps> = ({
                     className="border-gray-400 border rounded-md px-2 text-center"
                     onChange={(e) => setName(e.target.value)}
                     placeholder={name}
-                    onKeyUp={(e) => {
+                    onKeyUp={async (e) => {
                         if (e.code === "Enter") {
                             if (onEditingFinish !== undefined) {
-                                onEditingFinish(name);
+                                const result = await onEditingFinish(name);
+                                console.log(result);
+                                if (!result) {
+                                    setName(initialName ?? "");
+                                }
                             }
                         }
                     }}

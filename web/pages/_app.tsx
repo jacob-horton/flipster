@@ -4,9 +4,10 @@ import keycloak from "@src/keycloak";
 import "./globals.css";
 import Navbar from "@components/navbar/Navbar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AppProps } from "next/app";
 
 const queryClient = new QueryClient();
-const App = ({ Component, pageProps }) => {
+const App = ({ Component, pageProps }: AppProps) => {
     return (
         <AuthProvider
             {...keycloak}

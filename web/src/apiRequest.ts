@@ -1,3 +1,5 @@
+import { AuthContextProps } from "react-oidc-context";
+
 interface PostRequestData {
     path: string;
     id_token: string;
@@ -37,4 +39,32 @@ export async function postRequest(data: PostRequestData) {
         },
         body: data.payload,
     });
+}
+
+// TODO combine withDependency into this function
+export async function queryOrDefault<T>(
+    query: (token: string) => Promise<T>,
+    auth: AuthContextProps,
+    def: T // Default value
+): Promise<T> {
+    const token = auth.user?.id_token;
+    if (token === undefined || auth.user?.expired) {
+        return def;
+    }
+
+    return await query(token);
+}
+
+export async function queryOrDefaultWithDependency<T, U>(
+    query: (token: string, dependency: U) => Promise<T>,
+    auth: AuthContextProps,
+    def: T, // Default value
+    dependency: U | undefined
+): Promise<T> {
+    const token = auth.user?.id_token;
+    if (dependency === undefined || token === undefined || auth.user?.expired) {
+        return def;
+    }
+
+    return await query(token, dependency);
 }

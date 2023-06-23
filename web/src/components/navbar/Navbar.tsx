@@ -44,7 +44,9 @@ const Navbar = () => {
                             key={path}
                             name={name}
                             icon={icon}
-                            selected={route === path}
+                            selected={
+                                route.split("/")[1] === name.toLowerCase()
+                            }
                             path={path}
                         />
                     );
