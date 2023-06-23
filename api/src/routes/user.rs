@@ -41,7 +41,8 @@ pub async fn get_subfolders(
         return HttpResponse::Unauthorized().body("User does not own that folder");
     }
 
-    let folders = sqlx::query!(
+    let folders = sqlx::query_as!(
+        Folder,
         "SELECT id, name FROM folder WHERE parent_id = $1 ORDER BY name",
         info.folder_id
     )
@@ -49,13 +50,5 @@ pub async fn get_subfolders(
     .await
     .unwrap();
 
-    HttpResponse::Ok().json(
-        folders
-            .into_iter()
-            .map(|f| Folder {
-                name: f.name,
-                id: f.id,
-            })
-            .collect::<Vec<_>>(),
-    )
+    HttpResponse::Ok().json(folders)
 }
