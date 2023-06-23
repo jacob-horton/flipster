@@ -50,6 +50,7 @@ pub async fn add_folder(
     payload: web::Json<SubFolderInsert>,
     req: HttpRequest,
 ) -> impl Responder {
+    // TODO: do not allow symbols?
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     let owner = get_folder_owner(payload.parent_folder_id, data.db_pool.as_ref()).await;
 
@@ -142,6 +143,7 @@ pub async fn resolve_path(
     info: web::Query<ResolvePathGet>,
     req: HttpRequest,
 ) -> impl Responder {
+    // TODO: Use query builder to avoid rust processing? https://stackoverflow.com/questions/74956100/how-to-build-safe-dynamic-query-with-sqlx-in-rust
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     let mut path: Vec<&str> = info.path.split('/').filter(|x| !x.is_empty()).collect();
     path.reverse(); // Reversed path to make popping easier
@@ -196,17 +198,20 @@ pub async fn get_unique_folder_name(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    let regex = Regex::new(&format!(r"^{}( \((\d+)\))?$", info.name)).unwrap();
-    // TODO: check user owns parent folder
+
+    // Search for names of format `<info.name>[ (<any number>)]` where the bit in square brackets is
+    // optional
+    let regex = Regex::new(&format!(r"^{}( \((\d+)\))?$", regex::escape(&info.name))).unwrap();
+
+    if Some(user_id) != get_folder_owner(info.parent_folder_id, &data.db_pool).await {
+        return HttpResponse::Unauthorized().body("User does not own that parent folder");
+    }
 
     let numbers: Vec<i32> = sqlx::query!(
         "SELECT name
         FROM folder
-        WHERE parent_id = $1
-            AND name LIKE $2",
+        WHERE parent_id = $1",
         info.parent_folder_id,
-        // info.name,
-        format!("{}%", info.name)
     )
     .fetch_all(data.db_pool.as_ref())
     .await

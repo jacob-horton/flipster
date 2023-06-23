@@ -4,7 +4,7 @@ import { insertFolder } from "@src/insertFolder";
 import { useAuth } from "react-oidc-context";
 import { useQuery } from "@tanstack/react-query";
 import { Folder as FolderType } from "@src/types/Folder";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SubFolderGet } from "@src/types/SubFolderGet";
 import {
     getRequest,
@@ -14,7 +14,6 @@ import {
 } from "@src/apiRequest";
 import Link from "next/link";
 import { getPathString } from "@src/getFileRoute";
-import { UniqueNameGet } from "@src/types/UniqueNameGet";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
