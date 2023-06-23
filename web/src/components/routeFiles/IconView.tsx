@@ -14,6 +14,7 @@ import {
 } from "@src/apiRequest";
 import Link from "next/link";
 import { getPathString } from "@src/getFileRoute";
+import { useRouter } from "next/router";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
@@ -28,6 +29,8 @@ interface IconViewProps {
 const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
     const auth = useAuth();
     const [editingFolder, setEditingFolder] = useState<number | undefined>();
+    const router = useRouter();
+    const data = router.query;
 
     // Current folders
     // NOTE: `isLoading` doesn't work when `initialData` is set
@@ -35,7 +38,10 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
     // TODO: Some sort of loading animation? May be too fast
     const { data: currentFolders, refetch } = useQuery({
         queryKey: [auth.user?.id_token, currentPath],
-        initialData: [],
+        initialData: ((data.folders as string[]) ?? []).map((f) => ({
+            name: f,
+            id: -1,
+        })),
         queryFn: async (): Promise<FolderType[]> => {
             try {
                 // Not yet loaded top level folder
@@ -132,9 +138,9 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
             <div className="flex flex-wrap g-green-500">
                 {(currentFolders ?? []).map((folder) => (
                     <Folder
-                        key={folder.id}
+                        key={`${folder.id}:${folder.name}`} // Use both id and name for key - in case duplicate names, or ids (in cases of preloading)
                         editingName={folder.id === editingFolder}
-                        name={folder.name}
+                        folder={folder}
                         path={getPathString([...currentPath.slice(1), folder])}
                         onDoubleClick={() => {
                             setEditingFolder(folder.id);

@@ -1,10 +1,15 @@
+import { getRequest } from "@src/apiRequest";
+import { Folder } from "@src/types/Folder";
+import { SubFolderGet } from "@src/types/SubFolderGet";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { MouseEventHandler, useState } from "react";
 import { FiFolder } from "react-icons/fi";
 import { FiFolderPlus } from "react-icons/fi";
+import { useAuth } from "react-oidc-context";
 
 interface FolderProps {
-    name?: string;
+    folder?: Folder;
     add?: boolean;
     onClick?: MouseEventHandler;
     editingName?: boolean;
@@ -16,13 +21,34 @@ interface FolderProps {
 const Folder: React.FC<FolderProps> = ({
     add,
     editingName,
-    name: initialName,
+    folder,
     onClick,
     path,
     onEditingFinish,
     onDoubleClick,
 }) => {
-    const [name, setName] = useState(initialName ?? "");
+    const [name, setName] = useState(folder?.name ?? "");
+    const auth = useAuth();
+
+    const { data: children } = useQuery({
+        queryKey: [folder?.id],
+        initialData: [],
+        queryFn: async (): Promise<Folder[]> => {
+            if (folder) {
+                const queryParams: SubFolderGet = { folderId: folder.id };
+
+                // TODO: handle id_token better
+                const resp = await getRequest({
+                    path: "/user/sub_folders",
+                    id_token: auth.user?.id_token ?? "",
+                    queryParams,
+                });
+                return (await resp.json()) as Folder[];
+            }
+
+            return [];
+        },
+    });
 
     // TODO: force path to be present if add is false
     return (
@@ -39,7 +65,16 @@ const Folder: React.FC<FolderProps> = ({
                             />
                         </button>
                     ) : (
-                        <Link className="hover:text-gray-800" href={path}>
+                        <Link
+                            className="hover:text-gray-800"
+                            href={{
+                                pathname: path ?? "",
+                                query: {
+                                    folders: children.map((c) => c.name),
+                                },
+                            }}
+                            as={path ?? ""}
+                        >
                             <FiFolder
                                 size={80}
                                 strokeWidth={1}
@@ -59,10 +94,8 @@ const Folder: React.FC<FolderProps> = ({
                         if (e.code === "Enter") {
                             if (onEditingFinish !== undefined) {
                                 const result = await onEditingFinish(name);
-                                console.log(result);
-                                if (!result) {
-                                    setName(initialName ?? "");
-                                }
+
+                                if (!result) setName(folder?.name ?? "");
                             }
                         }
                     }}

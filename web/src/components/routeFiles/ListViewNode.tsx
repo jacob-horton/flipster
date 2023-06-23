@@ -17,6 +17,7 @@ interface ListViewNodeProps {
     expanded?: boolean;
     selected: number | undefined;
     setSelected: (selected: number) => void;
+    shouldLoadChildren?: boolean;
 }
 
 const ListViewNode: React.FC<ListViewNodeProps> = ({
@@ -25,6 +26,7 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
     selected,
     setSelected,
     path,
+    shouldLoadChildren,
 }) => {
     const [node, setNode] = useState(initialNode);
     const [expanded, setExpanded] = useState(initialExpanded ?? false);
@@ -62,10 +64,10 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
             setLoadedChildren(false);
         }
 
-        if (!loadedChilren && expanded) {
+        if (shouldLoadChildren || (!loadedChilren && expanded)) {
             loadChildren();
         }
-    }, [expanded, auth, loadedChilren, node.id]);
+    }, [expanded, auth, loadedChilren, node.id, shouldLoadChildren]);
 
     return (
         <div>
@@ -84,11 +86,10 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
                     }}
                 >
                     <p
-                        className={`${
-                            selected === node.id
+                        className={`${selected === node.id
                                 ? "bg-purple-200"
                                 : "hover:bg-gray-200"
-                        } px-2 py-1 rounded-lg transition`}
+                            } px-2 py-1 rounded-lg transition`}
                     >
                         {node.name}
                     </p>
@@ -106,6 +107,7 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
                                 path={[...path, node]}
                                 selected={selected}
                                 setSelected={setSelected}
+                                shouldLoadChildren={expanded}
                             />
                         ))}
                     </div>

@@ -36,7 +36,6 @@ const ListView = () => {
     if (folders === undefined) {
         return <p>Loading</p>;
     } else {
-        // TODO: load children, but not grandchlidren
         return (
             <ListViewNode
                 node={folders}
