@@ -1,3 +1,4 @@
+import React from "react";
 import { ReactElement, ReactNode } from "react";
 
 interface BackgroundIconProps {
@@ -80,12 +81,12 @@ const PageSection: React.FC<PageSectionProps> = ({
         <div className={" grow " + className ?? ""}>
             <div className="bg-white rounded-lg flex flex-row h-full light-border ">
                 {articles.map((SectionArticle, i) => (
-                    <>
+                    <React.Fragment key={i}>
                         {i > 0 ? (
                             <div className="border border-gray-300 self-center h-[95%]"></div>
                         ) : undefined}
                         {SectionArticle}
-                    </>
+                    </React.Fragment>
                 ))}
             </div>
         </div>

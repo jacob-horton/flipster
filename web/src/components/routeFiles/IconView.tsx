@@ -14,6 +14,7 @@ import {
 } from "@src/apiRequest";
 import Link from "next/link";
 import { getPathString } from "@src/getFileRoute";
+import { useRouter } from "next/router";
 
 function currentFolderId(path: FolderType[]) {
     if (path.length === 0) return undefined;
@@ -21,21 +22,31 @@ function currentFolderId(path: FolderType[]) {
 }
 
 interface IconViewProps {
-    // onPathChange?: (newPath: FolderType[]) => void;
     currentPath: FolderType[];
+}
+
+function getFolders(rawFolders: string | string[] | undefined): string[] {
+    if (rawFolders === undefined) return [];
+    if (typeof rawFolders === "string") return [rawFolders];
+    return rawFolders;
 }
 
 const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
     const auth = useAuth();
     const [editingFolder, setEditingFolder] = useState<number | undefined>();
+    const router = useRouter();
+    const folders = getFolders(router.query.folders);
 
-    // Current folders
     // NOTE: `isLoading` doesn't work when `initialData` is set
     //       This is fine as `initialData` is not required if you know when its loading
     // TODO: Some sort of loading animation? May be too fast
+    // Current folders
     const { data: currentFolders, refetch } = useQuery({
         queryKey: [auth.user?.id_token, currentPath],
-        initialData: [],
+        initialData: folders.map((f) => ({
+            name: f,
+            id: -1,
+        })),
         queryFn: async (): Promise<FolderType[]> => {
             try {
                 // Not yet loaded top level folder
@@ -132,9 +143,9 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
             <div className="flex flex-wrap g-green-500">
                 {(currentFolders ?? []).map((folder) => (
                     <Folder
-                        key={folder.id}
+                        key={`${folder.id}:${folder.name}`} // Use both id and name for key - in case duplicate names, or ids (in cases of preloading)
                         editingName={folder.id === editingFolder}
-                        name={folder.name}
+                        folder={folder}
                         path={getPathString([...currentPath.slice(1), folder])}
                         onDoubleClick={() => {
                             setEditingFolder(folder.id);
