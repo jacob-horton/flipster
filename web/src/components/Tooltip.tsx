@@ -8,10 +8,9 @@ interface TooltipProps {
 
 const Tooltip: React.FC<TooltipProps> = ({ children, tooltip }) => {
     const [showTooltip, setShowTooltip] = useState(false);
-    const opacity = showTooltip ? "opacity-100 mt-2" : "opacity-0 mt-4";
 
     return (
-        <div className="relative">
+        <div className="relative z-10">
             <div
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
@@ -19,9 +18,14 @@ const Tooltip: React.FC<TooltipProps> = ({ children, tooltip }) => {
                 {children}
             </div>
             {/* Max width of 52 */}
-            <div className="w-52 flex justify-center absolute z-50 right-1/2 translate-x-1/2">
+            <div
+                className={`${
+                    showTooltip ? "opacity-100 visible" : "opacity-0 invisible"
+                } w-52 flex justify-center absolute right-1/2 translate-x-1/2 show-transition`}
+            >
                 <div
-                    className={`${opacity} drop-shadow-lg text-xs rounded-lg bg-gray-100 border border-black border-opacity-20 p-2 text-center transition-all select-none duration-200 ease-out`}
+                    className="
+                    drop-shadow-lg text-xs rounded-lg bg-gray-100 border border-black border-opacity-20 p-2 text-center select-none"
                 >
                     {tooltip}
                 </div>
