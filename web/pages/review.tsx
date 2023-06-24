@@ -73,12 +73,12 @@ const Review = () => {
             <div className="h-full flex p-4 space-x-4">
                 <PageSection
                     articles={[
-                        <SectionArticle titleBar="Review" className="w-full">
+                        <SectionArticle titleBar="Review">
                             Hello
                         </SectionArticle>,
                         <SectionArticle
                             titleBar="Flashcards"
-                            className="w-full pb-4"
+                            className="overflow-scroll mb-4"
                         >
                             <div className="flex-grow space-y-2">
                                 {flashcards.map((f) => (
