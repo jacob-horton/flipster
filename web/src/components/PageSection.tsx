@@ -32,11 +32,11 @@ export const SectionArticle: React.FC<SectionArticleProps> = ({
 }) => {
     return (
         <div className={" w-full " + (className ?? "")}>
-            <div className="flex py-2 px-3 flex-col h-full relative">
+            <div className="h-full flex flex-col relative py-2 px-3">
                 {bgIcon && <BackgroundIcon icon={bgIcon} />}
-                <div className="inline-flex align-top items-center space-x-2 pb-2">
+                <div className="flex items-center space-x-2 pb-2">
                     {icon}
-                    <h1 className="text-xl text-gray-800 w-full">{titleBar}</h1>
+                    <h1 className="w-full text-xl text-gray-800">{titleBar}</h1>
                 </div>
                 <div className="grow relative">{children}</div>
             </div>
@@ -78,8 +78,8 @@ const PageSection: React.FC<PageSectionProps> = ({
         ];
     }
     return (
-        <div className={" grow " + (className ?? "")}>
-            <div className="bg-white rounded-lg flex flex-row h-full light-border ">
+        <div className={className ?? ""}>
+            <div className="h-full flex flex-row bg-white light-border rounded-lg ">
                 {articles.map((SectionArticle, i) => (
                     <React.Fragment key={i}>
                         {i > 0 ? (
