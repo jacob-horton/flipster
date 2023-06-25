@@ -11,7 +11,7 @@ const Button: React.FC<ButtonProps> = ({ children, onClick, className }) => {
     return (
         <div className={className}>
             <button
-                className="bg-gray-300 px-5 rounded-lg border border-black border-opacity-10"
+                className="bg-gray-300 px-5 rounded-lg light-border"
                 onClick={onClick}
             >
                 {children}

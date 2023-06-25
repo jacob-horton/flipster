@@ -42,7 +42,7 @@ const SpacedRepetition = () => {
                     <AiOutlineInfoCircle />
                 </Tooltip>
             </div>
-            icon={<FiRepeat size={18} className="text-gray-800" />}
+            icon={<FiRepeat size={18} />}
             bgIcon={<FiRepeat size={200} />}
         >
             <div className="flex flex-col grow justify-between h-full items-center">
@@ -62,15 +62,14 @@ const SpacedRepetition = () => {
                                 </div>
                                 <div className="flex flex-row space-x-2">
                                     <div className="flex flex-row items-center space-x-1">
-                                        <BiCopy className="text-gray-800" />
-                                        <p className={`aspect-square w-6`}>
+                                        <BiCopy />
+                                        <p className="aspect-square w-6">
                                             {priority}
                                         </p>
                                     </div>
                                     <button>
                                         <HiOutlineDocumentMagnifyingGlass
                                             size={20}
-                                            className="text-gray-800"
                                         />
                                     </button>
                                 </div>

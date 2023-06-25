@@ -16,7 +16,7 @@ const App = ({ Component, pageProps }: AppProps) => {
             }}
         >
             <QueryClientProvider client={queryClient}>
-                <div className="flex flex-col h-screen bg-gray-100">
+                <div className="flex flex-col h-screen bg-gray-100 text-gray-800">
                     <Navbar />
                     <Component {...pageProps} />
                 </div>
