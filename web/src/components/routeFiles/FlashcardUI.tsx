@@ -9,6 +9,7 @@ interface RoundedSectionProps {
     side?: "left" | "right";
     children?: React.ReactNode;
     className?: string;
+    centerText?: boolean;
 }
 
 const RoundedSection: React.FC<RoundedSectionProps> = ({
@@ -17,15 +18,16 @@ const RoundedSection: React.FC<RoundedSectionProps> = ({
     className,
 }) => {
     return (
-        <div
-            className={
-                className +
-                " bg-gray-50 px-2 py-1 light-border " +
-                (side === "left" ? "rounded-l-lg" : "") +
-                (side === "right" ? "rounded-r-lg" : "")
-            }
-        >
-            {children}
+        <div className={className ?? ""}>
+            <div
+                className={
+                    " h-full flex flex-row bg-gray-50 light-border " +
+                    (side === "left" ? " rounded-l-lg " : "") +
+                    (side === "right" ? " rounded-r-lg " : "")
+                }
+            >
+                {children}
+            </div>
         </div>
     );
 };
@@ -61,20 +63,32 @@ const EditButton = () => {
 
 type FlashcardProps = {
     flashcard: FlashcardType;
+    indexSize: number;
     mode: "edit" | "select";
 };
 
-const FlashcardUI: React.FC<FlashcardProps> = ({ flashcard, mode }) => {
+const FlashcardUI: React.FC<FlashcardProps> = ({
+    flashcard,
+    mode,
+    indexSize,
+}) => {
+    const fid = flashcard.flashcardId;
     return (
         <div className="flex flex-row w-full text-sm space-x-1">
             <RoundedSection side="left">
-                <div className="w-3">{flashcard.flashcardId}</div>
+                <div className={`w-${indexSize} text-center self-center`}>
+                    {fid}
+                </div>
             </RoundedSection>
             <RoundedSection className="w-full align-top">
-                <strong>{flashcard.term}</strong>
+                <strong className="px-2 py-1 self-center">
+                    {flashcard.term}
+                </strong>
             </RoundedSection>
             <RoundedSection side="right" className="w-full align-text-top">
-                {flashcard.definition}
+                <span className="px-2 py-1 self-center">
+                    {flashcard.definition}
+                </span>
             </RoundedSection>
             {mode === "select" ? <SelectedButton /> : <EditButton />}
         </div>

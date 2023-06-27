@@ -11,9 +11,10 @@ const flashcards: FlashcardType[] = [
             "world! I'm going to talk about my feelings for a few minutes. Lately everything has",
     },
     {
-        flashcardId: 1,
-        term: "Hello, ",
-        definition: "world!",
+        flashcardId: 22,
+        term: "When",
+        definition:
+            "They ask you how you are and you just have to say that you're fine. But you're NOT really fine, you just can't get into it because they would never understand.",
     },
     {
         flashcardId: 2,
@@ -60,14 +61,15 @@ const flashcards: FlashcardType[] = [
         term: "Hello, ",
         definition: "world!",
     },
-    {
-        flashcardId: 11,
-        term: "Hello, ",
-        definition: "world!",
-    },
 ];
 
 const Review = () => {
+    // expand the index section when numbers exceed double digits (rel. to font size)
+    const fidLength = Math.max(
+        ...flashcards.map((f) => f.flashcardId)
+    ).toString().length;
+    const maxIdSize = Math.max(6, fidLength * 2 + 2);
+
     const pageSection = (
         <PageSection
             className="grow w-full h-full"
@@ -85,6 +87,7 @@ const Review = () => {
                                 key={f.flashcardId}
                                 flashcard={f}
                                 mode="select"
+                                indexSize={maxIdSize}
                             />
                         ))}
                     </div>
