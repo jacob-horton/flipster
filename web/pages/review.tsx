@@ -1,7 +1,7 @@
-import FlashcardUI from "@components/routeFiles/FlashcardUI";
+import FlashcardUI from "@components/routeFiles/FlashcardComponent";
 import PageSection, { SectionArticle } from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
-import { FlashcardType } from "@src/types/Flashcard";
+import { FlashcardData } from "@src/types/FlashcardData";
 
 const manualFlashcards = [
     {
@@ -18,7 +18,7 @@ const manualFlashcards = [
     },
 ];
 
-const fillerFlashcards: FlashcardType[] = [...new Array(10).keys()].map(
+const fillerFlashcards: FlashcardData[] = [...new Array(10).keys()].map(
     (i) => ({
         flashcardId: i + 1,
         term: "Hello",

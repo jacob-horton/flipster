@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PageSection from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
-import { Folder as FolderType } from "@src/types/Folder";
+import { Folder as FolderData } from "@src/types/Folder";
 import ListView from "@components/routeFiles/ListView";
 import IconView from "@components/routeFiles/IconView";
 import AddFlashcardButtonPopup from "@components/routeFiles/AddFlashcardButtonPopup";
@@ -10,7 +10,7 @@ import { getRequest, queryOrDefault } from "@src/apiRequest";
 import { AuthContextProps, useAuth } from "react-oidc-context";
 import { ResolvePathGet } from "@src/types/ResolvePathGet";
 
-function currentFolderId(path: FolderType[]) {
+function currentFolderId(path: FolderData[]) {
     if (path.length === 0) return undefined;
     return path[path.length - 1].id;
 }
@@ -23,7 +23,7 @@ async function getFoldersFromNames(auth: AuthContextProps, names: string) {
                 path: "/folder/resolve_path",
                 id_token: token,
                 queryParams,
-            }).then(async (resp) => (await resp.json()) as FolderType[]);
+            }).then(async (resp) => (await resp.json()) as FolderData[]);
 
             return folders;
         },
@@ -33,7 +33,7 @@ async function getFoldersFromNames(auth: AuthContextProps, names: string) {
 }
 
 const Files = () => {
-    const [currentPath, setCurrentPath] = useState<FolderType[]>([]);
+    const [currentPath, setCurrentPath] = useState<FolderData[]>([]);
     const [view, setView] = useState<"icon" | "list">("icon");
 
     const router = useRouter();

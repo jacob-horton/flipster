@@ -1,4 +1,4 @@
-import { FlashcardType } from "@src/types/Flashcard";
+import { FlashcardData } from "@src/types/FlashcardData";
 import { useState } from "react";
 
 import { BsCheck } from "react-icons/bs";
@@ -64,7 +64,7 @@ const EditButton = () => {
 };
 
 type FlashcardProps = {
-    flashcard: FlashcardType;
+    flashcard: FlashcardData;
     indexSize: number;
     mode: "edit" | "select";
 };
