@@ -3,7 +3,7 @@ import { SubFolderRename } from "@src/types/SubFolderRename";
 import { insertFolder } from "@src/insertFolder";
 import { useAuth } from "react-oidc-context";
 import { useQuery } from "@tanstack/react-query";
-import { Folder as FolderType } from "@src/types/Folder";
+import { Folder as FolderData } from "@src/types/Folder";
 import { useState } from "react";
 import { SubFolderGet } from "@src/types/SubFolderGet";
 import {
@@ -16,13 +16,13 @@ import Link from "next/link";
 import { getPathString } from "@src/getFileRoute";
 import { useRouter } from "next/router";
 
-function currentFolderId(path: FolderType[]) {
+function currentFolderId(path: FolderData[]) {
     if (path.length === 0) return undefined;
     return path[path.length - 1].id;
 }
 
 interface IconViewProps {
-    currentPath: FolderType[];
+    currentPath: FolderData[];
 }
 
 function getFolders(rawFolders: string | string[] | undefined): string[] {
@@ -47,7 +47,7 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
             name: f,
             id: -1,
         })),
-        queryFn: async (): Promise<FolderType[]> => {
+        queryFn: async (): Promise<FolderData[]> => {
             try {
                 // Not yet loaded top level folder
                 const folderId = currentFolderId(currentPath);
@@ -62,7 +62,7 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
                             queryParams: params,
                         });
 
-                        return (await subFolders.json()) as FolderType[];
+                        return (await subFolders.json()) as FolderData[];
                     },
                     auth,
                     currentFolders,

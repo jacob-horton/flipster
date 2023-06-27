@@ -24,14 +24,14 @@ interface SectionArticleProps {
 }
 
 export const SectionArticle: React.FC<SectionArticleProps> = ({
+    className,
     icon,
     titleBar,
     bgIcon,
     children,
-    className,
 }) => {
     return (
-        <div className={`w-full ${className ?? ""}`}>
+        <div className={className}>
             <div className="h-full flex flex-col relative py-2 px-3">
                 {bgIcon && <BackgroundIcon icon={bgIcon} />}
                 <div className="flex items-center space-x-2 pb-2">
@@ -70,6 +70,7 @@ const PageSection: React.FC<PageSectionProps> = ({
     if (!articles) {
         articles = [
             <SectionArticle
+                className="w-full"
                 children={children}
                 titleBar={titleBar}
                 icon={icon}

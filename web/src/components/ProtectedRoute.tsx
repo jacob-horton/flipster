@@ -9,7 +9,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const auth = useAuth();
 
     return auth.isAuthenticated ? (
-        <div className="flex-grow overflow-auto">{children}</div>
+        <>{children}</>
     ) : (
         <div className="text-center pt-10">Please login to view this page</div>
     );
