@@ -127,11 +127,11 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
 
     return (
         <div className="flex flex-col grow">
-            <div className="px-6 flex flex-row space-x-2 text-gray-600">
+            <div className="px-6 flex flex-row space-x-2">
                 {currentPath.map((f, i) => (
                     <div key={f.id} className="flex space-x-2">
                         <Link
-                            className="hover:text-gray-800"
+                            className="hover:text-gray-500"
                             href={getPathString(currentPath.slice(1, i + 1))}
                         >
                             {f.name}

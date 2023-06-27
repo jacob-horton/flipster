@@ -3,10 +3,10 @@ import PageSection, { SectionArticle } from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
 import { FlashcardType } from "@src/types/Flashcard";
 
-const flashcards: FlashcardType[] = [
+const manualFlashcards = [
     {
         flashcardId: 0,
-        term: "Lorem ipsum crimble crumble that's just how the cookie crumbles ",
+        term: "Lorem ipsum crimble crumble that's just how the cookie crumbles",
         definition:
             "world! I'm going to talk about my feelings for a few minutes. Lately everything has",
     },
@@ -16,52 +16,17 @@ const flashcards: FlashcardType[] = [
         definition:
             "They ask you how you are and you just have to say that you're fine. But you're NOT really fine, you just can't get into it because they would never understand.",
     },
-    {
-        flashcardId: 2,
-        term: "Hello, ",
-        definition: "world!",
-    },
-    {
-        flashcardId: 3,
-        term: "Hello, ",
-        definition: "world!",
-    },
-    {
-        flashcardId: 4,
-        term: "Hello, ",
-        definition: "world!",
-    },
-    {
-        flashcardId: 5,
-        term: "Hello, ",
-        definition: "world!",
-    },
-    {
-        flashcardId: 6,
-        term: "Hello, ",
-        definition: "world!",
-    },
-    {
-        flashcardId: 7,
-        term: "Hello, ",
-        definition: "world!",
-    },
-    {
-        flashcardId: 8,
-        term: "Hello, ",
-        definition: "world!",
-    },
-    {
-        flashcardId: 9,
-        term: "Hello, ",
-        definition: "world!",
-    },
-    {
-        flashcardId: 10,
-        term: "Hello, ",
-        definition: "world!",
-    },
 ];
+
+const fillerFlashcards: FlashcardType[] = [...new Array(10).keys()].map(
+    (i) => ({
+        flashcardId: i + 1,
+        term: "Hello",
+        definition: "world!",
+    })
+);
+
+const flashcards = [...manualFlashcards, ...fillerFlashcards];
 
 const Review = () => {
     // expand the index section when numbers exceed double digits (rel. to font size)

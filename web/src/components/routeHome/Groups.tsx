@@ -6,12 +6,7 @@ const Groups = () => {
         <PageSection
             className="col-span-2"
             titleBar="Groups"
-            icon={
-                <MdGroups
-                    size={28}
-                    className="text-gray-800 space-x-4 space-y-4"
-                />
-            }
+            icon={<MdGroups size={28} className="space-x-4 space-y-4" />}
             bgIcon={<MdGroups size={200} />}
         ></PageSection>
     );
