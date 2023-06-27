@@ -36,13 +36,15 @@ const SelectedButton = () => {
         <button
             className={
                 "ml-1 self-center rounded-full light-border " +
-                (selected ? "bg-orange-400" : "bg-orange-200")
+                (selected ? "bg-orange-500" : "bg-gray-100")
             }
             onClick={() => {
                 setSelected(!selected);
             }}
         >
-            <IconContext.Provider value={{ color: "white" }}>
+            <IconContext.Provider
+                value={{ color: selected ? "white" : "gray" }}
+            >
                 <BsCheck />
             </IconContext.Provider>
         </button>
