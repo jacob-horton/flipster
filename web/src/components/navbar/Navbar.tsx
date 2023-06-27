@@ -30,7 +30,7 @@ const Navbar = () => {
     const { route } = useRouter();
 
     return (
-        <header className="flex flex-row items-center justify-between bg-white rounded-b-lg light-border">
+        <nav className="flex flex-row items-center justify-between bg-white rounded-b-lg light-border">
             <div className="flex flex-row space-x-4 p-2">
                 <Logo />
                 {tabs.map(({ icon, name }) => {
@@ -49,7 +49,7 @@ const Navbar = () => {
                 })}
             </div>
             <Profile />
-        </header>
+        </nav>
     );
 };
 
