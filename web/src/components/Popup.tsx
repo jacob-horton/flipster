@@ -26,7 +26,7 @@ const Popup: React.FC<PopupProps> = ({ children, show, onCancel }) => {
         <div onClick={onCancel}>
             <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
                 <div
-                    className="px-4 py-3 min-w-[35%] min-h-[25%] bg-gray-100 border border-black border-opacity-20 drop-shadow-2xl shadow-gray-200 rounded-lg"
+                    className="px-4 py-3 min-w-[35%] min-h-[25%] bg-gray-100 light-border drop-shadow-2xl shadow-gray-200 rounded-lg"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {children}

@@ -70,14 +70,14 @@ const AddFlashcardButtonPopup: React.FC<AddFlashcardButtonPopupProps> = ({
                     <div>
                         <p className="text-lg">Term</p>
                         <textarea
-                            className="px-2 pt-1 pb-2 border-[1.5px] border-black border-opacity-10 rounded-lg w-full"
+                            className="px-2 pt-1 pb-2 light-border rounded-lg w-full"
                             onChange={(e) => setTerm(e.target.value)}
                         />
                     </div>
                     <div>
                         <p className="text-lg">Definition</p>
                         <textarea
-                            className="px-2 pt-1 pb-20 border-[1.5px] border-black border-opacity-10 rounded-lg w-full"
+                            className="px-2 pt-1 pb-20 light-border rounded-lg w-full"
                             onChange={(e) => setDefinition(e.target.value)}
                         />
                     </div>
