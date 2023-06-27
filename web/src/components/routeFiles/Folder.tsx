@@ -52,7 +52,7 @@ const Folder: React.FC<FolderProps> = ({
 
     // TODO: force path to be present if add is false
     return (
-        <div className="flex flex-col text-gray-800 w-24 m-2">
+        <div className="flex flex-col w-24 m-2">
             <div className="flex justify-center">
                 <span className="text-lg">
                     {add ?? false ? (
@@ -66,7 +66,6 @@ const Folder: React.FC<FolderProps> = ({
                         </button>
                     ) : (
                         <Link
-                            className="hover:text-gray-800"
                             href={{
                                 pathname: path ?? "",
                                 query: {

@@ -5,13 +5,7 @@ const Calendar = () => {
     return (
         <PageSection
             titleBar="Calendar"
-            icon={
-                <BsCalendar2Week
-                    size={28}
-                    className="text-gray-800"
-                    strokeWidth={0.2}
-                />
-            }
+            icon={<BsCalendar2Week size={28} strokeWidth={0.2} />}
             bgIcon={<BsCalendar2Week size={200} />}
         ></PageSection>
     );

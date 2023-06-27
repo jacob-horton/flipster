@@ -35,14 +35,16 @@ const SelectedButton = () => {
     return (
         <button
             className={
-                " ml-1 self-center rounded-full light-border " +
-                (selected ? "bg-orange-400" : "bg-orange-200")
+                "ml-1 self-center rounded-full light-border " +
+                (selected ? "bg-orange-500" : "bg-gray-100")
             }
             onClick={() => {
                 setSelected(!selected);
             }}
         >
-            <IconContext.Provider value={{ color: "white" }}>
+            <IconContext.Provider
+                value={{ color: selected ? "white" : "gray" }}
+            >
                 <BsCheck />
             </IconContext.Provider>
         </button>
@@ -51,7 +53,7 @@ const SelectedButton = () => {
 
 const EditButton = () => {
     return (
-        <button className=" ml-1 self-center p-1 rounded-lg border-purple-500 border ">
+        <button className="ml-1 self-center p-1 rounded-lg border-purple-500 border">
             <IconContext.Provider value={{ color: "#a855f7" }}>
                 <CiEdit />
             </IconContext.Provider>
