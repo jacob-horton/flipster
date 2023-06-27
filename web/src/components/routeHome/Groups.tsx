@@ -4,6 +4,7 @@ import { MdGroups } from "react-icons/md";
 const Groups = () => {
     return (
         <PageSection
+            className="col-span-2"
             titleBar="Groups"
             icon={
                 <MdGroups

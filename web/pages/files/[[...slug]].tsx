@@ -60,35 +60,39 @@ const Files = () => {
     // TODO: dropdown shows over popup
     return (
         <ProtectedRoute>
-            <PageSection
-                className="h-full p-4"
-                titleBar={
-                    <div className="flex flex-row justify-between p-4">
-                        <h1 className="text-2xl">Your Files</h1>
-                        <select
-                            className="px-4 bg-gray-300 text-base rounded-lg"
-                            onChange={(e) => {
-                                setView(e.target.value as "list" | "icon");
-                                if (e.target.value === "list") {
-                                    router.replace("/files");
-                                }
-                            }}
-                            value={view}
-                        >
-                            <option value="icon">Icon</option>
-                            <option value="list">List</option>
-                        </select>
+            <div className="h-full p-4 flex flex-col">
+                <PageSection
+                    className="grow"
+                    titleBar={
+                        <div className="flex flex-row justify-between p-4">
+                            <h1 className="text-2xl">Your Files</h1>
+                            <select
+                                className="px-4 bg-gray-300 text-base rounded-lg"
+                                onChange={(e) => {
+                                    setView(e.target.value as "list" | "icon");
+                                    if (e.target.value === "list") {
+                                        router.replace("/files");
+                                    }
+                                }}
+                                value={view}
+                            >
+                                <option value="icon">Icon</option>
+                                <option value="list">List</option>
+                            </select>
+                        </div>
+                    }
+                >
+                    <div className="space-y-6">
+                        {view === "icon" && (
+                            <IconView currentPath={currentPath} />
+                        )}
+                        {view === "list" && <ListView />}
+                        <AddFlashcardButtonPopup
+                            currentFolderId={currentFolderId(currentPath)}
+                        />
                     </div>
-                }
-            >
-                <div className="space-y-6">
-                    {view === "icon" && <IconView currentPath={currentPath} />}
-                    {view === "list" && <ListView />}
-                    <AddFlashcardButtonPopup
-                        currentFolderId={currentFolderId(currentPath)}
-                    />
-                </div>
-            </PageSection>
+                </PageSection>
+            </div>
         </ProtectedRoute>
     );
 };

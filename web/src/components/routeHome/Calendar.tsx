@@ -4,6 +4,7 @@ import PageSection from "../PageSection";
 const Calendar = () => {
     return (
         <PageSection
+            className="col-span-4"
             titleBar="Calendar"
             icon={
                 <BsCalendar2Week

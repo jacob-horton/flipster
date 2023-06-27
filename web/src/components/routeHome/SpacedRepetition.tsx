@@ -33,6 +33,7 @@ const SpacedRepetition = () => {
 
     return (
         <PageSection
+            className="col-span-2"
             titleBar=<div className="flex flex-row items-center justify-between">
                 <p>Spaced Repetition</p>
                 <Tooltip

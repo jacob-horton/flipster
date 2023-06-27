@@ -1,4 +1,4 @@
-import FlashcardUI from "@components/routeFiles/Flashcard";
+import FlashcardUI from "@components/routeFiles/FlashcardUI";
 import PageSection, { SectionArticle } from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
 import { FlashcardType } from "@src/types/Flashcard";
@@ -68,31 +68,34 @@ const flashcards: FlashcardType[] = [
 ];
 
 const Review = () => {
+    const pageSection = (
+        <PageSection
+            className="grow w-full h-full"
+            articles={[
+                <SectionArticle className="w-full" titleBar="Review">
+                    Hello
+                </SectionArticle>,
+                <SectionArticle
+                    titleBar="Flashcards"
+                    className="w-full overflow-auto mb-4"
+                >
+                    <div className="grow space-y-2">
+                        {flashcards.map((f) => (
+                            <FlashcardUI
+                                key={f.flashcardId}
+                                flashcard={f}
+                                mode="select"
+                            />
+                        ))}
+                    </div>
+                </SectionArticle>,
+            ]}
+        />
+    );
     return (
         <ProtectedRoute>
-            <div className="h-full flex p-4 space-x-4">
-                <PageSection
-                    className="grow"
-                    articles={[
-                        <SectionArticle titleBar="Review">
-                            Hello
-                        </SectionArticle>,
-                        <SectionArticle
-                            titleBar="Flashcards"
-                            className="overflow-y-scroll mb-4"
-                        >
-                            <div className="flex-grow space-y-2">
-                                {flashcards.map((f) => (
-                                    <FlashcardUI
-                                        key={f.flashcardId}
-                                        flashcard={f}
-                                        mode="select"
-                                    />
-                                ))}
-                            </div>
-                        </SectionArticle>,
-                    ]}
-                />
+            <div className="h-full flex flex-col items-center p-4">
+                {pageSection}
             </div>
         </ProtectedRoute>
     );
