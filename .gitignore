@@ -59,5 +59,7 @@ sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/react
 
-.env
-db-data
+**/*.env
+**/*.env.*
+data
+.next

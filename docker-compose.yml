@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  postgres_auth:
+    container_name: postgres_auth
+    image: "postgres:latest"
+    environment:
+      POSTGRES_USER: ${KC_DB_USER}
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
+      POSTGRES_DB: ${KC_DB_NAME}
+
+    networks:
+      - backend
+    volumes:
+      - auth_db:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+
+  keycloak_auth:
+    container_name: keycloak_auth
+    image: "quay.io/keycloak/keycloak:latest"
+    command: start-dev --db postgres --db-url-host postgres_auth --db-username ${KC_DB_USER} --db-password ${KC_DB_PASSWORD}
+    depends_on:
+      - "postgres_auth"
+    env_file:
+      - ./.env
+    ports:
+      - 8180:8080
+      - 8787:8787 # debug port
+    networks:
+      - backend
+
+  database:
+    container_name: database
+    image: "postgres:latest"
+    ports:
+      - 5433:5432
+
+    environment:
+      POSTGRES_USER: ${DBUSER}
+      POSTGRES_PASSWORD: ${DBPASSWORD}
+      POSTGRES_DB: ${DBNAME}
+
+    volumes:
+      - db:/var/lib/postgresql/data/
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
+
+volumes:
+  db:
+  auth_db:
