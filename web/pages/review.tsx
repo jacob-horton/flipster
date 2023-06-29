@@ -1,4 +1,4 @@
-import FlashcardUI from "@components/routeFiles/FlashcardComponent";
+import FlashcardComponent from "@components/routeFiles/FlashcardComponent";
 import PageSection, { SectionArticle } from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
 import { Flashcard } from "@src/types/Flashcard";
@@ -69,7 +69,7 @@ const Review = () => {
                 >
                     <div className="grow space-y-2">
                         {data.map((f, i) => (
-                            <FlashcardUI
+                            <FlashcardComponent
                                 key={f.id}
                                 flashcard={{
                                     ...f,

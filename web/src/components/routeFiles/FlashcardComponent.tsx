@@ -69,7 +69,7 @@ type FlashcardProps = {
     mode: "edit" | "select";
 };
 
-const FlashcardUI: React.FC<FlashcardProps> = ({
+const FlashcardComponent: React.FC<FlashcardProps> = ({
     flashcard,
     mode,
     indexWidth,
@@ -97,4 +97,4 @@ const FlashcardUI: React.FC<FlashcardProps> = ({
     );
 };
 
-export default FlashcardUI;
+export default FlashcardComponent;
