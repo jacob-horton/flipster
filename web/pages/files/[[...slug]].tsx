@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import PageSection from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
 import { Folder as FolderData } from "@src/types/Folder";
-import ListView from "@components/routeFiles/ListView";
+import FolderListView from "@components/FolderListView";
 import IconView from "@components/routeFiles/IconView";
 import AddFlashcardButtonPopup from "@components/routeFiles/AddFlashcardButtonPopup";
 import { useRouter } from "next/router";
@@ -86,7 +86,9 @@ const Files = () => {
                         {view === "icon" && (
                             <IconView currentPath={currentPath} />
                         )}
-                        {view === "list" && <ListView />}
+                        {view === "list" && (
+                            <FolderListView selectMultiple={false} />
+                        )}
                         <AddFlashcardButtonPopup
                             currentFolderId={currentFolderId(currentPath)}
                         />

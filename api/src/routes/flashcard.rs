@@ -1,10 +1,10 @@
 use actix_web::{
-    post, get,
+    get, post,
     web::{self, Data},
     HttpRequest, HttpResponse, Responder,
 };
 
-use crate::{exportable, utils, routes::folder::get_folder_owner, AppState};
+use crate::{exportable, routes::folder::get_folder_owner, utils, AppState};
 
 exportable! {
     pub struct FlashcardInsert {
@@ -82,13 +82,14 @@ pub async fn get_flashcard(
     if Some(user_id) != owner {
         return HttpResponse::Unauthorized().body("User is not folder owner.");
     }
-    let flashcards = sqlx::query_as!(Flashcard,
+    let flashcards = sqlx::query_as!(
+        Flashcard,
         "SELECT id, term, definition FROM flashcard WHERE folder_id = $1",
         info.folder_id
     )
     .fetch_all(data.db_pool.as_ref())
     .await
     .unwrap();
-    
+
     HttpResponse::Ok().json(flashcards)
 }
