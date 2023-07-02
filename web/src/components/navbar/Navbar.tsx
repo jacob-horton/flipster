@@ -4,9 +4,8 @@ import Profile from "./Profile";
 import { useRouter } from "next/router";
 
 import { HiOutlineHome } from "react-icons/hi";
-import { BsBook } from "react-icons/bs";
+import { BsBook, BsPeople } from "react-icons/bs";
 import { AiOutlineFileText } from "react-icons/ai";
-import { GrGroup } from "react-icons/gr";
 
 const Navbar = () => {
     const tabs = [
@@ -23,7 +22,7 @@ const Navbar = () => {
             name: "Files",
         },
         {
-            icon: <GrGroup />,
+            icon: <BsPeople />,
             name: "Groups",
         },
     ];
@@ -32,7 +31,9 @@ const Navbar = () => {
     return (
         <nav className="flex flex-row items-center justify-between bg-white rounded-b-lg light-border">
             <div className="flex flex-row space-x-4 p-2">
-                <Logo />
+                <div className="pr-4">
+                    <Logo />
+                </div>
                 {tabs.map(({ icon, name }) => {
                     const path = `/${name.toLowerCase()}`;
                     return (

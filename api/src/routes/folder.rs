@@ -16,24 +16,23 @@ exportable! {
 }
 
 pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<i32> {
-    let top_level_folder = sqlx::query!(
+    let top_level_folder = sqlx::query_scalar!(
         "WITH RECURSIVE f AS(
           SELECT id, parent_id FROM folder WHERE id = $1
           UNION
 	        SELECT folder.id as id, folder.parent_id as parent_id FROM f, folder WHERE folder.id = f.parent_id
-        ) SELECT * FROM f WHERE parent_id IS NULL",
+        ) SELECT id FROM f WHERE parent_id IS NULL",
         folder_id
-    ).fetch_one(db_pool).await.ok()?.id;
+    ).fetch_one(db_pool).await.ok()?;
 
     Some(
-        sqlx::query!(
+        sqlx::query_scalar!(
             "SELECT id FROM app_user WHERE flashcards = $1",
             top_level_folder
         )
         .fetch_one(db_pool)
         .await
-        .ok()?
-        .id,
+        .ok()?,
     )
 }
 

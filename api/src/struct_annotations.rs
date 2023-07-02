@@ -16,3 +16,16 @@ macro_rules! exportable {
         $i
     };
 }
+
+#[macro_export]
+macro_rules! enum_type {
+    ($i:item) => {
+        #[derive(
+            sqlx::Type, Debug, Clone, ::serde::Deserialize, ::serde::Serialize, ::ts_rs::TS,
+        )]
+        #[ts(export, export_to = "../web/src/types/")]
+        #[serde(rename_all = "camelCase")]
+        #[sqlx(rename_all = "lowercase")]
+        $i
+    };
+}
