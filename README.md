@@ -56,3 +56,14 @@ Run the web frontend by navigating to `./web` and running `yarn dev`
 - The frontend of the website
 - Uses React, NextJS and TypeScript
 - Tailwind CSS for styling
+
+# Linting Before Commit
+
+There is a [pre-commit](https://pre-commit.com/) config set up to lint both web and api before a commit is made. If any linting errors are found, the commit will fail
+
+## Installation
+
+1. Install [pre-commit](https://pre-commit.com/) using `pip install pre-commit`
+2. Install the hooks using pre-commit: `pre-commit install`
+
+Now when you make a commit it will run `yarn lint`, `cargo fmt --check` and `cargo clippy` to check everything before you can commit!
