@@ -42,7 +42,7 @@ const FolderListView: React.FC<FolderListViewProps> = ({
     }, [auth.user, folders]);
 
     useEffect(() => {
-        // must be useCallback, otherwise it will rerender constantly. enforce?
+        // NOTE: must be useCallback, otherwise it will rerender constantly. enforce?
         if (onSelectedFoldersChange) onSelectedFoldersChange(selected);
     }, [selected, onSelectedFoldersChange]);
 
