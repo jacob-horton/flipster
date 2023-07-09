@@ -3,9 +3,17 @@ import { useEffect, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import ListViewNode, { NodeData } from "./ListViewNode";
 
-const ListView = () => {
+interface FolderListViewProps {
+    selectMultiple: boolean;
+    onSelectedFoldersChange?: (folderIds: number[]) => void;
+}
+
+const FolderListView: React.FC<FolderListViewProps> = ({
+    selectMultiple,
+    onSelectedFoldersChange,
+}) => {
     const [folders, setFolders] = useState<NodeData | undefined>(undefined);
-    const [selected, setSelected] = useState<number | undefined>(undefined);
+    const [selected, setSelected] = useState<number[]>([]);
     const auth = useAuth();
 
     useEffect(() => {
@@ -33,6 +41,11 @@ const ListView = () => {
         fetchData();
     }, [auth.user, folders]);
 
+    useEffect(() => {
+        // NOTE: must be useCallback, otherwise it will rerender constantly. enforce?
+        if (onSelectedFoldersChange) onSelectedFoldersChange(selected);
+    }, [selected, onSelectedFoldersChange]);
+
     if (folders === undefined) {
         return <p>Loading</p>;
     } else {
@@ -42,10 +55,20 @@ const ListView = () => {
                 expanded={true}
                 path={[]}
                 selected={selected}
-                setSelected={setSelected}
+                setSelected={(id: number) => {
+                    if (selectMultiple) {
+                        if (selected.includes(id)) {
+                            setSelected(selected.filter((i) => i != id));
+                        } else {
+                            setSelected((selected) => [...selected, id]);
+                        }
+                    } else {
+                        setSelected([id]);
+                    }
+                }}
             />
         );
     }
 };
 
-export default ListView;
+export default FolderListView;

@@ -1,4 +1,4 @@
-import { FlashcardData } from "@src/types/FlashcardData";
+import { Flashcard } from "@src/types/Flashcard";
 import { useState } from "react";
 
 import { BsCheck } from "react-icons/bs";
@@ -64,21 +64,21 @@ const EditButton = () => {
 };
 
 type FlashcardProps = {
-    flashcard: FlashcardData;
-    indexSize: number;
+    flashcard: Flashcard;
+    indexWidth: number;
     mode: "edit" | "select";
 };
 
-const FlashcardUI: React.FC<FlashcardProps> = ({
+const FlashcardComponent: React.FC<FlashcardProps> = ({
     flashcard,
     mode,
-    indexSize,
+    indexWidth,
 }) => {
-    const fid = flashcard.flashcardId;
+    const fid = flashcard.id;
     return (
         <div className="flex flex-row w-full text-sm space-x-1">
             <RoundedSection side="left">
-                <div className={`w-${indexSize} text-center self-center`}>
+                <div className={`w-${indexWidth} text-center self-center`}>
                     {fid}
                 </div>
             </RoundedSection>
@@ -97,4 +97,4 @@ const FlashcardUI: React.FC<FlashcardProps> = ({
     );
 };
 
-export default FlashcardUI;
+export default FlashcardComponent;

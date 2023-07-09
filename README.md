@@ -32,9 +32,10 @@ This requires `sqlx-cli` to be installed (`cargo install sqlx-cli`)
 4. In `Realm Settings`, click on the `Login` tab, and choose desired settings (`User registration`, `Forgot password`, etc.)
 5. In `Clients`, click `Create` and name the client the same as in `.env` (`react-auth` by default)
 6. Turn on client authentication
-7. Put `http://localhost:5173` in `Valid redirect URIs` and `Web origins`
-8. Go to `Credentials` and copy the client secret into `.env` where it says `<client_secret>`
-9. To add Google login or similar, go to `Identity providers` and `Add provider`, then fill in the details
+7. Put `http://localhost:5173/*` in `Valid redirect URIs`
+8. Put `http://localhost:5173` in `Web origins`
+9. Go to `Credentials` and copy the client secret into `.env` where it says `<client_secret>`
+10. To add Google login or similar, go to `Identity providers` and `Add provider`, then fill in the details
 
 ## 5. Web/API
 
@@ -56,3 +57,14 @@ Run the web frontend by navigating to `./web` and running `yarn dev`
 - The frontend of the website
 - Uses React, NextJS and TypeScript
 - Tailwind CSS for styling
+
+# Linting Before Commit
+
+There is a [pre-commit](https://pre-commit.com/) config set up to lint both web and api before a commit is made. If any linting errors are found, the commit will fail
+
+## Installation
+
+1. Install [pre-commit](https://pre-commit.com/) using `pip install pre-commit`
+2. Install the hooks using pre-commit: `pre-commit install`
+
+Now when you make a commit it will run `yarn lint`, `cargo fmt --check` and `cargo clippy` to check everything before you can commit!
