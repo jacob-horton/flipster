@@ -1,10 +1,10 @@
 use actix_web::{
-    post,
+    get, post,
     web::{self, Data},
     HttpRequest, HttpResponse, Responder,
 };
 
-use crate::{exportable, routes::folder::get_folder_owner, AppState};
+use crate::{exportable, routes::folder::get_folder_owner, utils, AppState};
 
 exportable! {
     pub struct FlashcardInsert {
@@ -55,4 +55,41 @@ pub async fn add_flashcard(
         }
         None => HttpResponse::Unauthorized().body("Folder is not owned by this user"),
     }
+}
+
+exportable! {
+    pub struct FlashcardGet {
+        folder_id: i32
+    }
+}
+
+exportable! {
+    pub struct Flashcard {
+        id: i32,
+        term: String,
+        definition: String,
+    }
+}
+
+#[get("/flashcard/get")]
+pub async fn get_flashcard(
+    data: Data<AppState>,
+    info: web::Query<FlashcardGet>,
+    req: HttpRequest,
+) -> impl Responder {
+    let user_id: i32 = utils::get_user_id(&req).unwrap();
+    let owner = get_folder_owner(info.folder_id, &data.db_pool).await;
+    if Some(user_id) != owner {
+        return HttpResponse::Unauthorized().body("User is not folder owner.");
+    }
+    let flashcards = sqlx::query_as!(
+        Flashcard,
+        "SELECT id, term, definition FROM flashcard WHERE folder_id = $1",
+        info.folder_id
+    )
+    .fetch_all(data.db_pool.as_ref())
+    .await
+    .unwrap();
+
+    HttpResponse::Ok().json(flashcards)
 }

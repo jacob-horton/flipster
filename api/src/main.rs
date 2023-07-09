@@ -5,7 +5,7 @@ use actix_web::{http, web::Data, App, HttpServer};
 use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::validator;
 use routes::{
-    flashcard::add_flashcard,
+    flashcard::{add_flashcard, get_flashcard},
     folder::{add_folder, get_unique_folder_name, rename_folder, resolve_path},
     user::{get_subfolders, get_top_level_folder},
 };
@@ -66,6 +66,7 @@ async fn main() -> std::io::Result<()> {
             .service(rename_folder)
             .service(resolve_path)
             .service(get_unique_folder_name)
+            .service(get_flashcard)
     })
     .bind(("0.0.0.0", 8080))?
     .run()
