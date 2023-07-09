@@ -32,9 +32,10 @@ This requires `sqlx-cli` to be installed (`cargo install sqlx-cli`)
 4. In `Realm Settings`, click on the `Login` tab, and choose desired settings (`User registration`, `Forgot password`, etc.)
 5. In `Clients`, click `Create` and name the client the same as in `.env` (`react-auth` by default)
 6. Turn on client authentication
-7. Put `http://localhost:5173/*` in `Valid redirect URIs` `http://localhost:5173/` and `Web origins`
-8. Go to `Credentials` and copy the client secret into `.env` where it says `<client_secret>`
-9. To add Google login or similar, go to `Identity providers` and `Add provider`, then fill in the details
+7. Put `http://localhost:5173/*` in `Valid redirect URIs`
+8. Put `http://localhost:5173` in `Web origins`
+9. Go to `Credentials` and copy the client secret into `.env` where it says `<client_secret>`
+10. To add Google login or similar, go to `Identity providers` and `Add provider`, then fill in the details
 
 ## 5. Web/API
 
