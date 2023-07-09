@@ -15,6 +15,7 @@ exportable! {
 }
 
 enum_type! {
+    #[sqlx(type_name = "member_type")]
     pub enum MemberType {
         Member,
         Admin,
@@ -31,11 +32,17 @@ pub async fn add_group(
     // TODO: do not allow symbols?
     let user_id: i32 = utils::get_user_id(&req).unwrap();
 
+    let tlf = sqlx::query_scalar!("INSERT INTO folder (name) VALUES ('Files') RETURNING id")
+        .fetch_one(data.db_pool.as_ref())
+        .await
+        .expect("Failed to create folder for new group");
+
     let group_id = sqlx::query_scalar!(
-        "INSERT INTO app_group (name, description, is_public) VALUES ($1, $2, $3) RETURNING id",
+        "INSERT INTO app_group (name, description, is_public, top_level_folder) VALUES ($1, $2, $3, $4) RETURNING id",
         payload.name,
         payload.description,
-        payload.is_public
+        payload.is_public,
+        tlf,
     )
     .fetch_one(data.db_pool.as_ref())
     .await

@@ -15,7 +15,12 @@ exportable! {
     }
 }
 
-pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<i32> {
+pub enum FolderOwner {
+    User(i32),
+    Group(i32),
+}
+
+pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<FolderOwner> {
     let top_level_folder = sqlx::query_scalar!(
         "WITH RECURSIVE f AS(
           SELECT id, parent_id FROM folder WHERE id = $1
@@ -25,15 +30,40 @@ pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<i32> {
         folder_id
     ).fetch_one(db_pool).await.ok()?;
 
-    Some(
-        sqlx::query_scalar!(
-            "SELECT id FROM app_user WHERE flashcards = $1",
-            top_level_folder
-        )
-        .fetch_one(db_pool)
-        .await
-        .ok()?,
+    let user_id_future = sqlx::query_scalar!(
+        "SELECT id FROM app_user WHERE top_level_folder = $1",
+        top_level_folder
     )
+    .fetch_optional(db_pool);
+
+    let group_id_future = sqlx::query_scalar!(
+        "SELECT id FROM app_group WHERE top_level_folder = $1",
+        top_level_folder
+    )
+    .fetch_optional(db_pool);
+
+    let (user_id, group_id) = futures::join!(user_id_future, group_id_future);
+    let user_id = user_id.unwrap();
+    let group_id = group_id.unwrap();
+
+    if let Some(user_id) = user_id {
+        return Some(FolderOwner::User(user_id));
+    }
+
+    if let Some(group_id) = group_id {
+        return Some(FolderOwner::Group(group_id));
+    }
+
+    None
+}
+
+pub async fn does_user_own_folder(folder_id: i32, user_id: i32, db_pool: &PgPool) -> bool {
+    let owner = get_folder_owner(folder_id, db_pool).await;
+    match owner {
+        Some(FolderOwner::User(id)) => user_id == id,
+        Some(_) => false, // Other entity (e.g. group) owns folder
+        None => false,    // Folder does not have owner
+    }
 }
 
 exportable! {
@@ -51,9 +81,7 @@ pub async fn add_folder(
 ) -> impl Responder {
     // TODO: do not allow symbols?
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    let owner = get_folder_owner(payload.parent_folder_id, data.db_pool.as_ref()).await;
-
-    if Some(user_id) != owner {
+    if !does_user_own_folder(payload.parent_folder_id, user_id, &data.db_pool).await {
         return HttpResponse::Unauthorized().body("User does not own that folder");
     }
 
@@ -93,9 +121,7 @@ pub async fn rename_folder(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    let owner = get_folder_owner(payload.folder_id, data.db_pool.as_ref()).await;
-
-    if Some(user_id) != owner {
+    if !does_user_own_folder(payload.folder_id, user_id, &data.db_pool).await {
         return HttpResponse::Unauthorized().body("User does not own that folder");
     }
 
@@ -149,7 +175,7 @@ pub async fn resolve_path(
 
     let all_folders: Vec<FolderWithParent> = sqlx::query!(
         "WITH RECURSIVE f AS(
-          SELECT id, name, parent_id FROM folder WHERE id = (SELECT flashcards FROM app_user WHERE app_user.id = $1)
+          SELECT id, name, parent_id FROM folder WHERE id = (SELECT top_level_folder FROM app_user WHERE app_user.id = $1)
           UNION
           SELECT folder.id, folder.name, folder.parent_id FROM f, folder WHERE folder.name = ANY($2) AND folder.parent_id = f.id
         ) SELECT * FROM f",
@@ -197,14 +223,13 @@ pub async fn get_unique_folder_name(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
+    if !does_user_own_folder(info.parent_folder_id, user_id, &data.db_pool).await {
+        return HttpResponse::Unauthorized().body("User does not own that folder");
+    }
 
     // Search for names of format `<info.name>[ (<any number>)]` where the bit in square brackets is
     // optional
     let regex = Regex::new(&format!(r"^{}( \((\d+)\))?$", regex::escape(&info.name))).unwrap();
-
-    if Some(user_id) != get_folder_owner(info.parent_folder_id, &data.db_pool).await {
-        return HttpResponse::Unauthorized().body("User does not own that parent folder");
-    }
 
     let numbers: Vec<i32> = sqlx::query!(
         "SELECT name

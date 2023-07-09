@@ -4,7 +4,11 @@ use actix_web::{
     HttpRequest, HttpResponse, Responder,
 };
 
-use crate::{exportable, routes::folder::get_folder_owner, utils, AppState};
+use crate::{
+    exportable,
+    routes::folder::{does_user_own_folder, get_folder_owner, FolderOwner},
+    utils, AppState,
+};
 
 exportable! {
     pub struct FlashcardInsert {
@@ -23,7 +27,7 @@ pub async fn add_flashcard(
     // Check who owns the folder
     let folder_owner_id = get_folder_owner(payload.folder_id, data.db_pool.as_ref()).await;
     match folder_owner_id {
-        Some(id) => {
+        Some(FolderOwner::User(id)) => {
             match req.headers().get("user_id") {
                 Some(user_id) => {
                     let user_id: i32 = user_id.to_str().unwrap().parse::<i32>().unwrap();
@@ -53,6 +57,9 @@ pub async fn add_flashcard(
                 None => HttpResponse::Unauthorized().body("User does not exist"),
             }
         }
+        // Owned by different entity
+        Some(_) => HttpResponse::Unauthorized().body("Folder is not owned by this user"),
+        // Not owned by anything/one
         None => HttpResponse::Unauthorized().body("Folder is not owned by this user"),
     }
 }
@@ -78,10 +85,10 @@ pub async fn get_flashcard(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    let owner = get_folder_owner(info.folder_id, &data.db_pool).await;
-    if Some(user_id) != owner {
-        return HttpResponse::Unauthorized().body("User is not folder owner.");
+    if !does_user_own_folder(info.folder_id, user_id, &data.db_pool).await {
+        return HttpResponse::Unauthorized().body("User does not own that folder");
     }
+
     let flashcards = sqlx::query_as!(
         Flashcard,
         "SELECT id, term, definition FROM flashcard WHERE folder_id = $1",

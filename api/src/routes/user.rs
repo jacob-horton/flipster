@@ -6,7 +6,7 @@ use actix_web::{
 
 use crate::{
     exportable,
-    routes::folder::{get_folder_owner, Folder},
+    routes::folder::{does_user_own_folder, Folder},
     utils, AppState,
 };
 
@@ -16,12 +16,15 @@ use super::group::MemberType;
 pub async fn get_top_level_folder(data: Data<AppState>, req: HttpRequest) -> impl Responder {
     let user_id = utils::get_user_id(&req).unwrap();
 
-    let user = sqlx::query!("SELECT flashcards FROM app_user WHERE id = $1", user_id)
-        .fetch_one(data.db_pool.as_ref())
-        .await
-        .unwrap();
+    let user = sqlx::query_scalar!(
+        "SELECT top_level_folder FROM app_user WHERE id = $1",
+        user_id
+    )
+    .fetch_one(data.db_pool.as_ref())
+    .await
+    .unwrap();
 
-    HttpResponse::Ok().json(user.flashcards)
+    HttpResponse::Ok().json(user)
 }
 
 exportable! {
@@ -37,9 +40,7 @@ pub async fn get_subfolders(
     info: web::Query<SubFolderGet>,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    let owner = get_folder_owner(info.folder_id, data.db_pool.as_ref()).await;
-
-    if Some(user_id) != owner {
+    if !does_user_own_folder(info.folder_id, user_id, &data.db_pool).await {
         return HttpResponse::Unauthorized().body("User does not own that folder");
     }
 

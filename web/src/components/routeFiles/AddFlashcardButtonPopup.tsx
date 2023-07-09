@@ -65,6 +65,7 @@ const AddFlashcardButtonPopup: React.FC<AddFlashcardButtonPopupProps> = ({
     return (
         <>
             <Popup show={showPopup} onCancel={() => setShowPopup(false)}>
+                {/* TODO: Form */}
                 <div className="space-y-2">
                     <h1 className="text-2xl">Create Flashcard</h1>
                     <div>

@@ -93,7 +93,7 @@ pub async fn validator(
             let user_id = match user {
                 Some(user) => user.id,
                 None => {
-                    let flashcards = sqlx::query!(
+                    let tlf = sqlx::query_scalar!(
                         "INSERT INTO folder (name) VALUES ('Your Files') RETURNING id",
                     )
                     .fetch_one(db_pool.as_ref())
@@ -101,11 +101,11 @@ pub async fn validator(
                     .expect("Failed to create folder for new user");
 
                     let user = sqlx::query!(
-                            "INSERT INTO app_user (first_name, last_name, username, flashcards, jwt_sub) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+                            "INSERT INTO app_user (first_name, last_name, username, top_level_folder, jwt_sub) VALUES ($1, $2, $3, $4, $5) RETURNING id",
                             claims.given_name,
                             claims.family_name,
                             claims.preferred_username,
-                            flashcards.id,
+                            tlf,
                             claims.sub)
                         .fetch_one(db_pool.as_ref())
                         .await

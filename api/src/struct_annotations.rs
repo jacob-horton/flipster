@@ -25,7 +25,7 @@ macro_rules! enum_type {
         )]
         #[ts(export, export_to = "../web/src/types/")]
         #[serde(rename_all = "camelCase")]
-        #[sqlx(rename_all = "lowercase")]
+        #[sqlx(rename_all = "snake_case")]
         $i
     };
 }
