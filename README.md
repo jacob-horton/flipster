@@ -39,9 +39,17 @@ This requires `sqlx-cli` to be installed (`cargo install sqlx-cli`)
 
 ## 5. Web/API
 
-Run the API by navigating to `./api` and running `cargo run`
+Run the API by navigating to `./api` and running `cargo run`.
+
+`cargo watch -x run` can be used to recompile when the filesystem updates, but this requires `cargo-watch` to be installed (`cargo install cargo-watch`)
 
 Run the web frontend by navigating to `./web` and running `yarn dev`
+
+# Running
+
+You can run both web and API at the same time using `make run`, or `make run-tmux` to run the web and API in separate tmux sessions
+
+Linting can be run on both web and API using `make lint`, and similarly for `make format`
 
 # Directories
 
