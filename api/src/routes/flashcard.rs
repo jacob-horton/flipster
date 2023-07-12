@@ -6,7 +6,7 @@ use actix_web::{
 
 use crate::{
     exportable,
-    routes::folder::{does_user_own_folder, get_folder_owner, FolderOwner},
+    routes::folder::{get_folder_owner, get_user_permissions, FolderOwner},
     utils, AppState,
 };
 
@@ -85,7 +85,10 @@ pub async fn get_flashcard(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    if !does_user_own_folder(info.folder_id, user_id, &data.db_pool).await {
+    if !get_user_permissions(info.folder_id, user_id, &data.db_pool)
+        .await
+        .read
+    {
         return HttpResponse::Unauthorized().body("User does not own that folder");
     }
 

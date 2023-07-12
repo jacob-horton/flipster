@@ -8,6 +8,8 @@ use sqlx::PgPool;
 
 use crate::{exportable, utils, AppState};
 
+use super::group::MemberType;
+
 exportable! {
     pub struct Folder {
         pub id: i32,
@@ -57,12 +59,75 @@ pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<Folder
     None
 }
 
-pub async fn does_user_own_folder(folder_id: i32, user_id: i32, db_pool: &PgPool) -> bool {
+pub struct Permissions {
+    pub write: bool,
+    pub read: bool,
+}
+
+impl Permissions {
+    // fn write(self) -> Self {
+    //     Permissions {
+    //         write: true,
+    //         read: false,
+    //     }
+    // }
+
+    fn read() -> Self {
+        Permissions {
+            read: true,
+            write: false,
+        }
+    }
+
+    fn read_write() -> Self {
+        Permissions {
+            read: true,
+            write: true,
+        }
+    }
+
+    fn none() -> Self {
+        Permissions {
+            read: false,
+            write: false,
+        }
+    }
+}
+
+impl From<MemberType> for Permissions {
+    fn from(value: MemberType) -> Self {
+        match value {
+            MemberType::Owner => Permissions::read_write(),
+            MemberType::Admin => Permissions::read_write(),
+            MemberType::Member => Permissions::read(),
+        }
+    }
+}
+
+pub async fn get_user_permissions(folder_id: i32, user_id: i32, db_pool: &PgPool) -> Permissions {
     let owner = get_folder_owner(folder_id, db_pool).await;
     match owner {
-        Some(FolderOwner::User(id)) => user_id == id,
-        Some(_) => false, // Other entity (e.g. group) owns folder
-        None => false,    // Folder does not have owner
+        Some(FolderOwner::User(id)) => {
+            if user_id == id {
+                Permissions::read_write()
+            } else {
+                Permissions::none()
+            }
+        }
+        Some(FolderOwner::Group(id)) => {
+            let member_type = sqlx::query_scalar!(
+                r#"SELECT role as "role: MemberType" FROM group_member WHERE app_user_id = $1 AND app_group_id = $2"#,
+                user_id,
+                id
+            )
+            .fetch_optional(db_pool)
+            .await
+            .unwrap()
+            .unwrap();
+
+            member_type.into()
+        }
+        None => Permissions::none(), // Folder does not have owner
     }
 }
 
@@ -81,7 +146,10 @@ pub async fn add_folder(
 ) -> impl Responder {
     // TODO: do not allow symbols?
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    if !does_user_own_folder(payload.parent_folder_id, user_id, &data.db_pool).await {
+    if !get_user_permissions(payload.parent_folder_id, user_id, &data.db_pool)
+        .await
+        .write
+    {
         return HttpResponse::Unauthorized().body("User does not own that folder");
     }
 
@@ -121,7 +189,10 @@ pub async fn rename_folder(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    if !does_user_own_folder(payload.folder_id, user_id, &data.db_pool).await {
+    if !get_user_permissions(payload.folder_id, user_id, &data.db_pool)
+        .await
+        .write
+    {
         return HttpResponse::Unauthorized().body("User does not own that folder");
     }
 
@@ -223,7 +294,10 @@ pub async fn get_unique_folder_name(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    if !does_user_own_folder(info.parent_folder_id, user_id, &data.db_pool).await {
+    if !get_user_permissions(info.parent_folder_id, user_id, &data.db_pool)
+        .await
+        .read
+    {
         return HttpResponse::Unauthorized().body("User does not own that folder");
     }
 

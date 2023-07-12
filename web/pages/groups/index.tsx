@@ -6,6 +6,7 @@ import { getRequest, postRequest } from "@src/apiRequest";
 import { GroupInsert } from "@src/types/GroupInsert";
 import { UserGroup } from "@src/types/UserGroup";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "react-oidc-context";
 
@@ -84,9 +85,11 @@ const Groups = () => {
                     titleBar={<>Your Groups</>}
                 >
                     <div className="justify-between h-full flex flex-col">
-                        <div>
+                        <div className="flex flex-col">
                             {groups.map((g) => (
-                                <p key={g.id}>{g.name}</p>
+                                <Link key={g.id} href={`/groups/${g.id}`}>
+                                    {g.name}
+                                </Link>
                             ))}
                         </div>
                         <Button onClick={() => setShowPopup(true)}>

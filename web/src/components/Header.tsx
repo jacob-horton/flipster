@@ -6,4 +6,3 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
 };
 
 export default Header;
-                   
