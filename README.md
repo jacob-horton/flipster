@@ -2,7 +2,7 @@
 
 ![Flipster logo](./logo.svg)
 
-Flashcard revision web application with (planned) latex support.
+Flashcard revision web application with (planned) $\LaTeX$ support.
 
 # Installing
 See ![Development Setup](https://github.com/jacob-horton/flipster/wiki/Development-Setup)
