@@ -1,15 +1,14 @@
-import FlashcardComponent from "@components/routeFiles/FlashcardComponent";
+import FlashcardComponent from "@components/routeReview/FlashcardComponent";
 import PageSection, { SectionArticle } from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
 import { Flashcard } from "@src/types/Flashcard";
 import { getFlashcards } from "@src/getFlashcards";
 import { useAuth } from "react-oidc-context";
-import { useQuery } from "@tanstack/react-query";
-import { getRequest } from "@src/apiRequest";
 import FolderListView from "@components/FolderListView";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import ReviewPopup from "@components/routeReview/ReviewPopup";
 
-const Review = () => {
+const ReviewIndex = () => {
     const auth = useAuth();
     const [accessedFlashcards, setAccessedFlashcards] = useState<Flashcard[]>(
         []
@@ -59,7 +58,7 @@ const Review = () => {
 
     const pageSection = (
         <PageSection
-            className="grow w-full h-full"
+            className="grow w-full min-h-0"
             articles={[
                 <SectionArticle className="w-full" titleBar="Review">
                     <FolderListView
@@ -92,9 +91,10 @@ const Review = () => {
         <ProtectedRoute>
             <div className="h-full flex flex-col items-center p-4">
                 {pageSection}
+                <ReviewPopup className="mt-4" />
             </div>
         </ProtectedRoute>
     );
 };
 
-export default Review;
+export default ReviewIndex;

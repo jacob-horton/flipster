@@ -82,13 +82,17 @@ const Files = () => {
                         </div>
                     }
                 >
-                    {view === "icon" && <IconView currentPath={currentPath} />}
-                    {view === "list" && (
-                        <FolderListView selectMultiple={false} />
-                    )}
-                    <AddFlashcardButtonPopup
-                        currentFolderId={currentFolderId(currentPath)}
-                    />
+                    <div className="space-y-6">
+                        {view === "icon" && (
+                            <IconView currentPath={currentPath} />
+                        )}
+                        {view === "list" && (
+                            <FolderListView selectMultiple={false} />
+                        )}
+                        <AddFlashcardButtonPopup
+                            currentFolderId={currentFolderId(currentPath)}
+                        />
+                    </div>
                 </PageSection>
             </div>
         </ProtectedRoute>
