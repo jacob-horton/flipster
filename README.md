@@ -41,6 +41,11 @@ cargo watch -x run
 
 Finally, go to http://localhost:5173 to view the website
 
+# Running
+
+You can run both web and API at the same time using `make run`, or `make run-tmux` to run the web and API in separate tmux sessions
+
+Linting can be run on both web and API using `make lint`, and similarly for `make format`
 
 # Directories
 

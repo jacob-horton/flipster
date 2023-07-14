@@ -5,5 +5,5 @@ repos:
     hooks:
       - id: lint
         name: lint
-        entry: ./lint.sh
+        entry: /usr/bin/env make lint
         language: script
