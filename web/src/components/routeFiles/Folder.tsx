@@ -52,7 +52,7 @@ const Folder: React.FC<FolderProps> = ({
 
     // TODO: force path to be present if add is false
     return (
-        <div className="flex flex-col w-24 m-2">
+        <div className="m-2 flex w-24 flex-col">
             <div className="flex justify-center">
                 <span className="text-lg">
                     {add ?? false ? (
@@ -86,7 +86,7 @@ const Folder: React.FC<FolderProps> = ({
             {editingName ? (
                 <input
                     autoFocus={true}
-                    className="border-gray-400 border rounded-md px-2 text-center"
+                    className="rounded-md border border-gray-400 px-2 text-center"
                     onChange={(e) => setName(e.target.value)}
                     placeholder={name}
                     onKeyUp={async (e) => {
@@ -101,7 +101,7 @@ const Folder: React.FC<FolderProps> = ({
                 />
             ) : (
                 <p
-                    className="text-center line-clamp-2 overflow-hidden text-ellipsis"
+                    className="line-clamp-2 overflow-hidden text-ellipsis text-center"
                     onDoubleClick={onDoubleClick}
                 >
                     {name}

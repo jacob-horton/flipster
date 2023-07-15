@@ -24,15 +24,15 @@ const Popup: React.FC<PopupProps> = ({ children, show, onCancel }) => {
 
     return show ? (
         <div onClick={onCancel}>
-            <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+            <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden outline-none focus:outline-none">
                 <div
-                    className="px-4 py-3 min-w-[35%] min-h-[25%] bg-gray-100 light-border drop-shadow-2xl shadow-gray-200 rounded-lg"
+                    className="light-border min-h-[25%] min-w-[35%] rounded-lg bg-gray-100 px-4 py-3 shadow-gray-200 drop-shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {children}
                 </div>
             </div>
-            <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
+            <div className="fixed inset-0 z-40 bg-black opacity-25"></div>
         </div>
     ) : null;
 };

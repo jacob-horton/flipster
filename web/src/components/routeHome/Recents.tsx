@@ -3,7 +3,7 @@ import PageSection from "../PageSection";
 const Recents = () => {
     return (
         <PageSection
-            className="h-full col-span-3 row-span-2"
+            className="col-span-3 row-span-2 h-full"
             titleBar="Jump back in..."
         ></PageSection>
     );

@@ -46,14 +46,14 @@ const SpacedRepetition = () => {
             icon={<FiRepeat size={18} />}
             bgIcon={<FiRepeat size={200} />}
         >
-            <div className="flex flex-col grow justify-between h-full items-center">
+            <div className="flex h-full grow flex-col items-center justify-between">
                 <div className="w-full space-y-1">
                     {tiers.map((tier, i) => {
                         const priority = ((i + 1) * 751391) % 25;
                         return (
                             <div
                                 key={`tier-${i + 1}`}
-                                className="flex flex-row grow justify-between items-center"
+                                className="flex grow flex-row items-center justify-between"
                             >
                                 <div className="flex flex-row items-center space-x-2">
                                     <div

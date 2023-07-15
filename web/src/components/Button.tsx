@@ -18,7 +18,7 @@ const Button: React.FC<ButtonProps> = ({
         <div className={className}>
             <button
                 type={submit ? "submit" : "button"}
-                className="bg-gray-300 px-5 rounded-lg light-border"
+                className="light-border rounded-lg bg-gray-300 px-5"
                 onClick={onClick}
             >
                 {children}

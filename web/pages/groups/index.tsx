@@ -60,14 +60,14 @@ const Groups = () => {
                         <p className="text-md">Name</p>
                         <input
                             name="name"
-                            className="px-2 pt-1 pb-2 light-border rounded-lg w-full"
+                            className="light-border w-full rounded-lg px-2 pb-2 pt-1"
                         />
                     </div>
                     <div>
                         <p className="text-md">Description</p>
                         <input
                             name="description"
-                            className="px-2 pt-1 pb-2 light-border rounded-lg w-full"
+                            className="light-border w-full rounded-lg px-2 pb-2 pt-1"
                         />
                     </div>
                     <div className="flex space-x-2">
@@ -79,12 +79,12 @@ const Groups = () => {
                     </Button>
                 </form>
             </Popup>
-            <div className="p-4 h-full flex flex-row space-x-4">
+            <div className="flex h-full flex-row space-x-4 p-4">
                 <PageSection
                     className="w-full justify-between"
                     titleBar={<>Your Groups</>}
                 >
-                    <div className="justify-between h-full flex flex-col">
+                    <div className="flex h-full flex-col justify-between">
                         <div className="flex flex-col">
                             {groups.map((g) => (
                                 <Link key={g.id} href={`/groups/${g.id}`}>

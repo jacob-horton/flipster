@@ -6,7 +6,7 @@ const Login = () => {
 
     return (
         <button
-            className="flex space-x-2 items-center"
+            className="flex items-center space-x-2"
             onClick={() =>
                 auth.isAuthenticated
                     ? auth.signoutSilent()

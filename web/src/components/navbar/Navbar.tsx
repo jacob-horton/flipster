@@ -29,7 +29,7 @@ const Navbar = () => {
     const { route } = useRouter();
 
     return (
-        <nav className="flex flex-row items-center justify-between bg-white rounded-b-lg light-border">
+        <nav className="light-border flex flex-row items-center justify-between rounded-b-lg bg-white">
             <div className="flex flex-row space-x-4 p-2">
                 <div className="pr-4">
                     <Logo />
