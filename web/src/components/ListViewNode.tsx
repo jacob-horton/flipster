@@ -61,7 +61,7 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
                 })),
             }));
 
-            setLoadedChildren(false);
+            setLoadedChildren(true);
         }
 
         if (shouldLoadChildren || (!loadedChilren && expanded)) {
@@ -73,7 +73,7 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
         <div>
             <div className="flex flex-row items-center">
                 <button
-                    className="mx-1 p-1 hover:bg-gray-200 rounded-lg transition"
+                    className="mx-1 rounded-lg p-1 transition hover:bg-gray-200"
                     onClick={() => setExpanded((e) => !e)}
                 >
                     {expanded ? <IoIosArrowDown /> : <IoIosArrowForward />}
@@ -90,7 +90,7 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
                             selected.includes(node.id)
                                 ? "bg-purple-200"
                                 : "hover:bg-gray-200"
-                        } px-2 py-1 rounded-lg transition`}
+                        } rounded-lg px-2 py-1 transition`}
                     >
                         {node.name}
                     </p>
@@ -98,7 +98,7 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
             </div>
             <div className={`pl-6 ${expanded ? "" : "hidden"}`}>
                 {node.children.length === 0 ? (
-                    <p className="text-gray-400 pl-4">No folders</p>
+                    <p className="pl-4 text-gray-400">No folders</p>
                 ) : (
                     <div className="flex flex-col">
                         {node.children.map((n) => (

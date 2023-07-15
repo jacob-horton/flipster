@@ -1,5 +1,5 @@
 use actix_web::{
-    post,
+    get, post,
     web::{self, Data},
     HttpRequest, HttpResponse, Responder,
 };
@@ -59,4 +59,43 @@ pub async fn add_group(
     .unwrap();
 
     HttpResponse::Ok().body("Successfully added group")
+}
+
+exportable! {
+    pub struct GroupGetReq {
+        id: i32,
+    }
+}
+
+exportable! {
+    pub struct GroupGetResp {
+        id: i32,
+        name: String,
+        top_level_folder: i32,
+    }
+}
+
+#[get("/group/get")]
+pub async fn get_group(
+    data: Data<AppState>,
+    info: web::Query<GroupGetReq>,
+    req: HttpRequest,
+) -> impl Responder {
+    // TODO: do not allow symbols?
+    let user_id: i32 = utils::get_user_id(&req).unwrap();
+
+    let group = sqlx::query_as!(
+        GroupGetResp,
+        "SELECT app_group.id, app_group.name, app_group.top_level_folder
+        FROM app_group
+        JOIN group_member ON group_member.app_group_id = app_group.id
+        WHERE app_group.id = $1 AND (is_public = true OR group_member.app_user_id = $2)",
+        info.id,
+        user_id,
+    )
+    .fetch_one(data.db_pool.as_ref())
+    .await
+    .unwrap();
+
+    HttpResponse::Ok().json(group)
 }

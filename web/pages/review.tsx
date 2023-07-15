@@ -38,38 +38,39 @@ const Review = () => {
         [auth]
     );
 
-    /*const { data } = useQuery({
+    const { data: topLevelFolder } = useQuery({
+        queryKey: [auth.user],
         queryFn: async () => {
+            // TODO: properly handle no token
             const token = auth.user?.id_token;
-            if (!token) {
-                return [];
+            if (token === undefined || auth.user?.expired) {
+                return;
             }
+
             const resp = await getRequest({
                 path: "/user/top_level_folder",
                 id_token: token,
             });
-            const fid = await resp.text();
-            const flashcards = await getFlashcards(token, parseInt(fid));
 
-            return flashcards as Flashcard[];
+            const id = parseInt(await resp.text());
+            return { children: [], name: "Your Files", id };
         },
-        queryKey: [auth],
-        initialData: [],
-    });*/
+    });
 
     const pageSection = (
         <PageSection
-            className="grow w-full h-full"
+            className="h-full w-full grow"
             articles={[
                 <SectionArticle className="w-full" titleBar="Review">
                     <FolderListView
                         selectMultiple={true}
                         onSelectedFoldersChange={onSelectedFoldersChange}
+                        topLevelFolder={topLevelFolder}
                     />
                 </SectionArticle>,
                 <SectionArticle
                     titleBar="Flashcards"
-                    className="w-full overflow-auto mb-4"
+                    className="mb-4 w-full overflow-auto"
                 >
                     <div className="grow space-y-2">
                         {accessedFlashcards.map((f, i) => (
@@ -90,7 +91,7 @@ const Review = () => {
     );
     return (
         <ProtectedRoute>
-            <div className="h-full flex flex-col items-center p-4">
+            <div className="flex h-full flex-col items-center p-4">
                 {pageSection}
             </div>
         </ProtectedRoute>
