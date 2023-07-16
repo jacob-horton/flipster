@@ -100,7 +100,7 @@ pub async fn validator(
                     .await
                     .expect("Failed to create folder for new user");
 
-                    let user = sqlx::query!(
+                    let user_id = sqlx::query_scalar!(
                             "INSERT INTO app_user (first_name, last_name, username, top_level_folder, jwt_sub) VALUES ($1, $2, $3, $4, $5) RETURNING id",
                             claims.given_name,
                             claims.family_name,
@@ -111,7 +111,7 @@ pub async fn validator(
                         .await
                         .expect("Failed to insert new user");
 
-                    user.id
+                    user_id
                 }
             };
 
