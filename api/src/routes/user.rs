@@ -42,9 +42,10 @@ pub async fn get_subfolders(
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     if !get_user_permissions(info.folder_id, user_id, &data.db_pool)
         .await
-        .read
+        .read_folder
     {
-        return HttpResponse::Unauthorized().body("User does not own that folder");
+        return HttpResponse::Unauthorized()
+            .body("User does not have permission to read this folder");
     }
 
     let folders = sqlx::query_as!(

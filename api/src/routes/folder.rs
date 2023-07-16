@@ -59,59 +59,67 @@ pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<Folder
     None
 }
 
-pub struct Permissions {
-    pub write: bool,
-    pub read: bool,
+#[derive(Debug, Clone, Default)]
+pub struct ContentPermissions {
+    pub add_flashcard: bool,
+    pub edit_flashcard: bool,
+    pub read_flashcard: bool,
+
+    pub add_folder: bool,
+    pub edit_folder: bool,
+    pub read_folder: bool,
 }
 
-impl Permissions {
-    // fn write(self) -> Self {
-    //     Permissions {
-    //         write: true,
-    //         read: false,
-    //     }
-    // }
-
-    fn read() -> Self {
-        Permissions {
-            read: true,
-            write: false,
-        }
-    }
-
-    fn read_write() -> Self {
-        Permissions {
-            read: true,
-            write: true,
-        }
-    }
-
+impl ContentPermissions {
     fn none() -> Self {
-        Permissions {
-            read: false,
-            write: false,
+        Default::default()
+    }
+
+    fn all() -> Self {
+        ContentPermissions {
+            add_folder: true,
+            edit_folder: true,
+            read_folder: true,
+
+            add_flashcard: true,
+            edit_flashcard: true,
+            read_flashcard: true,
         }
     }
 }
 
-impl From<MemberType> for Permissions {
+impl From<MemberType> for ContentPermissions {
     fn from(value: MemberType) -> Self {
         match value {
-            MemberType::Owner => Permissions::read_write(),
-            MemberType::Admin => Permissions::read_write(),
-            MemberType::Member => Permissions::read(),
+            MemberType::Owner => ContentPermissions::all(),
+            MemberType::Admin => ContentPermissions::all(),
+            MemberType::Member => ContentPermissions {
+                read_folder: true,
+                read_flashcard: true,
+                add_flashcard: true,
+                ..Default::default()
+            },
+            MemberType::Viewer => ContentPermissions {
+                read_folder: true,
+                read_flashcard: true,
+                ..Default::default()
+            },
         }
     }
 }
 
-pub async fn get_user_permissions(folder_id: i32, user_id: i32, db_pool: &PgPool) -> Permissions {
+pub async fn get_user_permissions(
+    folder_id: i32,
+    user_id: i32,
+    db_pool: &PgPool,
+) -> ContentPermissions {
     let owner = get_folder_owner(folder_id, db_pool).await;
     match owner {
         Some(FolderOwner::User(id)) => {
             if user_id == id {
-                Permissions::read_write()
+                ContentPermissions::all()
             } else {
-                Permissions::none()
+                ContentPermissions::none()
             }
         }
         Some(FolderOwner::Group(id)) => {
@@ -127,7 +135,7 @@ pub async fn get_user_permissions(folder_id: i32, user_id: i32, db_pool: &PgPool
 
             member_type.into()
         }
-        None => Permissions::none(), // Folder does not have owner
+        None => ContentPermissions::none(), // Folder does not have owner
     }
 }
 
@@ -148,9 +156,9 @@ pub async fn add_folder(
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     if !get_user_permissions(payload.parent_folder_id, user_id, &data.db_pool)
         .await
-        .write
+        .add_folder
     {
-        return HttpResponse::Unauthorized().body("User does not own that folder");
+        return HttpResponse::Unauthorized().body("User does not have permissions to add folders");
     }
 
     let result = sqlx::query_as!(
@@ -191,9 +199,10 @@ pub async fn rename_folder(
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     if !get_user_permissions(payload.folder_id, user_id, &data.db_pool)
         .await
-        .write
+        .edit_folder
     {
-        return HttpResponse::Unauthorized().body("User does not own that folder");
+        return HttpResponse::Unauthorized()
+            .body("User does not have permission to edit this folder");
     }
 
     let result = sqlx::query_as!(
@@ -296,9 +305,10 @@ pub async fn get_unique_folder_name(
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     if !get_user_permissions(info.parent_folder_id, user_id, &data.db_pool)
         .await
-        .read
+        .read_folder
     {
-        return HttpResponse::Unauthorized().body("User does not own that folder");
+        return HttpResponse::Unauthorized()
+            .body("User does not have permissions to read this folder");
     }
 
     // Search for names of format `<info.name>[ (<any number>)]` where the bit in square brackets is

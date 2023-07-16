@@ -17,6 +17,7 @@ exportable! {
 enum_type! {
     #[sqlx(type_name = "member_type")]
     pub enum MemberType {
+        Viewer,
         Member,
         Admin,
         Owner,
