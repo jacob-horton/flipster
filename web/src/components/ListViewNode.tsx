@@ -2,6 +2,7 @@ import { getRequest } from "@src/apiRequest";
 import { Folder } from "@src/types/Folder";
 import { SubFolderGet } from "@src/types/SubFolderGet";
 import { useEffect, useState } from "react";
+import { BsFolder2, BsFolder2Open } from "react-icons/bs";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import { useAuth } from "react-oidc-context";
 
@@ -84,16 +85,13 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
                         setSelected(node.id);
                         setExpanded((e) => !e);
                     }}
+                    className={`flex items-center space-x-2 rounded-lg px-2 py-1 transition ${selected.includes(node.id)
+                            ? "bg-purple-200"
+                            : "hover:bg-gray-200"
+                        } `}
                 >
-                    <p
-                        className={`${
-                            selected.includes(node.id)
-                                ? "bg-purple-200"
-                                : "hover:bg-gray-200"
-                        } rounded-lg px-2 py-1 transition`}
-                    >
-                        {node.name}
-                    </p>
+                    {expanded ? <BsFolder2Open /> : <BsFolder2 />}
+                    <p>{node.name}</p>
                 </button>
             </div>
             <div className={`pl-6 ${expanded ? "" : "hidden"}`}>
