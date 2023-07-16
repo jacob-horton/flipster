@@ -20,11 +20,6 @@ const NavbarTab: React.FC<NavbarTabProps> = ({
         <Link
             key={path}
             href={path}
-            onClick={() => {
-                if (selected) {
-                    router.reload();
-                }
-            }}
             className="flex flex-row items-center space-x-2"
         >
             <div className={selected ? "text-orange-400" : undefined}>
