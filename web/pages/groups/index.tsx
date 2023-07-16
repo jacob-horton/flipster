@@ -8,6 +8,7 @@ import { UserGroup } from "@src/types/UserGroup";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
+import { BsFolder } from "react-icons/bs";
 import { useAuth } from "react-oidc-context";
 
 const Groups = () => {
@@ -82,14 +83,26 @@ const Groups = () => {
             <div className="flex h-full flex-row space-x-4 p-4">
                 <PageSection
                     className="w-full justify-between"
-                    titleBar={<>Your Groups</>}
+                    titleBar="Your Groups"
                 >
                     <div className="flex h-full flex-col justify-between">
-                        <div className="flex flex-col">
+                        <div className="space-y-2">
                             {groups.map((g) => (
-                                <Link key={g.id} href={`/groups/${g.id}`}>
-                                    {g.name}
-                                </Link>
+                                <div className="space-x-2 flex">
+                                    <Link
+                                        key={g.id}
+                                        href={`/groups/${g.id}`}
+                                        className="bg-gray-200 rounded-lg px-4 py-1 w-full"
+                                    >
+                                        {g.name}
+                                    </Link>
+                                    <Link
+                                        className="rounded-lg bg-gray-200 px-2 py-1 items-center flex"
+                                        href={`/groups/${g.id}/files`}
+                                    >
+                                        <BsFolder className="self-center" />
+                                    </Link>
+                                </div>
                             ))}
                         </div>
                         <Button onClick={() => setShowPopup(true)}>
