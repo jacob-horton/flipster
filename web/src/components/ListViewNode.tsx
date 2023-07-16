@@ -85,10 +85,11 @@ const ListViewNode: React.FC<ListViewNodeProps> = ({
                         setSelected(node.id);
                         setExpanded((e) => !e);
                     }}
-                    className={`flex items-center space-x-2 rounded-lg px-2 py-1 transition ${selected.includes(node.id)
+                    className={`flex items-center space-x-2 rounded-lg px-2 py-1 transition ${
+                        selected.includes(node.id)
                             ? "bg-purple-200"
                             : "hover:bg-gray-200"
-                        } `}
+                    } `}
                 >
                     {expanded ? <BsFolder2Open /> : <BsFolder2 />}
                     <p>{node.name}</p>

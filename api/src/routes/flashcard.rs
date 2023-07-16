@@ -6,7 +6,7 @@ use actix_web::{
 
 use crate::{
     exportable,
-    routes::folder::{get_folder_owner, get_user_permissions, FolderOwner},
+    routes::folder::get_user_permissions,
     utils::{self, get_user_id},
     AppState,
 };

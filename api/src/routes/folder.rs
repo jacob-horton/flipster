@@ -97,12 +97,12 @@ impl From<MemberType> for ContentPermissions {
                 read_folders: true,
                 read_flashcards: true,
                 add_flashcards: true,
-                ..Default::default()
+                ..ContentPermissions::none()
             },
             MemberType::Viewer => ContentPermissions {
                 read_folders: true,
                 read_flashcards: true,
-                ..Default::default()
+                ..ContentPermissions::none()
             },
         }
     }

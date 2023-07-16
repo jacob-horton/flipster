@@ -88,16 +88,16 @@ const Groups = () => {
                     <div className="flex h-full flex-col justify-between">
                         <div className="space-y-2">
                             {groups.map((g) => (
-                                <div className="space-x-2 flex">
+                                <div className="flex space-x-2">
                                     <Link
                                         key={g.id}
                                         href={`/groups/${g.id}`}
-                                        className="bg-gray-200 rounded-lg px-4 py-1 w-full"
+                                        className="w-full rounded-lg bg-gray-200 px-4 py-1"
                                     >
                                         {g.name}
                                     </Link>
                                     <Link
-                                        className="rounded-lg bg-gray-200 px-2 py-1 items-center flex"
+                                        className="flex items-center rounded-lg bg-gray-200 px-2 py-1"
                                         href={`/groups/${g.id}/files`}
                                     >
                                         <BsFolder className="self-center" />
