@@ -87,7 +87,7 @@ pub async fn get_flashcard(
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     if !get_user_permissions(info.folder_id, user_id, &data.db_pool)
         .await
-        .read_flashcard
+        .read_flashcards
     {
         return HttpResponse::Unauthorized()
             .body("User does not have permission to view this flashcard");

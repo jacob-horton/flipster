@@ -61,13 +61,13 @@ pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<Folder
 
 #[derive(Debug, Clone, Default)]
 pub struct ContentPermissions {
-    pub add_flashcard: bool,
-    pub edit_flashcard: bool,
-    pub read_flashcard: bool,
+    pub add_flashcards: bool,
+    pub edit_flashcards: bool,
+    pub read_flashcards: bool,
 
-    pub add_folder: bool,
-    pub edit_folder: bool,
-    pub read_folder: bool,
+    pub add_folders: bool,
+    pub edit_folders: bool,
+    pub read_folders: bool,
 }
 
 impl ContentPermissions {
@@ -77,13 +77,13 @@ impl ContentPermissions {
 
     fn all() -> Self {
         ContentPermissions {
-            add_folder: true,
-            edit_folder: true,
-            read_folder: true,
+            add_folders: true,
+            edit_folders: true,
+            read_folders: true,
 
-            add_flashcard: true,
-            edit_flashcard: true,
-            read_flashcard: true,
+            add_flashcards: true,
+            edit_flashcards: true,
+            read_flashcards: true,
         }
     }
 }
@@ -94,14 +94,14 @@ impl From<MemberType> for ContentPermissions {
             MemberType::Owner => ContentPermissions::all(),
             MemberType::Admin => ContentPermissions::all(),
             MemberType::Member => ContentPermissions {
-                read_folder: true,
-                read_flashcard: true,
-                add_flashcard: true,
+                read_folders: true,
+                read_flashcards: true,
+                add_flashcards: true,
                 ..Default::default()
             },
             MemberType::Viewer => ContentPermissions {
-                read_folder: true,
-                read_flashcard: true,
+                read_folders: true,
+                read_flashcards: true,
                 ..Default::default()
             },
         }
@@ -156,7 +156,7 @@ pub async fn add_folder(
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     if !get_user_permissions(payload.parent_folder_id, user_id, &data.db_pool)
         .await
-        .add_folder
+        .add_folders
     {
         return HttpResponse::Unauthorized().body("User does not have permissions to add folders");
     }
@@ -199,7 +199,7 @@ pub async fn rename_folder(
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     if !get_user_permissions(payload.folder_id, user_id, &data.db_pool)
         .await
-        .edit_folder
+        .edit_folders
     {
         return HttpResponse::Unauthorized()
             .body("User does not have permission to edit this folder");
@@ -305,7 +305,7 @@ pub async fn get_unique_folder_name(
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     if !get_user_permissions(info.parent_folder_id, user_id, &data.db_pool)
         .await
-        .read_folder
+        .read_folders
     {
         return HttpResponse::Unauthorized()
             .body("User does not have permissions to read this folder");
