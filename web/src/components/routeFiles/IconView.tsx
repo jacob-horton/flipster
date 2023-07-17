@@ -107,7 +107,7 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
         );
     };
 
-    const handleOpenFolder = async () => {
+    const handleInsertFolder = async () => {
         // TODO: Handle no token properly
         const token = auth.user?.id_token;
         if (token === undefined || auth.user?.expired) {
@@ -156,7 +156,7 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
                         }
                     />
                 ))}
-                <Folder add={true} onClick={handleOpenFolder} />
+                <Folder add={true} onClick={handleInsertFolder} />
             </div>
         </div>
     );
