@@ -174,8 +174,21 @@ pub async fn add_folder(
         Ok(result) => HttpResponse::Ok().json(result),
         Err(sqlx::Error::Database(e)) => {
             if let Some("unqiue_name_chk") = e.constraint() {
-                return HttpResponse::Conflict()
-                    .body(format!("Already have folder with name {}", payload.name));
+                let unique_name =
+                    get_unique_folder_name(&payload.name, payload.parent_folder_id, &data.db_pool)
+                        .await;
+
+                let result = sqlx::query_as!(
+                    Folder,
+                    "INSERT INTO folder (name, parent_id) VALUES ($1, $2) RETURNING id, name",
+                    unique_name,
+                    payload.parent_folder_id
+                )
+                .fetch_one(data.db_pool.as_ref())
+                .await
+                .unwrap();
+
+                return HttpResponse::Ok().json(result);
             }
             HttpResponse::InternalServerError().body("Unrecognised database error")
         }
@@ -197,6 +210,7 @@ pub async fn rename_folder(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
+    // TODO: Don't allow empty string
     if !get_user_permissions(payload.folder_id, user_id, &data.db_pool)
         .await
         .edit_folders
@@ -296,32 +310,27 @@ exportable! {
     }
 }
 
-#[get("/folder/get_unique_name")]
-pub async fn get_unique_folder_name(
-    data: Data<AppState>,
-    info: web::Query<UniqueNameGet>,
-    req: HttpRequest,
-) -> impl Responder {
-    let user_id: i32 = utils::get_user_id(&req).unwrap();
-    if !get_user_permissions(info.parent_folder_id, user_id, &data.db_pool)
-        .await
-        .read_folders
-    {
-        return HttpResponse::Unauthorized()
-            .body("User does not have permissions to read this folder");
-    }
-
+pub async fn get_unique_folder_name(name: &str, parent_folder_id: i32, db_pool: &PgPool) -> String {
     // Search for names of format `<info.name>[ (<any number>)]` where the bit in square brackets is
     // optional
-    let regex = Regex::new(&format!(r"^{}( \((\d+)\))?$", regex::escape(&info.name))).unwrap();
+    let regex = Regex::new(&format!(r"^{}( \((\d+)\))?$", regex::escape(name))).unwrap();
+
+    // let user_id: i32 = utils::get_user_id(&req).unwrap();
+    // if !get_user_permissions(info.parent_folder_id, user_id, &data.db_pool)
+    //     .await
+    //     .read_folders
+    // {
+    //     return HttpResponse::Unauthorized()
+    //         .body("User does not have permissions to read this folder");
+    // }
 
     let numbers: Vec<i32> = sqlx::query!(
         "SELECT name
         FROM folder
         WHERE parent_id = $1",
-        info.parent_folder_id,
+        parent_folder_id,
     )
-    .fetch_all(data.db_pool.as_ref())
+    .fetch_all(db_pool)
     .await
     .unwrap()
     .into_iter()
@@ -334,7 +343,7 @@ pub async fn get_unique_folder_name(
     let max = numbers.iter().max();
 
     match max {
-        Some(max) => HttpResponse::Ok().body(format!("{} ({})", info.name, max + 1)),
-        None => HttpResponse::Ok().body(info.name.clone()),
+        Some(max) => format!("{} ({})", name, max + 1),
+        None => name.to_string(),
     }
 }
