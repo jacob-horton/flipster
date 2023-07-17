@@ -11,7 +11,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return auth.isAuthenticated ? (
         <>{children}</>
     ) : (
-        <div className="text-center pt-10">Please login to view this page</div>
+        <div className="pt-10 text-center">Please login to view this page</div>
     );
 };
 

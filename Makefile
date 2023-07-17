@@ -11,6 +11,10 @@ run-tmux:
 	tmux new-session -d -s web 'cd web; yarn dev'
 	tmux new-session -d -s api 'cd api; cargo watch -x run'
 
+stop-tmux:
+	tmux kill-session -t web
+	tmux kill-session -t api
+
 format:
 	cd web; yarn format
 	cd api; cargo fmt

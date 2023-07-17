@@ -126,8 +126,8 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
     };
 
     return (
-        <div className="flex flex-col grow">
-            <div className="px-6 flex flex-row space-x-2">
+        <div className="flex grow flex-col">
+            <div className="flex flex-row space-x-2 px-6">
                 {currentPath.map((f, i) => (
                     <div key={f.id} className="flex space-x-2">
                         <Link
@@ -140,7 +140,7 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
                     </div>
                 ))}
             </div>
-            <div className="flex flex-wrap g-green-500">
+            <div className="g-green-500 flex flex-wrap">
                 {(currentFolders ?? []).map((folder) => (
                     <Folder
                         key={`${folder.id}:${folder.name}`} // Use both id and name for key - in case duplicate names, or ids (in cases of preloading)

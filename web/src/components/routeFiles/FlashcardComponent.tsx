@@ -21,7 +21,7 @@ const RoundedSection: React.FC<RoundedSectionProps> = ({
         <div className={className ?? ""}>
             <div
                 className={
-                    " h-full flex flex-row bg-gray-50 light-border " +
+                    " light-border flex h-full flex-row bg-gray-50 " +
                     (side === "left" ? " rounded-l-lg " : "") +
                     (side === "right" ? " rounded-r-lg " : "")
                 }
@@ -37,7 +37,7 @@ const SelectedButton = () => {
     return (
         <button
             className={
-                "ml-1 self-center rounded-full light-border " +
+                "light-border ml-1 self-center rounded-full " +
                 (selected ? "bg-orange-500" : "bg-gray-100")
             }
             onClick={() => {
@@ -55,7 +55,7 @@ const SelectedButton = () => {
 
 const EditButton = () => {
     return (
-        <button className="ml-1 self-center p-1 rounded-lg border-purple-500 border">
+        <button className="ml-1 self-center rounded-lg border border-purple-500 p-1">
             <IconContext.Provider value={{ color: "#a855f7" }}>
                 <CiEdit />
             </IconContext.Provider>
@@ -76,19 +76,19 @@ const FlashcardComponent: React.FC<FlashcardProps> = ({
 }) => {
     const fid = flashcard.id;
     return (
-        <div className="flex flex-row w-full text-sm space-x-1">
+        <div className="flex w-full flex-row space-x-1 text-sm">
             <RoundedSection side="left">
-                <div className={`w-${indexWidth} text-center self-center`}>
+                <div className={`w-${indexWidth} self-center text-center`}>
                     {fid}
                 </div>
             </RoundedSection>
             <RoundedSection className="w-full align-top">
-                <strong className="px-2 py-1 self-center">
+                <strong className="self-center px-2 py-1">
                     {flashcard.term}
                 </strong>
             </RoundedSection>
             <RoundedSection side="right" className="w-full align-text-top">
-                <span className="px-2 py-1 self-center">
+                <span className="self-center px-2 py-1">
                     {flashcard.definition}
                 </span>
             </RoundedSection>

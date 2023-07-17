@@ -65,19 +65,20 @@ const AddFlashcardButtonPopup: React.FC<AddFlashcardButtonPopupProps> = ({
     return (
         <>
             <Popup show={showPopup} onCancel={() => setShowPopup(false)}>
+                {/* TODO: Form */}
                 <div className="space-y-2">
                     <h1 className="text-2xl">Create Flashcard</h1>
                     <div>
                         <p className="text-lg">Term</p>
                         <textarea
-                            className="px-2 pt-1 pb-2 light-border rounded-lg w-full"
+                            className="light-border w-full rounded-lg px-2 pb-2 pt-1"
                             onChange={(e) => setTerm(e.target.value)}
                         />
                     </div>
                     <div>
                         <p className="text-lg">Definition</p>
                         <textarea
-                            className="px-2 pt-1 pb-20 light-border rounded-lg w-full"
+                            className="light-border w-full rounded-lg px-2 pb-20 pt-1"
                             onChange={(e) => setDefinition(e.target.value)}
                         />
                     </div>

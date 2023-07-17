@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { getRequest, queryOrDefault } from "@src/apiRequest";
 import { AuthContextProps, useAuth } from "react-oidc-context";
 import { ResolvePathGet } from "@src/types/ResolvePathGet";
+import { useQuery } from "@tanstack/react-query";
 
 function currentFolderId(path: FolderData[]) {
     if (path.length === 0) return undefined;
@@ -56,18 +57,37 @@ const Files = () => {
         fetchData();
     }, [auth, slug]);
 
+    const { data: topLevelFolder } = useQuery({
+        queryKey: [auth.user],
+        queryFn: async () => {
+            // TODO: properly handle no token
+            const token = auth.user?.id_token;
+            if (token === undefined || auth.user?.expired) {
+                return;
+            }
+
+            const resp = await getRequest({
+                path: "/user/top_level_folder",
+                id_token: token,
+            });
+
+            const id = parseInt(await resp.text());
+            return { children: [], name: "Your Files", id };
+        },
+    });
+
     // TODO: path case insensitive?
     // TODO: dropdown shows over popup
     return (
         <ProtectedRoute>
-            <div className="h-full p-4 flex flex-col">
+            <div className="flex h-full flex-col p-4">
                 <PageSection
                     className="grow"
                     titleBar={
                         <div className="flex flex-row justify-between p-4">
                             <h1 className="text-2xl">Your Files</h1>
                             <select
-                                className="px-4 bg-gray-300 text-base rounded-lg"
+                                className="rounded-lg bg-gray-300 px-4 text-base"
                                 onChange={(e) => {
                                     setView(e.target.value as "list" | "icon");
                                     if (e.target.value === "list") {
@@ -87,7 +107,10 @@ const Files = () => {
                             <IconView currentPath={currentPath} />
                         )}
                         {view === "list" && (
-                            <FolderListView selectMultiple={false} />
+                            <FolderListView
+                                selectMultiple={false}
+                                topLevelFolder={topLevelFolder}
+                            />
                         )}
                         <AddFlashcardButtonPopup
                             currentFolderId={currentFolderId(currentPath)}
