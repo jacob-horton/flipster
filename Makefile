@@ -11,7 +11,7 @@ run-colima:
 	colima start
 	docker-compose up -d
 
-run-colima-tmux: colima-start run-tmux
+run-colima-tmux: run-colima run-tmux
 
 run-tmux:
 	tmux new-session -d -s web 'cd web; yarn dev'
