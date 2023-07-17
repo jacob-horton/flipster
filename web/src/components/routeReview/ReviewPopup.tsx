@@ -1,5 +1,5 @@
 import Button from "@components/Button";
-import Popup from "@components/Popup";
+import Popup, { PopupProps } from "@components/Popup";
 import { useState, MouseEventHandler, ReactNode } from "react";
 
 const modes = ["flip", "match", "learn"] as const;
@@ -34,50 +34,41 @@ const OptionButton: React.FC<OptionButtonProps> = ({
     );
 };
 
-function ReviewPopup() {
-    const [showPopup, setShowPopup] = useState(false);
+function ReviewPopup({ show, onCancel }: PopupProps) {
     // currently selected button used as revision mode
     const [selectedMode, setSelectedMode] = useState<SelectedMode>(new Map());
     return (
-        <>
-            <Popup
-                show={showPopup}
-                onCancel={() => {
-                    setShowPopup(false);
-                }}
-            >
-                <div className="flex w-full grow flex-col">
-                    <div className="flex justify-between">
-                        {modes.map((i) => (
-                            <OptionButton
-                                active={selectedMode.get(i) ?? false}
-                                onClick={() =>
-                                    setSelectedMode(
-                                        new Map(selectedMode.entries()).set(
-                                            i,
-                                            !selectedMode.get(i)
-                                        )
+        <Popup show={show} onCancel={onCancel}>
+            <div className="flex w-full grow flex-col">
+                <div className="flex justify-between">
+                    {modes.map((i) => (
+                        <OptionButton
+                            active={selectedMode.get(i) ?? false}
+                            onClick={() =>
+                                setSelectedMode(
+                                    new Map(selectedMode.entries()).set(
+                                        i,
+                                        !selectedMode.get(i)
                                     )
-                                }
-                            >{`${i}Icon`}</OptionButton>
-                        ))}
-                    </div>
-                    <div className="flex grow items-end justify-center">
-                        <Button
-                            href="/review/cards"
-                            query={{
-                                mode: Array.from(selectedMode, ([k, v]) => {
-                                    return v ? k : undefined;
-                                }).filter((i): i is Mode => !!i),
-                            }}
-                        >
-                            Review
-                        </Button>
-                    </div>
+                                )
+                            }
+                        >{`${i}Icon`}</OptionButton>
+                    ))}
                 </div>
-            </Popup>
-            <Button onClick={() => setShowPopup(true)}>Review</Button>
-        </>
+                <div className="flex grow items-end justify-center">
+                    <Button
+                        href="/review/cards"
+                        query={{
+                            mode: Array.from(selectedMode, ([k, v]) => {
+                                return v ? k : undefined;
+                            }).filter((i): i is Mode => !!i),
+                        }}
+                    >
+                        Review
+                    </Button>
+                </div>
+            </div>
+        </Popup>
     );
 }
 

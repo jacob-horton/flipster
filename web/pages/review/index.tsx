@@ -1,4 +1,4 @@
-import FlashcardComponent from "@components/routeReview/FlashcardComponent";
+import FlashcardComponent from "@components/routeFiles/FlashcardComponent";
 import PageSection, { SectionArticle } from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
 import { Flashcard } from "@src/types/Flashcard";
@@ -7,12 +7,16 @@ import { useAuth } from "react-oidc-context";
 import FolderListView from "@components/FolderListView";
 import { useCallback, useState } from "react";
 import ReviewPopup from "@components/routeReview/ReviewPopup";
+import { useQuery } from "@tanstack/react-query";
+import getTLF from "@src/getTopLevelFolder";
+import Button from "@components/Button";
 
-const Review = () => {
+function ReviewIndex() {
     const auth = useAuth();
     const [accessedFlashcards, setAccessedFlashcards] = useState<Flashcard[]>(
         []
     );
+    const [showPopup, setShowPopup] = useState(false);
 
     // expand the index section when numbers exceed double digits (rel. to font size)
     // TODO fix that this is called for every flashcard without using another state
@@ -37,24 +41,19 @@ const Review = () => {
         [auth]
     );
 
-    /*const { data } = useQuery({
+    // TODO: make this the FolderListView default?
+    const { data: topLevelFolder } = useQuery({
+        queryKey: [auth.user],
         queryFn: async () => {
-            const token = auth.user?.id_token;
-            if (!token) {
-                return [];
+            if (auth.user) {
+                return await getTLF(auth.user);
             }
-            const resp = await getRequest({
-                path: "/user/top_level_folder",
-                id_token: token,
-            });
-            const fid = await resp.text();
-            const flashcards = await getFlashcards(token, parseInt(fid));
-
-            return flashcards as Flashcard[];
         },
-        queryKey: [auth],
-        initialData: [],
-    });*/
+    });
+
+    if (!topLevelFolder) {
+        return <ProtectedRoute>{}</ProtectedRoute>;
+    }
 
     const pageSection = (
         <PageSection
@@ -62,6 +61,7 @@ const Review = () => {
             articles={[
                 <SectionArticle className="w-full" titleBar="Review">
                     <FolderListView
+                        topLevelFolder={topLevelFolder}
                         selectMultiple={true}
                         onSelectedFoldersChange={onSelectedFoldersChange}
                     />
@@ -88,13 +88,18 @@ const Review = () => {
         />
     );
     return (
-        <ProtectedRoute>
-            <div className="flex h-full flex-col items-center p-4">
-                {pageSection}
-                <ReviewPopup className="mt-4" />
-            </div>
-        </ProtectedRoute>
+        <div className="flex h-full flex-col items-center p-4">
+            {pageSection}
+            <span className="p-2" />
+            <Button onClick={() => setShowPopup(true)}>Review</Button>
+            <ReviewPopup
+                show={showPopup}
+                onCancel={() => {
+                    setShowPopup(false);
+                }}
+            />
+        </div>
     );
-};
+}
 
-export default Review;
+export default ReviewIndex;

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { useRouter } from "next/router";
 
 interface NavbarTabProps {
     selected: boolean;
@@ -14,8 +13,6 @@ const NavbarTab: React.FC<NavbarTabProps> = ({
     name,
     path,
 }) => {
-    const router = useRouter();
-
     return (
         <Link
             key={path}

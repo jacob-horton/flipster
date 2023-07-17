@@ -1,12 +1,12 @@
 import React, { ReactNode, useEffect } from "react";
 
-interface PopupProps {
+export interface PopupProps {
     children?: ReactNode;
     show: boolean;
     onCancel?: () => void;
 }
 
-const Popup: React.FC<PopupProps> = ({ children, show, onCancel }) => {
+function Popup({ children, show, onCancel }: PopupProps) {
     useEffect(() => {
         const handleEsc = (event: { keyCode: number }) => {
             // If escape pressed
@@ -24,7 +24,7 @@ const Popup: React.FC<PopupProps> = ({ children, show, onCancel }) => {
 
     return show ? (
         <div onClick={onCancel}>
-            <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden outline-none focus:outline-none">
+            <div className="fixed inset-0 z-50 m-0 flex items-center justify-center overflow-y-auto overflow-x-hidden outline-none focus:outline-none">
                 <div
                     className="light-border min-h-[25%] min-w-[35%] rounded-lg bg-gray-100 px-4 py-3 shadow-gray-200 drop-shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
@@ -32,9 +32,9 @@ const Popup: React.FC<PopupProps> = ({ children, show, onCancel }) => {
                     {children}
                 </div>
             </div>
-            <div className="fixed inset-0 z-40 bg-black opacity-25"></div>
+            <div className="fixed inset-0 z-40 m-0 bg-black opacity-25"></div>
         </div>
     ) : null;
-};
+}
 
 export default Popup;
