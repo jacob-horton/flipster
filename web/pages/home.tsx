@@ -14,11 +14,11 @@ const Home = () => {
 
     return (
         <ProtectedRoute>
-            <div className="h-full p-4 flex flex-col space-y-4">
+            <div className="flex h-full flex-col space-y-4 p-4">
                 <Header>
                     Welcome back {auth.user?.profile.given_name ?? "Unknown"}!
                 </Header>
-                <div className="grow grid grid-cols-7 grid-rows-2 gap-4">
+                <div className="grid grow grid-cols-7 grid-rows-2 gap-4">
                     <Recents />
                     <SpacedRepetition />
                     <Groups />

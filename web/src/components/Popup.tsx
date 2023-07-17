@@ -23,19 +23,16 @@ const Popup: React.FC<PopupProps> = ({ children, show, onCancel }) => {
     }, [onCancel]);
 
     return show ? (
-        <div
-            onClick={onCancel}
-            className="h-[100vh] w-[100vw] fixed inset-0 z-40 bg-[rgb(0,0,0,0.25)]"
-        >
-            {/* NOTE: use HTML dialog with 'open' attribute for accessibility.
-             * It always evaluates to true here, as otherwise we don't render it */}
-            <dialog
-                open
-                onClick={(e) => e.stopPropagation()}
-                className="flex flex-col min-h-[25%] min-w-[35%] px-4 py-3 justify-center items-center fixed inset-0 z-50 outline-none focus:outline-none bg-gray-100 light-border drop-shadow-2xl shadow-gray-200 rounded-lg"
-            >
-                {children}
-            </dialog>
+        <div onClick={onCancel}>
+            <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden outline-none focus:outline-none">
+                <div
+                    className="light-border min-h-[25%] min-w-[35%] rounded-lg bg-gray-100 px-4 py-3 shadow-gray-200 drop-shadow-2xl"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {children}
+                </div>
+            </div>
+            <div className="fixed inset-0 z-40 bg-black opacity-25"></div>
         </div>
     ) : null;
 };

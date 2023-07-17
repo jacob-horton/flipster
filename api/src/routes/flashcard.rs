@@ -4,7 +4,12 @@ use actix_web::{
     HttpRequest, HttpResponse, Responder,
 };
 
-use crate::{exportable, routes::folder::get_folder_owner, utils, AppState};
+use crate::{
+    exportable,
+    routes::folder::get_user_permissions,
+    utils::{self, get_user_id},
+    AppState,
+};
 
 exportable! {
     pub struct FlashcardInsert {
@@ -20,40 +25,26 @@ pub async fn add_flashcard(
     payload: web::Json<FlashcardInsert>,
     req: HttpRequest,
 ) -> impl Responder {
-    // Check who owns the folder
-    let folder_owner_id = get_folder_owner(payload.folder_id, data.db_pool.as_ref()).await;
-    match folder_owner_id {
-        Some(id) => {
-            match req.headers().get("user_id") {
-                Some(user_id) => {
-                    let user_id: i32 = user_id.to_str().unwrap().parse::<i32>().unwrap();
+    let user_id = get_user_id(&req).unwrap();
+    let permissions = get_user_permissions(payload.folder_id, user_id, data.db_pool.as_ref()).await;
 
-                    // Check the owner is the user trying to add to the folder
-                    if user_id != id {
-                        return HttpResponse::Unauthorized().body("User does not own this folder");
-                    }
+    if permissions.add_flashcards {
+        // Insert flashcard
+        let result = sqlx::query!(
+            "INSERT INTO flashcard (term, definition, folder_id) VALUES ($1, $2, $3)",
+            payload.term,
+            payload.definition,
+            payload.folder_id
+        )
+        .execute(data.db_pool.as_ref())
+        .await;
 
-                    // Insert flashcard
-                    let result = sqlx::query!(
-                        "INSERT INTO flashcard (term, definition, folder_id) VALUES ($1, $2, $3)",
-                        payload.term,
-                        payload.definition,
-                        payload.folder_id
-                    )
-                    .execute(data.db_pool.as_ref())
-                    .await;
-
-                    match result {
-                        Ok(_) => HttpResponse::Ok().body("Added flashcard successfully"),
-                        Err(_) => {
-                            HttpResponse::InternalServerError().body("Failed to add flashcard")
-                        }
-                    }
-                }
-                None => HttpResponse::Unauthorized().body("User does not exist"),
-            }
+        match result {
+            Ok(_) => HttpResponse::Ok().body("Added flashcard successfully"),
+            Err(_) => HttpResponse::InternalServerError().body("Failed to add flashcard"),
         }
-        None => HttpResponse::Unauthorized().body("Folder is not owned by this user"),
+    } else {
+        HttpResponse::Unauthorized().body("User does not have permission to add a flashcard")
     }
 }
 
@@ -78,10 +69,14 @@ pub async fn get_flashcard(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    let owner = get_folder_owner(info.folder_id, &data.db_pool).await;
-    if Some(user_id) != owner {
-        return HttpResponse::Unauthorized().body("User is not folder owner.");
+    if !get_user_permissions(info.folder_id, user_id, &data.db_pool)
+        .await
+        .read_flashcards
+    {
+        return HttpResponse::Unauthorized()
+            .body("User does not have permission to view this flashcard");
     }
+
     let flashcards = sqlx::query_as!(
         Flashcard,
         "SELECT id, term, definition FROM flashcard WHERE folder_id = $1",

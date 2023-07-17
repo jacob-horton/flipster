@@ -19,10 +19,11 @@ const Tooltip: React.FC<TooltipProps> = ({ children, tooltip }) => {
             </div>
             {/* Max width of 52 */}
             <div
-                className={`${showTooltip ? "opacity-100 visible" : "opacity-0 invisible"
-                    } w-52 flex justify-center absolute right-1/2 translate-x-1/2 show-transition`}
+                className={`${
+                    showTooltip ? "visible opacity-100" : "invisible opacity-0"
+                } show-transition absolute right-1/2 flex w-52 translate-x-1/2 justify-center`}
             >
-                <div className="drop-shadow-lg text-xs rounded-lg bg-gray-100 light-border p-2 text-center select-none">
+                <div className="light-border select-none rounded-lg bg-gray-100 p-2 text-center text-xs drop-shadow-lg">
                     {tooltip}
                 </div>
             </div>

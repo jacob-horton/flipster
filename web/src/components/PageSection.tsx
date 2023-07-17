@@ -7,8 +7,8 @@ interface BackgroundIconProps {
 
 const BackgroundIcon: React.FC<BackgroundIconProps> = ({ icon }) => {
     return (
-        <div className="opacity-100 rounded-lg absolute inset-0 overflow-clip">
-            <div className="absolute right-[-25px] bottom-[-60px] opacity-10">
+        <div className="absolute inset-0 overflow-clip rounded-lg opacity-100">
+            <div className="absolute bottom-[-60px] right-[-25px] opacity-10">
                 {icon}
             </div>
         </div>
@@ -32,13 +32,13 @@ export const SectionArticle: React.FC<SectionArticleProps> = ({
 }) => {
     return (
         <div className={className}>
-            <div className="h-full flex flex-col relative py-2 px-3">
+            <div className="relative flex h-full flex-col px-3 py-2">
                 {bgIcon && <BackgroundIcon icon={bgIcon} />}
                 <div className="flex items-center space-x-2 pb-2">
                     {icon}
                     <h1 className="w-full text-xl">{titleBar}</h1>
                 </div>
-                <div className="grow relative">{children}</div>
+                <div className="relative grow">{children}</div>
             </div>
         </div>
     );
@@ -80,11 +80,11 @@ const PageSection: React.FC<PageSectionProps> = ({
     }
     return (
         <div className={className}>
-            <div className="h-full flex flex-row bg-white light-border rounded-lg">
+            <div className="light-border flex h-full flex-row rounded-lg bg-white">
                 {articles.map((SectionArticle, i) => (
                     <React.Fragment key={i}>
                         {i > 0 ? (
-                            <div className="border border-gray-300 self-center h-[95%]"></div>
+                            <div className="h-[95%] self-center border border-gray-300"></div>
                         ) : undefined}
                         {SectionArticle}
                     </React.Fragment>

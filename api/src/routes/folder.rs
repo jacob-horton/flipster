@@ -8,6 +8,8 @@ use sqlx::PgPool;
 
 use crate::{exportable, utils, AppState};
 
+use super::group::MemberType;
+
 exportable! {
     pub struct Folder {
         pub id: i32,
@@ -15,26 +17,126 @@ exportable! {
     }
 }
 
-pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<i32> {
-    let top_level_folder = sqlx::query!(
+pub enum FolderOwner {
+    User(i32),
+    Group(i32),
+}
+
+pub async fn get_folder_owner(folder_id: i32, db_pool: &PgPool) -> Option<FolderOwner> {
+    let top_level_folder = sqlx::query_scalar!(
         "WITH RECURSIVE f AS(
           SELECT id, parent_id FROM folder WHERE id = $1
           UNION
 	        SELECT folder.id as id, folder.parent_id as parent_id FROM f, folder WHERE folder.id = f.parent_id
-        ) SELECT * FROM f WHERE parent_id IS NULL",
+        ) SELECT id FROM f WHERE parent_id IS NULL",
         folder_id
-    ).fetch_one(db_pool).await.ok()?.id;
+    ).fetch_one(db_pool).await.ok()?;
 
-    Some(
-        sqlx::query!(
-            "SELECT id FROM app_user WHERE flashcards = $1",
-            top_level_folder
-        )
-        .fetch_one(db_pool)
-        .await
-        .ok()?
-        .id,
+    let user_id_future = sqlx::query_scalar!(
+        "SELECT id FROM app_user WHERE top_level_folder = $1",
+        top_level_folder
     )
+    .fetch_optional(db_pool);
+
+    let group_id_future = sqlx::query_scalar!(
+        "SELECT id FROM app_group WHERE top_level_folder = $1",
+        top_level_folder
+    )
+    .fetch_optional(db_pool);
+
+    let (user_id, group_id) = futures::join!(user_id_future, group_id_future);
+    let user_id = user_id.unwrap();
+    let group_id = group_id.unwrap();
+
+    if let Some(user_id) = user_id {
+        return Some(FolderOwner::User(user_id));
+    }
+
+    if let Some(group_id) = group_id {
+        return Some(FolderOwner::Group(group_id));
+    }
+
+    None
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct ContentPermissions {
+    pub add_flashcards: bool,
+    pub edit_flashcards: bool,
+    pub read_flashcards: bool,
+
+    pub add_folders: bool,
+    pub edit_folders: bool,
+    pub read_folders: bool,
+}
+
+impl ContentPermissions {
+    fn none() -> Self {
+        Default::default()
+    }
+
+    fn all() -> Self {
+        ContentPermissions {
+            add_folders: true,
+            edit_folders: true,
+            read_folders: true,
+
+            add_flashcards: true,
+            edit_flashcards: true,
+            read_flashcards: true,
+        }
+    }
+}
+
+impl From<MemberType> for ContentPermissions {
+    fn from(value: MemberType) -> Self {
+        match value {
+            MemberType::Owner => ContentPermissions::all(),
+            MemberType::Admin => ContentPermissions::all(),
+            MemberType::Member => ContentPermissions {
+                read_folders: true,
+                read_flashcards: true,
+                add_flashcards: true,
+                ..ContentPermissions::none()
+            },
+            MemberType::Viewer => ContentPermissions {
+                read_folders: true,
+                read_flashcards: true,
+                ..ContentPermissions::none()
+            },
+        }
+    }
+}
+
+pub async fn get_user_permissions(
+    folder_id: i32,
+    user_id: i32,
+    db_pool: &PgPool,
+) -> ContentPermissions {
+    let owner = get_folder_owner(folder_id, db_pool).await;
+    match owner {
+        Some(FolderOwner::User(id)) => {
+            if user_id == id {
+                ContentPermissions::all()
+            } else {
+                ContentPermissions::none()
+            }
+        }
+        Some(FolderOwner::Group(id)) => {
+            let member_type = sqlx::query_scalar!(
+                r#"SELECT role as "role: MemberType" FROM group_member WHERE app_user_id = $1 AND app_group_id = $2"#,
+                user_id,
+                id
+            )
+            .fetch_optional(db_pool)
+            .await
+            .unwrap()
+            .unwrap();
+
+            member_type.into()
+        }
+        None => ContentPermissions::none(), // Folder does not have owner
+    }
 }
 
 exportable! {
@@ -52,10 +154,11 @@ pub async fn add_folder(
 ) -> impl Responder {
     // TODO: do not allow symbols?
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    let owner = get_folder_owner(payload.parent_folder_id, data.db_pool.as_ref()).await;
-
-    if Some(user_id) != owner {
-        return HttpResponse::Unauthorized().body("User does not own that folder");
+    if !get_user_permissions(payload.parent_folder_id, user_id, &data.db_pool)
+        .await
+        .add_folders
+    {
+        return HttpResponse::Unauthorized().body("User does not have permissions to add folders");
     }
 
     let result = sqlx::query_as!(
@@ -94,10 +197,12 @@ pub async fn rename_folder(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
-    let owner = get_folder_owner(payload.folder_id, data.db_pool.as_ref()).await;
-
-    if Some(user_id) != owner {
-        return HttpResponse::Unauthorized().body("User does not own that folder");
+    if !get_user_permissions(payload.folder_id, user_id, &data.db_pool)
+        .await
+        .edit_folders
+    {
+        return HttpResponse::Unauthorized()
+            .body("User does not have permission to edit this folder");
     }
 
     let result = sqlx::query_as!(
@@ -150,7 +255,7 @@ pub async fn resolve_path(
 
     let all_folders: Vec<FolderWithParent> = sqlx::query!(
         "WITH RECURSIVE f AS(
-          SELECT id, name, parent_id FROM folder WHERE id = (SELECT flashcards FROM app_user WHERE app_user.id = $1)
+          SELECT id, name, parent_id FROM folder WHERE id = (SELECT top_level_folder FROM app_user WHERE app_user.id = $1)
           UNION
           SELECT folder.id, folder.name, folder.parent_id FROM f, folder WHERE folder.name = ANY($2) AND folder.parent_id = f.id
         ) SELECT * FROM f",
@@ -198,14 +303,17 @@ pub async fn get_unique_folder_name(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
+    if !get_user_permissions(info.parent_folder_id, user_id, &data.db_pool)
+        .await
+        .read_folders
+    {
+        return HttpResponse::Unauthorized()
+            .body("User does not have permissions to read this folder");
+    }
 
     // Search for names of format `<info.name>[ (<any number>)]` where the bit in square brackets is
     // optional
     let regex = Regex::new(&format!(r"^{}( \((\d+)\))?$", regex::escape(&info.name))).unwrap();
-
-    if Some(user_id) != get_folder_owner(info.parent_folder_id, &data.db_pool).await {
-        return HttpResponse::Unauthorized().body("User does not own that parent folder");
-    }
 
     let numbers: Vec<i32> = sqlx::query!(
         "SELECT name

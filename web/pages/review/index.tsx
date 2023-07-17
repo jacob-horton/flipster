@@ -8,7 +8,7 @@ import FolderListView from "@components/FolderListView";
 import { useCallback, useState } from "react";
 import ReviewPopup from "@components/routeReview/ReviewPopup";
 
-const ReviewIndex = () => {
+const Review = () => {
     const auth = useAuth();
     const [accessedFlashcards, setAccessedFlashcards] = useState<Flashcard[]>(
         []
@@ -89,12 +89,12 @@ const ReviewIndex = () => {
     );
     return (
         <ProtectedRoute>
-            <div className="flex h-full flex-col items-center space-y-4 p-4">
+            <div className="flex h-full flex-col items-center p-4">
                 {pageSection}
-                <ReviewPopup />
+                <ReviewPopup className="mt-4" />
             </div>
         </ProtectedRoute>
     );
 };
 
-export default ReviewIndex;
+export default Review;
