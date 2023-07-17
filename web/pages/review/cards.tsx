@@ -1,7 +1,6 @@
 import PageSection from "@components/PageSection";
-import { useRouter } from "next/router";
 
-function ReviewCard() {
+export default function ReviewCard() {
     return (
         <div className="flex h-full items-center p-4">
             <button className="mr-4 h-auto w-6 bg-green-300">{"<"}</button>
@@ -12,5 +11,3 @@ function ReviewCard() {
         </div>
     );
 }
-
-export default ReviewCard;

@@ -34,7 +34,7 @@ const OptionButton: React.FC<OptionButtonProps> = ({
     );
 };
 
-function ReviewPopup({ show, onCancel }: PopupProps) {
+export default function ReviewPopup({ show, onCancel }: PopupProps) {
     // currently selected button used as revision mode
     const [selectedMode, setSelectedMode] = useState<SelectedMode>(new Map());
     return (
@@ -71,5 +71,3 @@ function ReviewPopup({ show, onCancel }: PopupProps) {
         </Popup>
     );
 }
-
-export default ReviewPopup;

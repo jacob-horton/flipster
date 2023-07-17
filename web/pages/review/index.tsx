@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import getTLF from "@src/getTopLevelFolder";
 import Button from "@components/Button";
 
-function ReviewIndex() {
+export default function ReviewIndex() {
     const auth = useAuth();
     const [accessedFlashcards, setAccessedFlashcards] = useState<Flashcard[]>(
         []
@@ -101,5 +101,3 @@ function ReviewIndex() {
         </div>
     );
 }
-
-export default ReviewIndex;
