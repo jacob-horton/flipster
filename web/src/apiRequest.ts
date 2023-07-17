@@ -16,7 +16,7 @@ export async function getRequest(data: GetRequestData) {
     const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}${data.path}`);
 
     if (data.queryParams !== undefined) {
-        for (const key of Object.keys(data.queryParams)) {
+        for (const key in data.queryParams) {
             url.searchParams.append(key, data.queryParams[key].toString());
         }
     }
