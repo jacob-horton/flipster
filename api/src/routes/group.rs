@@ -72,7 +72,7 @@ exportable! {
     pub struct GroupGetResp {
         id: i32,
         name: String,
-        top_level_folder: i32,
+        root_folder: i32,
     }
 }
 
@@ -87,7 +87,7 @@ pub async fn get_group(
 
     let group = sqlx::query_as!(
         GroupGetResp,
-        "SELECT app_group.id, app_group.name, app_group.top_level_folder
+        "SELECT app_group.id, app_group.name, app_group.top_level_folder as root_folder
         FROM app_group
         JOIN group_member ON group_member.app_group_id = app_group.id
         WHERE app_group.id = $1 AND (is_public = true OR group_member.app_user_id = $2)",

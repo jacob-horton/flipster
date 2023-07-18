@@ -1,7 +1,5 @@
-import { getRequest } from "@src/apiRequest";
 import { useEffect, useState } from "react";
-import { useAuth } from "react-oidc-context";
-import ListViewNode, { NodeData } from "./ListViewNode";
+import ListViewNode from "./ListViewNode";
 import { Folder } from "@src/types/Folder";
 
 interface FolderListViewProps {
