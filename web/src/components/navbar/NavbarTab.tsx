@@ -14,7 +14,7 @@ const NavbarTab: React.FC<NavbarTabProps> = ({
     path,
 }) => {
     return (
-        <Link
+        <a
             key={path}
             href={path}
             className="flex flex-row items-center space-x-2"
@@ -23,7 +23,7 @@ const NavbarTab: React.FC<NavbarTabProps> = ({
                 {icon}
             </div>
             <p className={selected ? "text-orange-400" : undefined}>{name}</p>
-        </Link>
+        </a>
     );
 };
 
