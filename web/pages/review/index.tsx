@@ -8,7 +8,7 @@ import FolderListView from "@components/FolderListView";
 import { useCallback, useState } from "react";
 import ReviewPopup from "@components/routeReview/ReviewPopup";
 import { useQuery } from "@tanstack/react-query";
-import getTLF from "@src/getTopLevelFolder";
+import getRootFolder from "@src/getRootFolder";
 import Button from "@components/Button";
 
 export default function ReviewIndex() {
@@ -42,16 +42,12 @@ export default function ReviewIndex() {
     );
 
     // TODO: make this the FolderListView default?
-    const { data: topLevelFolder } = useQuery({
+    const { data: rootFolder } = useQuery({
         queryKey: [auth.user],
-        queryFn: async () => {
-            if (auth.user) {
-                return await getTLF(auth.user);
-            }
-        },
+        queryFn: async () => await getRootFolder(auth.user?.id_token),
     });
 
-    if (!topLevelFolder) {
+    if (!rootFolder) {
         return <ProtectedRoute>{}</ProtectedRoute>;
     }
 
@@ -61,7 +57,7 @@ export default function ReviewIndex() {
             articles={[
                 <SectionArticle className="w-full" titleBar="Review">
                     <FolderListView
-                        topLevelFolder={topLevelFolder}
+                        rootFolder={rootFolder}
                         selectMultiple={true}
                         onSelectedFoldersChange={onSelectedFoldersChange}
                     />

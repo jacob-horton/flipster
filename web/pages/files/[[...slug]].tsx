@@ -10,7 +10,7 @@ import { getRequest, queryOrDefault } from "@src/apiRequest";
 import { AuthContextProps, useAuth } from "react-oidc-context";
 import { ResolvePathGet } from "@src/types/ResolvePathGet";
 import { useQuery } from "@tanstack/react-query";
-import getTopLevelFolder from "@src/getTopLevelFolder";
+import getRootFolder from "@src/getRootFolder";
 
 function currentFolderId(path: FolderData[]) {
     if (path.length === 0) return undefined;
@@ -58,11 +58,11 @@ const Files = () => {
         fetchData();
     }, [auth, slug]);
 
-    const { data: topLevelFolder } = useQuery({
+    const { data: rootFolder } = useQuery({
         queryKey: [auth.user],
-        queryFn: async () => await getTopLevelFolder(auth.user),
+        queryFn: async () => await getRootFolder(auth.user?.id_token),
     });
-    if (!topLevelFolder) {
+    if (!rootFolder) {
         return <ProtectedRoute>{}</ProtectedRoute>;
     }
 
@@ -96,7 +96,7 @@ const Files = () => {
                     {view === "list" && (
                         <FolderListView
                             selectMultiple={false}
-                            topLevelFolder={topLevelFolder}
+                            rootFolder={rootFolder}
                         />
                     )}
                     <AddFlashcardButtonPopup

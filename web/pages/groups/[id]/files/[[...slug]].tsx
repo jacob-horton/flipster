@@ -45,8 +45,8 @@ const Groups = () => {
                     Path: {router.query.slug?.join("/")}
                     <FolderListView
                         selectMultiple={false}
-                        topLevelFolder={{
-                            id: group?.topLevelFolder,
+                        rootFolder={{
+                            id: group?.rootFolder,
                             name: "asdf",
                             children: [],
                         }}

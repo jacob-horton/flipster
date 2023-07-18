@@ -7,13 +7,13 @@ import { Folder } from "@src/types/Folder";
 interface FolderListViewProps {
     selectMultiple: boolean;
     onSelectedFoldersChange?: (folderIds: number[]) => void;
-    topLevelFolder: Folder;
+    rootFolder: Folder;
 }
 
 const FolderListView: React.FC<FolderListViewProps> = ({
     selectMultiple,
     onSelectedFoldersChange,
-    topLevelFolder,
+    rootFolder,
 }) => {
     const [selected, setSelected] = useState<number[]>([]);
 
@@ -22,14 +22,14 @@ const FolderListView: React.FC<FolderListViewProps> = ({
         if (onSelectedFoldersChange) onSelectedFoldersChange(selected);
     }, [selected, onSelectedFoldersChange]);
 
-    if (topLevelFolder === undefined || topLevelFolder.id === undefined) {
+    if (rootFolder === undefined || rootFolder.id === undefined) {
         return <p>Loading</p>;
     } else {
         return (
             <ListViewNode
                 node={{
-                    id: topLevelFolder.id,
-                    name: topLevelFolder.name,
+                    id: rootFolder.id,
+                    name: rootFolder.name,
                     children: [],
                 }}
                 expanded={true}
