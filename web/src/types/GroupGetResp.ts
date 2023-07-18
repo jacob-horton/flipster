@@ -3,5 +3,5 @@
 export interface GroupGetResp {
     id: number;
     name: string;
-    topLevelFolder: number;
+    rootFolder: number;
 }

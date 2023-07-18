@@ -10,6 +10,7 @@ import { getRequest, queryOrDefault } from "@src/apiRequest";
 import { AuthContextProps, useAuth } from "react-oidc-context";
 import { ResolvePathGet } from "@src/types/ResolvePathGet";
 import { useQuery } from "@tanstack/react-query";
+import getRootFolder from "@src/getRootFolder";
 
 function currentFolderId(path: FolderData[]) {
     if (path.length === 0) return undefined;
@@ -57,68 +58,53 @@ const Files = () => {
         fetchData();
     }, [auth, slug]);
 
-    const { data: topLevelFolder } = useQuery({
+    const { data: rootFolder } = useQuery({
         queryKey: [auth.user],
-        queryFn: async () => {
-            // TODO: properly handle no token
-            const token = auth.user?.id_token;
-            if (token === undefined || auth.user?.expired) {
-                return;
-            }
-
-            const resp = await getRequest({
-                path: "/user/top_level_folder",
-                id_token: token,
-            });
-
-            const id = parseInt(await resp.text());
-            return { children: [], name: "Your Files", id };
-        },
+        queryFn: async () => await getRootFolder(auth.user?.id_token),
     });
+    if (!rootFolder) {
+        return <ProtectedRoute>{}</ProtectedRoute>;
+    }
 
     // TODO: path case insensitive?
     // TODO: dropdown shows over popup
     return (
-        <ProtectedRoute>
-            <div className="flex h-full flex-col p-4">
-                <PageSection
-                    className="grow"
-                    titleBar={
-                        <div className="flex flex-row justify-between p-4">
-                            <h1 className="text-2xl">Your Files</h1>
-                            <select
-                                className="rounded-lg bg-gray-300 px-4 text-base"
-                                onChange={(e) => {
-                                    setView(e.target.value as "list" | "icon");
-                                    if (e.target.value === "list") {
-                                        router.replace("/files");
-                                    }
-                                }}
-                                value={view}
-                            >
-                                <option value="icon">Icon</option>
-                                <option value="list">List</option>
-                            </select>
-                        </div>
-                    }
-                >
-                    <div className="space-y-6">
-                        {view === "icon" && (
-                            <IconView currentPath={currentPath} />
-                        )}
-                        {view === "list" && (
-                            <FolderListView
-                                selectMultiple={false}
-                                topLevelFolder={topLevelFolder}
-                            />
-                        )}
-                        <AddFlashcardButtonPopup
-                            currentFolderId={currentFolderId(currentPath)}
-                        />
+        <div className="flex h-full flex-col p-4">
+            <PageSection
+                className="grow"
+                titleBar={
+                    <div className="flex flex-row justify-between p-4">
+                        <h1 className="text-2xl">Your Files</h1>
+                        <select
+                            className="rounded-lg bg-gray-300 px-4 text-base"
+                            onChange={(e) => {
+                                setView(e.target.value as "list" | "icon");
+                                if (e.target.value === "list") {
+                                    router.replace("/files");
+                                }
+                            }}
+                            value={view}
+                        >
+                            <option value="icon">Icon</option>
+                            <option value="list">List</option>
+                        </select>
                     </div>
-                </PageSection>
-            </div>
-        </ProtectedRoute>
+                }
+            >
+                <div className="space-y-6">
+                    {view === "icon" && <IconView currentPath={currentPath} />}
+                    {view === "list" && (
+                        <FolderListView
+                            selectMultiple={false}
+                            rootFolder={rootFolder}
+                        />
+                    )}
+                    <AddFlashcardButtonPopup
+                        currentFolderId={currentFolderId(currentPath)}
+                    />
+                </div>
+            </PageSection>
+        </div>
     );
 };
 

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { useRouter } from "next/router";
 
 interface NavbarTabProps {
     selected: boolean;
@@ -14,24 +13,17 @@ const NavbarTab: React.FC<NavbarTabProps> = ({
     name,
     path,
 }) => {
-    const router = useRouter();
-
     return (
-        <Link
+        <a
             key={path}
             href={path}
-            onClick={() => {
-                if (selected) {
-                    router.reload();
-                }
-            }}
             className="flex flex-row items-center space-x-2"
         >
             <div className={selected ? "text-orange-400" : undefined}>
                 {icon}
             </div>
             <p className={selected ? "text-orange-400" : undefined}>{name}</p>
-        </Link>
+        </a>
     );
 };
 
