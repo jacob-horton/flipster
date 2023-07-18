@@ -303,13 +303,6 @@ pub async fn resolve_path(
     HttpResponse::Ok().json(result)
 }
 
-exportable! {
-    pub struct UniqueNameGet {
-        name: String,
-        parent_folder_id: i32
-    }
-}
-
 pub async fn get_unique_folder_name(name: &str, parent_folder_id: i32, db_pool: &PgPool) -> String {
     // Search for names of format `<info.name>[ (<any number>)]` where the bit in square brackets is
     // optional

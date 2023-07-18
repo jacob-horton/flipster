@@ -1,11 +1,9 @@
-import Button from "@components/Button";
 import FolderListView from "@components/FolderListView";
 import PageSection from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
-import { getRequest, postRequest } from "@src/apiRequest";
+import { getRequest } from "@src/apiRequest";
 import { GroupGetReq } from "@src/types/GroupGetReq";
 import { GroupGetResp } from "@src/types/GroupGetResp";
-import { UserGroup } from "@src/types/UserGroup";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { useAuth } from "react-oidc-context";
@@ -19,7 +17,7 @@ const Groups = () => {
         groupId = parseInt(router.query.id);
     }
 
-    const { data: group, refetch } = useQuery({
+    const { data: group } = useQuery({
         queryKey: [auth, groupId],
         queryFn: async () => {
             if (groupId === undefined) {
