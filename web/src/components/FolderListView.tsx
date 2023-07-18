@@ -22,7 +22,7 @@ const FolderListView: React.FC<FolderListViewProps> = ({
         if (onSelectedFoldersChange) onSelectedFoldersChange(selected);
     }, [selected, onSelectedFoldersChange]);
 
-    if (rootFolder === undefined || rootFolder.id === undefined) {
+    if (rootFolder?.id === undefined) {
         return <p>Loading</p>;
     } else {
         return (
