@@ -78,10 +78,11 @@ pub async fn validator(
 
     match get_claims(jwt).await {
         Ok(claims) => {
-            let user = sqlx::query!("SELECT id FROM app_user WHERE jwt_sub = $1", claims.sub)
-                .fetch_optional(db_pool.as_ref())
-                .await
-                .expect("Failed to search for user");
+            let user_id =
+                sqlx::query_scalar!("SELECT id FROM app_user WHERE jwt_sub = $1", claims.sub)
+                    .fetch_optional(db_pool.as_ref())
+                    .await
+                    .expect("Failed to search for user");
 
             let mut req = req; // Make mutable
             let headers = req.headers_mut();
@@ -90,9 +91,10 @@ pub async fn validator(
                 HeaderValue::from_str(&claims.sub).unwrap(),
             );
 
-            let user_id = match user {
-                Some(user) => user.id,
+            let user_id = match user_id {
+                Some(user_id) => user_id,
                 None => {
+                    // TODO: extract creating account into another function
                     let tlf = sqlx::query_scalar!(
                         "INSERT INTO folder (name) VALUES ('Your Files') RETURNING id",
                     )
