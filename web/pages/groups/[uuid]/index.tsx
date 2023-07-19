@@ -7,7 +7,6 @@ const Groups = () => {
     const router = useRouter();
 
     let groupUuid = undefined;
-    console.log(router.query);
     if (typeof router.query.uuid === "string") {
         groupUuid = router.query.uuid;
     }
