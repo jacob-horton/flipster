@@ -3,6 +3,7 @@ import type { MemberType } from "./MemberType";
 
 export interface UserGroup {
     id: number;
+    uuid: string;
     name: string;
     description: string;
     isPublic: boolean;

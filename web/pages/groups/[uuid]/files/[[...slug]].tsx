@@ -12,19 +12,19 @@ const Groups = () => {
     const auth = useAuth();
     const router = useRouter();
 
-    let groupId: number | undefined = undefined;
-    if (typeof router.query.id === "string") {
-        groupId = parseInt(router.query.id);
+    let groupUuid: string | undefined = undefined;
+    if (typeof router.query.uuid === "string") {
+        groupUuid = router.query.uuid;
     }
 
     const { data: group } = useQuery({
-        queryKey: [auth, groupId],
+        queryKey: [auth, groupUuid],
         queryFn: async () => {
-            if (groupId === undefined) {
+            if (groupUuid === undefined) {
                 return null;
             }
 
-            const queryParams: GroupGetReq = { id: groupId };
+            const queryParams: GroupGetReq = { uuid: groupUuid };
             return (await getRequest({
                 path: "/group/get",
                 id_token: auth.user?.id_token ?? "",
@@ -38,7 +38,7 @@ const Groups = () => {
             <div className="flex h-full flex-row space-x-4 p-4">
                 <PageSection
                     className="w-full justify-between"
-                    titleBar={<>Files for group with ID: {groupId}</>}
+                    titleBar={<>Files for group with UUID: {groupUuid}</>}
                 >
                     Path: {router.query.slug?.join("/")}
                     <FolderListView
