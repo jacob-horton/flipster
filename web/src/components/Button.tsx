@@ -14,7 +14,7 @@ interface LinkButtonProps {
 interface DefaultButtonProps {
     onClick?: MouseEventHandler;
     children?: ReactNode;
-    submit?: boolean;
+    type?: "button" | "submit" | "reset";
 }
 
 type ButtonProps = LinkButtonProps | DefaultButtonProps;
@@ -31,7 +31,7 @@ const Button: React.FC<ButtonProps> = (props) => {
                 <button
                     className="light-border rounded-lg bg-gray-300 px-5"
                     onClick={onClick}
-                    type={props.submit ? "submit" : undefined}
+                    type={props.type}
                 >
                     {children}
                 </button>

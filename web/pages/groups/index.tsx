@@ -75,7 +75,7 @@ const Groups = () => {
                         <input name="public" type="checkbox" />
                         <p className="text-md">Public</p>
                     </div>
-                    <Button onClick={() => setShowPopup(true)} submit>
+                    <Button onClick={() => setShowPopup(true)} type="submit">
                         Add Group
                     </Button>
                 </form>
