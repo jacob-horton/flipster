@@ -16,6 +16,7 @@ interface FolderProps {
     onEditingFinish?: (name: string) => Promise<boolean>; // Returns true if rename successful
     onDoubleClick?: () => void;
     path?: string;
+    textType?: boolean;
 }
 
 const Folder: React.FC<FolderProps> = ({
@@ -26,6 +27,7 @@ const Folder: React.FC<FolderProps> = ({
     path,
     onEditingFinish,
     onDoubleClick,
+    textType,
 }) => {
     const [name, setName] = useState(folder?.name ?? "");
     const auth = useAuth();
@@ -88,7 +90,8 @@ const Folder: React.FC<FolderProps> = ({
                     autoFocus={true}
                     className="rounded-md border border-gray-400 px-2 text-center"
                     onChange={(e) => setName(e.target.value)}
-                    placeholder={name}
+                    value={textType ? undefined : name}
+                    placeholder={textType ? name : undefined}
                     onKeyUp={async (e) => {
                         if (e.code === "Enter") {
                             if (onEditingFinish !== undefined) {

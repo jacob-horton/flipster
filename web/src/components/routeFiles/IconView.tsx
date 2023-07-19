@@ -34,6 +34,7 @@ function getFolders(rawFolders: string | string[] | undefined): string[] {
 const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
     const auth = useAuth();
     const [editingFolder, setEditingFolder] = useState<number | undefined>();
+    const [textType, setTextType] = useState<boolean>(false);
     const router = useRouter();
     const folders = getFolders(router.query.folders);
 
@@ -108,6 +109,7 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
     };
 
     const handleInsertFolder = async () => {
+        setTextType(true);
         // TODO: Handle no token properly
         const token = auth.user?.id_token;
         if (token === undefined || auth.user?.expired) {
@@ -146,8 +148,10 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
                         key={`${folder.id}:${folder.name}`} // Use both id and name for key - in case duplicate names, or ids (in cases of preloading)
                         editingName={folder.id === editingFolder}
                         folder={folder}
+                        textType={textType}
                         path={getPathString([...currentPath.slice(1), folder])}
                         onDoubleClick={() => {
+                            setTextType(false);
                             setEditingFolder(folder.id);
                             refetch();
                         }}
