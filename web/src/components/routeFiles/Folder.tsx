@@ -52,6 +52,13 @@ const Folder: React.FC<FolderProps> = ({
         },
     });
 
+    const handleSaveFolderName = async () => {
+        if (onEditingFinish !== undefined) {
+            const result = await onEditingFinish(name);
+            if (!result) setName(folder?.name ?? "");
+        }
+    };
+
     // TODO: force path to be present if add is false
     return (
         <div className="m-2 flex w-24 flex-col">
@@ -92,13 +99,10 @@ const Folder: React.FC<FolderProps> = ({
                     onChange={(e) => setName(e.target.value)}
                     value={textType ? undefined : name}
                     placeholder={textType ? name : undefined}
+                    onBlur={handleSaveFolderName}
                     onKeyUp={async (e) => {
                         if (e.code === "Enter") {
-                            if (onEditingFinish !== undefined) {
-                                const result = await onEditingFinish(name);
-
-                                if (!result) setName(folder?.name ?? "");
-                            }
+                            handleSaveFolderName();
                         }
                     }}
                 />
