@@ -75,7 +75,7 @@ const Groups = () => {
                         <input name="public" type="checkbox" />
                         <p className="text-md">Public</p>
                     </div>
-                    <Button onClick={() => setShowPopup(true)} submit>
+                    <Button onClick={() => setShowPopup(true)} type="submit">
                         Add Group
                     </Button>
                 </form>
@@ -88,17 +88,16 @@ const Groups = () => {
                     <div className="flex h-full flex-col justify-between">
                         <div className="space-y-2">
                             {groups.map((g) => (
-                                <div className="flex space-x-2">
+                                <div className="flex space-x-2" key={g.uuid}>
                                     <Link
-                                        key={g.id}
-                                        href={`/groups/${g.id}`}
+                                        href={`/groups/${g.uuid}`}
                                         className="w-full rounded-lg bg-gray-200 px-4 py-1"
                                     >
                                         {g.name}
                                     </Link>
                                     <Link
                                         className="flex items-center rounded-lg bg-gray-200 px-2 py-1"
-                                        href={`/groups/${g.id}/files`}
+                                        href={`/groups/${g.uuid}/files`}
                                     >
                                         <BsFolder className="self-center" />
                                     </Link>

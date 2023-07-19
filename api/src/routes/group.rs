@@ -3,6 +3,7 @@ use actix_web::{
     web::{self, Data},
     HttpRequest, HttpResponse, Responder,
 };
+use uuid::Uuid;
 
 use crate::{enum_type, exportable, utils, AppState};
 
@@ -38,12 +39,25 @@ pub async fn add_group(
         .await
         .expect("Failed to create folder for new group");
 
+    let mut uuid = Uuid::new_v4();
+    while let Some(_) = sqlx::query_scalar!(
+        "SELECT uuid FROM app_group WHERE uuid = $1 LIMIT 1",
+        uuid.to_string()
+    )
+    .fetch_optional(data.db_pool.as_ref())
+    .await
+    .unwrap()
+    {
+        uuid = Uuid::new_v4();
+    }
+
     let group_id = sqlx::query_scalar!(
-        "INSERT INTO app_group (name, description, is_public, top_level_folder) VALUES ($1, $2, $3, $4) RETURNING id",
+        "INSERT INTO app_group (name, description, is_public, top_level_folder, uuid) VALUES ($1, $2, $3, $4, $5) RETURNING id",
         payload.name,
         payload.description,
         payload.is_public,
         tlf,
+        uuid.to_string(),
     )
     .fetch_one(data.db_pool.as_ref())
     .await
@@ -64,7 +78,7 @@ pub async fn add_group(
 
 exportable! {
     pub struct GroupGetReq {
-        id: i32,
+        uuid: String,
     }
 }
 
@@ -73,6 +87,7 @@ exportable! {
         id: i32,
         name: String,
         root_folder: i32,
+        uuid: String,
     }
 }
 
@@ -87,11 +102,11 @@ pub async fn get_group(
 
     let group = sqlx::query_as!(
         GroupGetResp,
-        "SELECT app_group.id, app_group.name, app_group.top_level_folder as root_folder
+        "SELECT app_group.id, app_group.name, app_group.top_level_folder as root_folder, uuid
         FROM app_group
         JOIN group_member ON group_member.app_group_id = app_group.id
-        WHERE app_group.id = $1 AND (is_public = true OR group_member.app_user_id = $2)",
-        info.id,
+        WHERE app_group.uuid = $1 AND (is_public = true OR group_member.app_user_id = $2)",
+        info.uuid,
         user_id,
     )
     .fetch_one(data.db_pool.as_ref())

@@ -4,4 +4,5 @@ export interface GroupGetResp {
     id: number;
     name: string;
     rootFolder: number;
+    uuid: string;
 }
