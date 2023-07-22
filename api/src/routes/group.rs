@@ -359,3 +359,40 @@ pub async fn accept_request(
             .body("User is not authorised to accept an invite for this group"),
     }
 }
+
+exportable! {
+    pub struct GroupSearchGetReq {
+        search_term: String,
+        n: Option<i64>,
+    }
+}
+
+exportable! {
+    pub struct GroupSearchGetResp {
+        name: String,
+        uuid: String,
+    }
+}
+
+#[get("/group/search")]
+pub async fn group_search(
+    data: Data<AppState>,
+    info: web::Query<GroupSearchGetReq>,
+) -> impl Responder {
+    // TODO: Index name with b-tree? Won't do anything if % before search term?
+    // `strpos` will return non-zero number if the substring exists in the string
+    // This can be faster and prevents having to escape `%` or `_` in `LIKE` query
+    // Source: https://dba.stackexchange.com/questions/261412/postgresql-prevent-sql-injection-for-like-query-with-input
+    // `lower` allows for case insensitive search
+    let groups = sqlx::query_as!(
+        GroupSearchGetResp,
+        "SELECT name, uuid FROM app_group WHERE STRPOS(lower(name), lower($1)) > 0 LIMIT $2",
+        info.search_term,
+        info.n.unwrap_or(20)
+    )
+    .fetch_all(data.db_pool.as_ref())
+    .await
+    .unwrap();
+
+    HttpResponse::Ok().json(groups)
+}

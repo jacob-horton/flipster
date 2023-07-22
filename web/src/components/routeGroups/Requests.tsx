@@ -17,19 +17,19 @@ export default function Requests({
 }: RequestsProps) {
     return (
         <>
-            <div className="flex items-center space-x-2 mt-2">
+            <div className="mt-2 flex items-center space-x-2">
                 <strong>{"Requests "}</strong>
-                <div className="bg-purple-500 rounded-full flex px-3 text-white">
+                <div className="flex rounded-full bg-purple-500 px-3 text-white">
                     <p>{requests.length}</p>
                 </div>
             </div>
 
             <div className="space-y-2">
                 {requests.map((req) => (
-                    <div className="flex justify-between items-center">
+                    <div className="flex items-center justify-between">
                         <p>{req.firstName}</p>
                         <button
-                            className="bg-purple-500 rounded-lg text-white px-3 py-1"
+                            className="rounded-lg bg-purple-500 px-3 py-1 text-white"
                             key={req.id}
                             onClick={async () => {
                                 const payload: AcceptRequestPostReq = {
