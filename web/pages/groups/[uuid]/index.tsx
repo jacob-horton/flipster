@@ -7,6 +7,7 @@ import { GroupGetResp } from "@src/types/GroupGetResp";
 import { GroupInfoGetReq } from "@src/types/GroupInfoGetReq";
 import { GroupInfoGetResp } from "@src/types/GroupInfoGetResp";
 import { GroupJoinPostReq } from "@src/types/GroupJoinPostReq";
+import { GroupLeavePostReq } from "@src/types/GroupLeavePostReq";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -37,17 +38,10 @@ const Groups = () => {
         groupUuid = router.query.uuid;
     }
 
-    // TODO: combine with group/info endpoint
-    const { data: group, isLoading } = useQuery<GroupGetResp>({
-        queryKey: ["group", auth.user],
-        queryFn: () => fetchGroup(auth.user?.id_token, groupUuid),
-        enabled: auth.user?.id_token !== undefined && groupUuid !== undefined,
-    });
-
     const {
-        data: groupInfo,
+        data: group,
         refetch,
-        isLoading: isInfoLoading,
+        isLoading,
     } = useQuery({
         queryKey: ["group_info", auth.user],
         queryFn: async () => {
@@ -62,21 +56,39 @@ const Groups = () => {
     });
 
     // TODO: get flashcards if member
-    console.log(groupInfo);
 
     return (
         <ProtectedRoute>
             <div className="flex h-full flex-row space-x-4 p-4">
                 <PageSection
                     className="w-full justify-between"
-                    titleBar={<>Details for group with UUID: {groupUuid}</>}
+                    titleBar={<>Group: {group?.name}</>}
                 >
-                    {isLoading || !group || isInfoLoading ? (
+                    {isLoading || !group || !groupUuid ? (
                         "Loading"
                     ) : (
                         <div className="space-x-2">
-                            {groupInfo?.memberType ? (
-                                "Already member "
+                            {group.memberType ? (
+                                <button
+                                    className="rounded-lg bg-red-500 px-4 py-2 text-white disabled:bg-red-200"
+                                    onClick={async () => {
+                                        const payload: GroupLeavePostReq = {
+                                            uuid: group.uuid,
+                                        };
+
+                                        await postRequest({
+                                            path: "/group/leave",
+                                            id_token: auth.user?.id_token ?? "",
+                                            payload: JSON.stringify(payload),
+                                        });
+
+                                        refetch();
+                                    }}
+                                    // TODO: Tooltip when disabled - "owners cannot leave their group"
+                                    disabled={group.memberType === "owner"}
+                                >
+                                    Leave group
+                                </button>
                             ) : (
                                 <button
                                     className="rounded-lg bg-purple-500 px-4 py-2 text-white disabled:bg-purple-200"
@@ -85,16 +97,15 @@ const Groups = () => {
                                             uuid: group.uuid,
                                         };
 
-                                        const result = await postRequest({
+                                        await postRequest({
                                             path: "/group/join",
                                             id_token: auth.user?.id_token ?? "",
                                             payload: JSON.stringify(payload),
                                         });
 
-                                        console.log(await result.text());
                                         refetch();
                                     }}
-                                    disabled={groupInfo?.isRequestPending}
+                                    disabled={group.isRequestPending}
                                 >
                                     {group.isPublic
                                         ? "Join"
@@ -107,19 +118,19 @@ const Groups = () => {
                             >
                                 Files
                             </Link>
-                            {groupInfo?.requests?.length ? (
+                            {group.requests?.length ? (
                                 <>
                                     <p>
                                         <strong>
                                             {"Requests: "}
-                                            {groupInfo?.requests?.length}
+                                            {group.requests?.length}
                                         </strong>
                                     </p>
                                     <Requests
                                         onAccept={() => refetch()}
                                         id_token={auth.user?.id_token ?? ""}
                                         groupUuid={groupUuid ?? ""}
-                                        requests={groupInfo.requests}
+                                        requests={group.requests}
                                     />
                                 </>
                             ) : (

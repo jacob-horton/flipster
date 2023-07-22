@@ -77,43 +77,6 @@ pub async fn add_group(
 }
 
 exportable! {
-    pub struct GroupGetReq {
-        uuid: String,
-    }
-}
-
-exportable! {
-    pub struct GroupGetResp {
-        id: i32,
-        name: String,
-        root_folder: i32,
-        uuid: String,
-        is_public: bool,
-    }
-}
-
-#[get("/group/get")]
-pub async fn get_group(
-    data: Data<AppState>,
-    info: web::Query<GroupGetReq>,
-    // req: HttpRequest,
-) -> impl Responder {
-    // let user_id: i32 = utils::get_user_id(&req).unwrap();
-
-    let group = sqlx::query_as!(
-        GroupGetResp,
-        "SELECT id, name, top_level_folder as root_folder, uuid, is_public
-        FROM app_group WHERE uuid = $1",
-        info.uuid,
-    )
-    .fetch_one(data.db_pool.as_ref())
-    .await
-    .unwrap();
-
-    HttpResponse::Ok().json(group)
-}
-
-exportable! {
     pub struct GroupInfoGetReq {
         uuid: String,
     }
@@ -138,6 +101,10 @@ exportable! {
 
 exportable! {
     pub struct GroupInfoGetResp {
+        uuid: String,
+        name: String,
+        root_folder: i32,
+        is_public: bool,
         member_type: Option<MemberType>,
         is_request_pending: bool,
         members: Vec<MemberDetails>,
@@ -152,6 +119,12 @@ pub async fn group_info(
     req: HttpRequest,
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
+
+    let group_info_future = sqlx::query!(
+        "SELECT name, top_level_folder, is_public FROM app_group WHERE uuid = $1",
+        info.uuid,
+    )
+    .fetch_one(data.db_pool.as_ref());
 
     let member_type_future = sqlx::query_scalar!(
         r#"SELECT group_member.role as "role: MemberType" FROM group_member JOIN app_group ON group_member.app_group_id = app_group.id WHERE app_group.uuid = $1 AND group_member.app_user_id = $2"#,
@@ -192,7 +165,8 @@ pub async fn group_info(
     // TODO: get flashcards
     // TODO: return info if public
 
-    let (member_type, request, members, requests) = futures::join!(
+    let (group_info, member_type, request, members, requests) = futures::join!(
+        group_info_future,
         member_type_future,
         request_future,
         members_future,
@@ -205,7 +179,13 @@ pub async fn group_info(
         _ => None,
     };
 
+    let group_info = group_info.unwrap();
+
     let group_details = GroupInfoGetResp {
+        uuid: info.uuid.clone(),
+        name: group_info.name,
+        root_folder: group_info.top_level_folder,
+        is_public: group_info.is_public,
         member_type,
         is_request_pending: request.unwrap().is_some(),
         members: members.unwrap(),
@@ -278,6 +258,38 @@ pub async fn join_group(
             }
         }
     }
+}
+
+exportable! {
+    pub struct GroupLeavePostReq {
+        uuid: String,
+    }
+}
+
+#[post("/group/leave")]
+pub async fn leave_group(
+    data: Data<AppState>,
+    info: web::Json<GroupLeavePostReq>,
+    req: HttpRequest,
+) -> impl Responder {
+    let user_id: i32 = utils::get_user_id(&req).unwrap();
+
+    // TODO: prevent owner leaving
+    let group_id = sqlx::query_scalar!("SELECT id FROM app_group WHERE uuid = $1", info.uuid)
+        .fetch_one(data.db_pool.as_ref())
+        .await
+        .unwrap();
+
+    sqlx::query!(
+        "DELETE FROM group_member WHERE app_group_id = $1 AND app_user_id = $2",
+        group_id,
+        user_id
+    )
+    .execute(data.db_pool.as_ref())
+    .await
+    .unwrap();
+
+    HttpResponse::Ok().body("Successfully left group")
 }
 
 exportable! {

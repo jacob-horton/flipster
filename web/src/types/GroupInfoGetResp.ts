@@ -4,6 +4,10 @@ import type { MemberType } from "./MemberType";
 import type { UserDetails } from "./UserDetails";
 
 export interface GroupInfoGetResp {
+    uuid: string;
+    name: string;
+    rootFolder: number;
+    isPublic: boolean;
     memberType: MemberType | null;
     isRequestPending: boolean;
     members: Array<MemberDetails>;
