@@ -33,3 +33,6 @@ format:
 
 lint:
 	cd web && yarn lint --quiet && cd ../api && cargo fmt --check && cargo clippy
+
+export-types:
+	cd api; cargo test
