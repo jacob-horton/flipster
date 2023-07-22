@@ -119,20 +119,12 @@ const Groups = () => {
                                 Files
                             </Link>
                             {group.requests?.length ? (
-                                <>
-                                    <p>
-                                        <strong>
-                                            {"Requests: "}
-                                            {group.requests?.length}
-                                        </strong>
-                                    </p>
-                                    <Requests
-                                        onAccept={() => refetch()}
-                                        id_token={auth.user?.id_token ?? ""}
-                                        groupUuid={groupUuid ?? ""}
-                                        requests={group.requests}
-                                    />
-                                </>
+                                <Requests
+                                    onAccept={() => refetch()}
+                                    id_token={auth.user?.id_token ?? ""}
+                                    groupUuid={groupUuid ?? ""}
+                                    requests={group.requests}
+                                />
                             ) : (
                                 ""
                             )}
