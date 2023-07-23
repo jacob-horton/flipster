@@ -2,8 +2,6 @@ import PageSection from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
 import Requests from "@components/routeGroups/Requests";
 import { getRequest, postRequest } from "@src/apiRequest";
-import { GroupGetReq } from "@src/types/GroupGetReq";
-import { GroupGetResp } from "@src/types/GroupGetResp";
 import { GroupInfoGetReq } from "@src/types/GroupInfoGetReq";
 import { GroupInfoGetResp } from "@src/types/GroupInfoGetResp";
 import { GroupJoinPostReq } from "@src/types/GroupJoinPostReq";
@@ -12,22 +10,6 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuth } from "react-oidc-context";
-
-async function fetchGroup(
-    id_token: string | undefined,
-    uuid: string | undefined
-) {
-    if (id_token === undefined || uuid === undefined) {
-        return Promise.reject(new Error("UUID or token not defined"));
-    }
-
-    const queryParams: GroupGetReq = { uuid };
-    return getRequest({
-        path: "/group/get",
-        id_token: id_token,
-        queryParams,
-    }).then(async (resp) => (await resp.json()) as GroupGetResp);
-}
 
 const Groups = () => {
     const router = useRouter();
