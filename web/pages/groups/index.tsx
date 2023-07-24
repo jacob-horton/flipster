@@ -4,6 +4,8 @@ import Popup from "@components/Popup";
 import ProtectedRoute from "@components/ProtectedRoute";
 import { getRequest, postRequest } from "@src/apiRequest";
 import { GroupInsert } from "@src/types/GroupInsert";
+import { GroupSearchGetReq } from "@src/types/GroupSearchGetReq";
+import { GroupSearchGetResp } from "@src/types/GroupSearchGetResp";
 import { UserGroup } from "@src/types/UserGroup";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -25,6 +27,8 @@ const Groups = () => {
             }).then((r) => r.json())) as UserGroup[];
         },
     });
+
+    const [searchGroups, setSearchGroups] = useState<GroupSearchGetResp[]>([]);
 
     return (
         <ProtectedRoute>
@@ -109,8 +113,45 @@ const Groups = () => {
                         </Button>
                     </div>
                 </PageSection>
-                <PageSection className="w-full" titleBar={<>Join Groups</>}>
-                    Hello
+                <PageSection className="w-full" titleBar="Join Groups">
+                    <form
+                        onSubmit={async (e) => {
+                            e.preventDefault();
+                            const target = e.target as typeof e.target & {
+                                search: { value: string };
+                            };
+
+                            // Do not search with empty query
+                            if (!target.search.value) return;
+
+                            const queryParams: GroupSearchGetReq = {
+                                searchTerm: target.search.value,
+                            };
+
+                            setSearchGroups(
+                                await getRequest({
+                                    path: "/group/search",
+                                    id_token: auth.user?.id_token ?? "",
+                                    queryParams,
+                                }).then(
+                                    async (resp) =>
+                                        (await resp.json()) as GroupSearchGetResp[]
+                                )
+                            );
+
+                            console.log(target.search.value);
+                        }}
+                    >
+                        <input
+                            name="search"
+                            className="light-border w-full rounded-lg bg-gray-100 px-2 py-1"
+                        />
+                    </form>
+                    <div className="flex flex-col">
+                        {searchGroups.map((g) => (
+                            <Link href={`/groups/${g.uuid}`}>{g.name}</Link>
+                        ))}
+                    </div>
                 </PageSection>
             </div>
         </ProtectedRoute>
