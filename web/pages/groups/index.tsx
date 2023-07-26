@@ -30,6 +30,34 @@ const Groups = () => {
 
     const [searchGroups, setSearchGroups] = useState<GroupSearchGetResp[]>([]);
 
+    const handleSearch = async (e: {
+        preventDefault: () => void;
+        target: any;
+    }) => {
+        e.preventDefault();
+        const target = e.target as typeof e.target & {
+            search: { value: string };
+        };
+
+        // Do not search with empty query
+        if (!target.search.value) return;
+
+        const queryParams: GroupSearchGetReq = {
+            searchTerm: target.search.value,
+            n: null,
+        };
+
+        setSearchGroups(
+            await getRequest({
+                path: "/group/search",
+                id_token: auth.user?.id_token ?? "",
+                queryParams,
+            }).then(async (resp) => (await resp.json()) as GroupSearchGetResp[])
+        );
+
+        console.log(target.search.value);
+    };
+
     return (
         <ProtectedRoute>
             <Popup show={showPopup} onCancel={() => setShowPopup(false)}>
@@ -114,38 +142,20 @@ const Groups = () => {
                     </div>
                 </PageSection>
                 <PageSection className="w-full" titleBar="Join Groups">
-                    <form
-                        onSubmit={async (e) => {
-                            e.preventDefault();
-                            const target = e.target as typeof e.target & {
-                                search: { value: string };
-                            };
-
-                            // Do not search with empty query
-                            if (!target.search.value) return;
-
-                            const queryParams: GroupSearchGetReq = {
-                                searchTerm: target.search.value,
-                            };
-
-                            setSearchGroups(
-                                await getRequest({
-                                    path: "/group/search",
-                                    id_token: auth.user?.id_token ?? "",
-                                    queryParams,
-                                }).then(
-                                    async (resp) =>
-                                        (await resp.json()) as GroupSearchGetResp[]
-                                )
-                            );
-
-                            console.log(target.search.value);
-                        }}
-                    >
-                        <input
-                            name="search"
-                            className="light-border w-full rounded-lg bg-gray-100 px-2 py-1"
-                        />
+                    <form onSubmit={handleSearch}>
+                        <div className="flex items-center">
+                            <input
+                                name="search"
+                                className="light-border w-full rounded-lg bg-gray-100 px-2 py-1 pr-10"
+                                placeholder="&#128269; Search..."
+                            />
+                            <button
+                                className="light-border bg-gray-100 rounded-lg px-4 py-1 ml-2"
+                                onClick={handleSearch}
+                            >
+                                Search
+                            </button>
+                        </div>
                     </form>
                     <div className="flex flex-col">
                         {searchGroups.map((g) => (
