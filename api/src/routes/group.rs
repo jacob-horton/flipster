@@ -41,13 +41,14 @@ pub async fn add_group(
         .expect("Failed to create folder for new group");
 
     let mut uuid = Uuid::new_v4();
-    while let Some(_) = sqlx::query_scalar!(
+    while sqlx::query_scalar!(
         "SELECT uuid FROM app_group WHERE uuid = $1 LIMIT 1",
         uuid.to_string()
     )
     .fetch_optional(data.db_pool.as_ref())
     .await
     .unwrap()
+    .is_some()
     {
         uuid = Uuid::new_v4();
     }
@@ -175,7 +176,7 @@ pub async fn group_info(
     );
 
     let member_type = member_type.unwrap();
-    let requests = match member_type.clone() {
+    let requests = match member_type {
         Some(MemberType::Admin) | Some(MemberType::Owner) => Some(requests.unwrap()),
         _ => None,
     };
