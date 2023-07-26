@@ -1,11 +1,8 @@
-import Button from "@components/Button";
 import FolderListView from "@components/FolderListView";
 import PageSection from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
-import { getRequest, postRequest } from "@src/apiRequest";
-import { GroupGetReq } from "@src/types/GroupGetReq";
-import { GroupGetResp } from "@src/types/GroupGetResp";
-import { UserGroup } from "@src/types/UserGroup";
+import { getRequest } from "@src/apiRequest";
+import { GroupRootFolderGetReq } from "@src/types/GroupRootFolderGetReq";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { useAuth } from "react-oidc-context";
@@ -14,24 +11,24 @@ const Groups = () => {
     const auth = useAuth();
     const router = useRouter();
 
-    let groupId: number | undefined = undefined;
-    if (typeof router.query.id === "string") {
-        groupId = parseInt(router.query.id);
+    let groupUuid: string | undefined = undefined;
+    if (typeof router.query.uuid === "string") {
+        groupUuid = router.query.uuid;
     }
 
-    const { data: group, refetch } = useQuery({
-        queryKey: [auth, groupId],
+    const { data: rootFolder } = useQuery({
+        queryKey: [auth, groupUuid],
         queryFn: async () => {
-            if (groupId === undefined) {
+            if (groupUuid === undefined) {
                 return null;
             }
 
-            const queryParams: GroupGetReq = { id: groupId };
-            return (await getRequest({
-                path: "/group/get",
+            const queryParams: GroupRootFolderGetReq = { uuid: groupUuid };
+            return await getRequest({
+                path: "/group/root_folder",
                 id_token: auth.user?.id_token ?? "",
                 queryParams,
-            }).then((r) => r.json())) as GroupGetResp;
+            }).then(async (r) => parseInt(await r.text()));
         },
     });
 
@@ -40,13 +37,13 @@ const Groups = () => {
             <div className="flex h-full flex-row space-x-4 p-4">
                 <PageSection
                     className="w-full justify-between"
-                    titleBar={<>Files for group with ID: {groupId}</>}
+                    titleBar={<>Files for group with UUID: {groupUuid}</>}
                 >
                     Path: {router.query.slug?.join("/")}
                     <FolderListView
                         selectMultiple={false}
                         rootFolder={{
-                            id: group?.rootFolder,
+                            id: rootFolder,
                             name: "asdf",
                             children: [],
                         }}

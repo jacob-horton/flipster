@@ -123,17 +123,24 @@ pub async fn get_user_permissions(
             }
         }
         Some(FolderOwner::Group(id)) => {
+            let is_public =
+                sqlx::query_scalar!("SELECT is_public FROM app_group WHERE id = $1", id)
+                    .fetch_one(db_pool);
+
             let member_type = sqlx::query_scalar!(
                 r#"SELECT role as "role: MemberType" FROM group_member WHERE app_user_id = $1 AND app_group_id = $2"#,
                 user_id,
                 id
             )
-            .fetch_optional(db_pool)
-            .await
-            .unwrap()
-            .unwrap();
+            .fetch_optional(db_pool);
 
-            member_type.into()
+            let (is_public, member_type) = futures::join!(is_public, member_type);
+
+            if is_public.unwrap() {
+                MemberType::Viewer.into()
+            } else {
+                member_type.unwrap().unwrap().into()
+            }
         }
         None => ContentPermissions::none(), // Folder does not have owner
     }
@@ -301,13 +308,6 @@ pub async fn resolve_path(
         .collect::<Vec<_>>();
 
     HttpResponse::Ok().json(result)
-}
-
-exportable! {
-    pub struct UniqueNameGet {
-        name: String,
-        parent_folder_id: i32
-    }
 }
 
 pub async fn get_unique_folder_name(name: &str, parent_folder_id: i32, db_pool: &PgPool) -> String {

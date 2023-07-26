@@ -22,3 +22,4 @@ sqlx = { version = "0.6.3", features = [
   "runtime-actix-native-tls",
 ] }
 ts-rs = "6.2.1"
+uuid = { version = "1.4.1", features = ["v4"] }

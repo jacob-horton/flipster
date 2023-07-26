@@ -69,6 +69,7 @@ pub async fn get_subfolders(
 exportable! {
     struct UserGroup {
         id: i32,
+        uuid: String,
         name: String,
         description: String,
         is_public: bool,
@@ -92,6 +93,7 @@ pub async fn get_groups(
             app_group.name,
             app_group.description,
             app_group.is_public,
+            app_group.uuid,
             group_member.role as "role: MemberType"
         FROM app_group
         INNER JOIN group_member ON app_group.id = group_member.app_group_id
