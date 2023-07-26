@@ -398,6 +398,7 @@ pub async fn accept_request(
 exportable! {
     pub struct GroupSearchGetReq {
         search_term: String,
+        #[ts(optional)]
         n: Option<i64>,
     }
 }

@@ -44,11 +44,7 @@ const Groups = () => {
         // Do not search with empty query
         if (!searchTerm) return;
 
-        //TODO fix n as null
-        const queryParams: GroupSearchGetReq = {
-            searchTerm,
-            n: BigInt(25),
-        };
+        const queryParams: GroupSearchGetReq = { searchTerm };
 
         setSearchGroups(
             await getRequest({
@@ -165,7 +161,7 @@ const Groups = () => {
                                 }
                             />
                             <button
-                                className="light-border bg-gray-100 rounded-lg px-4 py-1 ml-2"
+                                className="light-border ml-2 rounded-lg bg-gray-100 px-4 py-1"
                                 type="submit"
                             >
                                 Search
