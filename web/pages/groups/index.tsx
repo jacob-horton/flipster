@@ -14,6 +14,16 @@ import { BsFolder } from "react-icons/bs";
 import { useAuth } from "react-oidc-context";
 
 const Groups = () => {
+    const debounce = (func: typeof handleSearch, delay: number) => {
+        let timeoutId: ReturnType<typeof setTimeout>;
+        return (searchTerm: string) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func(searchTerm);
+            }, delay);
+        };
+    };
+
     const auth = useAuth();
     const [showPopup, setShowPopup] = useState(false);
 
@@ -30,21 +40,14 @@ const Groups = () => {
 
     const [searchGroups, setSearchGroups] = useState<GroupSearchGetResp[]>([]);
 
-    const handleSearch = async (e: {
-        preventDefault: () => void;
-        target: any;
-    }) => {
-        e.preventDefault();
-        const target = e.target as typeof e.target & {
-            search: { value: string };
-        };
-
+    const handleSearch = async (searchTerm: string) => {
         // Do not search with empty query
-        if (!target.search.value) return;
+        if (!searchTerm) return;
 
+        //TODO fix n as null
         const queryParams: GroupSearchGetReq = {
-            searchTerm: target.search.value,
-            n: null,
+            searchTerm,
+            n: BigInt(25),
         };
 
         setSearchGroups(
@@ -54,9 +57,10 @@ const Groups = () => {
                 queryParams,
             }).then(async (resp) => (await resp.json()) as GroupSearchGetResp[])
         );
-
-        console.log(target.search.value);
     };
+
+    const debounceDelay = 500;
+    const debouncedSearch = debounce(handleSearch, debounceDelay);
 
     return (
         <ProtectedRoute>
@@ -142,16 +146,27 @@ const Groups = () => {
                     </div>
                 </PageSection>
                 <PageSection className="w-full" titleBar="Join Groups">
-                    <form onSubmit={handleSearch}>
+                    <form
+                        onSubmit={(e) => {
+                            const target = e.target as typeof e.target & {
+                                search: { value: string };
+                            };
+                            e.preventDefault();
+                            handleSearch(target.search.value);
+                        }}
+                    >
                         <div className="flex items-center">
                             <input
                                 name="search"
                                 className="light-border w-full rounded-lg bg-gray-100 px-2 py-1 pr-10"
                                 placeholder="&#128269; Search..."
+                                onChange={(e) =>
+                                    debouncedSearch(e.target.value)
+                                }
                             />
                             <button
                                 className="light-border bg-gray-100 rounded-lg px-4 py-1 ml-2"
-                                onClick={handleSearch}
+                                type="submit"
                             >
                                 Search
                             </button>
