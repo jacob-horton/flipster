@@ -2,5 +2,5 @@
 
 export interface GroupSearchGetReq {
     searchTerm: string;
-    n: bigint | null;
+    n?: bigint;
 }
