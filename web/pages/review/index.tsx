@@ -100,7 +100,7 @@ export default function ReviewIndex() {
                 return (await resp.json()) as NextFlashcardGetResp;
             }
         },
-        enabled: !!(query.modes && query.flashcardIds && auth.user?.id_token),
+        enabled: query.modes && query.flashcardIds && auth.user?.id_token,
     });
     const mode = data?.mode;
     const flashcardIds = data?.flashcardIds;

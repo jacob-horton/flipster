@@ -7,7 +7,7 @@ use actix_web::{
 use crate::{exportable, AppState};
 
 exportable! {
-    #[derive(Copy, PartialEq, Eq)]
+    #[derive(PartialEq, Eq)]
     enum Mode {
         Flip,
         Match,
@@ -32,7 +32,7 @@ exportable! {
 }
 
 fn example_algorithm(modes: Vec<Mode>, flashcard_ids: Vec<i32>) -> Option<(Mode, String)> {
-    Some((*modes.first()?, flashcard_ids.first()?.to_string()))
+    Some((modes.first()?.clone(), flashcard_ids.first()?.to_string()))
 }
 
 #[get("/review/next")]
