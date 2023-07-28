@@ -69,6 +69,12 @@ export default function ReviewPopup({
                 <div className="flex grow items-end justify-center">
                     <Button
                         onClick={(e) => {
+                            if (
+                                !Array.from(selectedModes.values()).some(
+                                    (x) => x
+                                )
+                            )
+                                return alert("Please select some modes.");
                             return onSubmit(
                                 e,
                                 Array.from(selectedModes, ([k, v]) => {
