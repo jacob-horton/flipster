@@ -11,6 +11,7 @@ use routes::{
         accept_request, add_group, group_info, group_root_folder, group_search, join_group,
         leave_group,
     },
+    review::get_next_flashcard,
     user::{get_groups, get_subfolders, get_top_level_folder},
 };
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
@@ -78,6 +79,7 @@ async fn main() -> std::io::Result<()> {
             .service(group_search)
             .service(accept_request)
             .service(group_root_folder)
+            .service(get_next_flashcard)
     })
     .bind(("0.0.0.0", 8080))?
     .run()
