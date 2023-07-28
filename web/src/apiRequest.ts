@@ -9,6 +9,7 @@ interface PostRequestData {
 interface GetRequestData {
     path: string;
     id_token: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     queryParams?: { [key: string]: any };
 }
 
