@@ -25,7 +25,7 @@ stop-colima:
 	docker-compose down
 	colima stop
 
-stop-colima-tmux: stop-colima stop-tmux
+stop-colima-tmux: stop-tmux stop-colima
 
 format:
 	cd web; yarn format
