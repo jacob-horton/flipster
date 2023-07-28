@@ -6,7 +6,7 @@ import type { UserDetails } from "./UserDetails";
 export interface GroupInfoGetResp {
     uuid: string;
     name: string;
-    rootFolder: number;
+    rootFolder: number | null;
     isPublic: boolean;
     memberType: MemberType | null;
     isRequestPending: boolean;

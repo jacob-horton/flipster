@@ -139,7 +139,10 @@ pub async fn get_user_permissions(
             if is_public.unwrap() {
                 MemberType::Viewer.into()
             } else {
-                member_type.unwrap().unwrap().into()
+                match member_type.unwrap() {
+                    Some(member_type) => member_type.into(),
+                    None => ContentPermissions::none(),
+                }
             }
         }
         None => ContentPermissions::none(), // Folder does not have owner
