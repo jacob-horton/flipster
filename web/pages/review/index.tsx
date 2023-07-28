@@ -6,7 +6,7 @@ import { getFlashcards } from "@src/getFlashcards";
 import { useAuth } from "react-oidc-context";
 import FolderListView from "@components/FolderListView";
 import { useCallback, useState } from "react";
-import ReviewPopup, { Mode } from "@components/routeReview/ReviewPopup";
+import ReviewPopup from "@components/routeReview/ReviewPopup";
 import { useQuery } from "@tanstack/react-query";
 import getRootFolder from "@src/getRootFolder";
 import Button from "@components/Button";
@@ -14,6 +14,9 @@ import { useRouter } from "next/router";
 import { getRequest } from "@src/apiRequest";
 import { ParsedUrlQuery } from "querystring";
 import { NextFlashcardGetResp } from "@src/types/NextFlashcardGetResp";
+import { Mode } from "@src/types/Mode";
+
+type SelectedFlashcards = Map<number, boolean>;
 
 interface ReviewQueryParams extends ParsedUrlQuery {
     modes: Mode[];
@@ -26,9 +29,11 @@ export default function ReviewIndex() {
     const [accessedFlashcards, setAccessedFlashcards] = useState<Flashcard[]>(
         []
     );
+    const [selectedFlashcards, setSelectedFlashcards] =
+        useState<SelectedFlashcards>(new Map());
     const [showPopup, setShowPopup] = useState(false);
     const router = useRouter();
-    const modes = (router.query as ReviewQueryParams).modes;
+    const query = router.query as ReviewQueryParams;
 
     // expand the index section when numbers exceed double digits (rel. to font size)
     // TODO fix that this is called for every flashcard without using another state
@@ -74,18 +79,20 @@ export default function ReviewIndex() {
      * It would be good to document this and link here instead.
      */
     const { data, isLoading: gettingMode } = useQuery({
-        queryKey: ["next", modes, auth.user],
+        queryKey: ["next", query.modes, query.flashcardIds, auth.user],
         queryFn: async () => {
             if (!auth.user?.id_token) {
                 return Promise.reject("Unauthorised");
             }
-            if (!modes) {
-                return Promise.reject("modes undefined");
+            if (!query.modes || !query.flashcardIds) {
+                return Promise.reject(
+                    `Queried with modes ${query.modes} and flashcardIds ${query.flashcardIds}, one of which was undefined.`
+                );
             }
             const resp = await getRequest({
                 path: "/review/next",
                 id_token: auth.user.id_token,
-                queryParams: router.query as ReviewQueryParams,
+                queryParams: query,
             });
             if (resp.status != 200) {
                 return Promise.reject(resp.body);
@@ -93,9 +100,10 @@ export default function ReviewIndex() {
                 return (await resp.json()) as NextFlashcardGetResp;
             }
         },
-        enabled: !!(modes && auth.user?.id_token),
+        enabled: !!(query.modes && query.flashcardIds && auth.user?.id_token),
     });
     const mode = data?.mode;
+    const flashcardIds = data?.flashcardIds;
     if (!auth.user?.id_token || !rootFolder) {
         return (
             <ProtectedRoute>
@@ -103,7 +111,7 @@ export default function ReviewIndex() {
                 Loading your files...
             </ProtectedRoute>
         );
-    } else if (!modes) {
+    } else if (!query.modes) {
         // modes not selected
         // TODO: move into own component
         return (
@@ -133,6 +141,13 @@ export default function ReviewIndex() {
                                             id: i + 1,
                                         }}
                                         mode="select"
+                                        onSelect={(selected) =>
+                                            setSelectedFlashcards(
+                                                new Map(
+                                                    selectedFlashcards.entries()
+                                                ).set(i, selected)
+                                            )
+                                        }
                                         indexWidth={calcMaxWidth()}
                                     />
                                 ))}
@@ -141,7 +156,15 @@ export default function ReviewIndex() {
                     ]}
                 />
                 <span className="p-2" />
-                <Button onClick={() => setShowPopup(true)}>Review</Button>
+                <Button
+                    onClick={() => {
+                        Array.from(selectedFlashcards.values()).some((x) => x)
+                            ? setShowPopup(true)
+                            : alert("Please select some flashcards to review.");
+                    }}
+                >
+                    Review
+                </Button>
                 <ReviewPopup
                     show={showPopup}
                     onCancel={() => {
@@ -153,8 +176,12 @@ export default function ReviewIndex() {
                             pathname: "/review",
                             query: {
                                 modes,
-                                // TODO
-                                flashcardIds: ["1"],
+                                flashcardIds: Array.from(
+                                    selectedFlashcards,
+                                    ([k, v]) => {
+                                        return v ? String(k) : undefined;
+                                    }
+                                ).filter((i): i is string => !!i),
                             } as ReviewQueryParams,
                         });
                     }}
@@ -163,9 +190,13 @@ export default function ReviewIndex() {
         );
     } else if (gettingMode) {
         return <p>Loading review mode...</p>;
-    } else if (mode) {
+    } else if (mode && flashcardIds) {
         // received server response with selected mode
-        return <p>Selected {mode} mode.</p>;
+        return (
+            <p>
+                Selected {mode} mode with flashcard id(s) {flashcardIds}.
+            </p>
+        );
     } else {
         // TODO: better error message
         return <p>Failed to get from /next/flashcard</p>;

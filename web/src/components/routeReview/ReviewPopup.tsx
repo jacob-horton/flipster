@@ -1,10 +1,10 @@
 import Button from "@components/Button";
 import Popup, { PopupProps } from "@components/Popup";
+import { Mode } from "@src/types/Mode";
 import { useState, MouseEventHandler, ReactNode, MouseEvent } from "react";
 
 const modes = ["flip", "match", "learn"] as const;
-export type Mode = (typeof modes)[number];
-type SelectedMode = Map<Mode, boolean>;
+type SelectedModes = Map<Mode, boolean>;
 
 interface OptionButtonProps {
     active: boolean;
@@ -44,20 +44,22 @@ export default function ReviewPopup({
     onSubmit,
 }: ReviewPopupProps) {
     // currently selected button used as revision mode
-    const [selectedMode, setSelectedMode] = useState<SelectedMode>(new Map());
+    const [selectedModes, setSelectedModes] = useState<SelectedModes>(
+        new Map()
+    );
     return (
         <Popup show={show} onCancel={onCancel}>
             <div className="flex w-full grow flex-col">
                 <div className="flex justify-between">
                     {modes.map((i) => (
                         <OptionButton
-                            active={selectedMode.get(i) ?? false}
+                            active={selectedModes.get(i) ?? false}
                             key={i}
                             onClick={() =>
-                                setSelectedMode(
-                                    new Map(selectedMode.entries()).set(
+                                setSelectedModes(
+                                    new Map(selectedModes.entries()).set(
                                         i,
-                                        !selectedMode.get(i)
+                                        !selectedModes.get(i)
                                     )
                                 )
                             }
@@ -69,7 +71,7 @@ export default function ReviewPopup({
                         onClick={(e) => {
                             return onSubmit(
                                 e,
-                                Array.from(selectedMode, ([k, v]) => {
+                                Array.from(selectedModes, ([k, v]) => {
                                     return v ? k : undefined;
                                 }).filter((i): i is Mode => !!i)
                             );

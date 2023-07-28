@@ -32,7 +32,11 @@ const RoundedSection: React.FC<RoundedSectionProps> = ({
     );
 };
 
-const SelectedButton = () => {
+interface SelectedButtonProps {
+    onSelect?: (selected: boolean) => void;
+}
+
+function SelectedButton({ onSelect }: SelectedButtonProps) {
     const [selected, setSelected] = useState(false);
     return (
         <button
@@ -42,6 +46,10 @@ const SelectedButton = () => {
             }
             onClick={() => {
                 setSelected(!selected);
+                if (onSelect) {
+                    // remember state doesn't update until next re-render
+                    onSelect(!selected);
+                }
             }}
         >
             <IconContext.Provider
@@ -51,7 +59,7 @@ const SelectedButton = () => {
             </IconContext.Provider>
         </button>
     );
-};
+}
 
 const EditButton = () => {
     return (
@@ -66,6 +74,7 @@ const EditButton = () => {
 type FlashcardProps = {
     flashcard: Flashcard;
     indexWidth: number;
+    onSelect?: (selected: boolean) => void;
     mode: "edit" | "select";
 };
 
@@ -73,6 +82,7 @@ const FlashcardComponent: React.FC<FlashcardProps> = ({
     flashcard,
     mode,
     indexWidth,
+    onSelect,
 }) => {
     const fid = flashcard.id;
     return (
@@ -92,7 +102,11 @@ const FlashcardComponent: React.FC<FlashcardProps> = ({
                     {flashcard.definition}
                 </span>
             </RoundedSection>
-            {mode === "select" ? <SelectedButton /> : <EditButton />}
+            {mode === "select" ? (
+                <SelectedButton onSelect={onSelect} />
+            ) : (
+                <EditButton />
+            )}
         </div>
     );
 };
