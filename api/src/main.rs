@@ -7,10 +7,7 @@ use auth::validator;
 use routes::{
     flashcard::{add_flashcard, get_flashcard},
     folder::{add_folder, rename_folder, resolve_path},
-    group::{
-        accept_request, add_group, group_info, group_root_folder, group_search, join_group,
-        leave_group,
-    },
+    group::{accept_request, add_group, group_info, group_search, join_group, leave_group},
     review::get_next_flashcard,
     user::{get_groups, get_subfolders, get_top_level_folder},
 };
