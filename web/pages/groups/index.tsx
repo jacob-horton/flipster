@@ -14,6 +14,16 @@ import { BsFolder } from "react-icons/bs";
 import { useAuth } from "react-oidc-context";
 
 const Groups = () => {
+    const debounce = (func: typeof handleSearch, delay: number) => {
+        let timeoutId: ReturnType<typeof setTimeout>;
+        return (searchTerm: string) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func(searchTerm);
+            }, delay);
+        };
+    };
+
     const auth = useAuth();
     const [showPopup, setShowPopup] = useState(false);
 
@@ -29,6 +39,24 @@ const Groups = () => {
     });
 
     const [searchGroups, setSearchGroups] = useState<GroupSearchGetResp[]>([]);
+
+    const handleSearch = async (searchTerm: string) => {
+        // Do not search with empty query
+        if (!searchTerm) return;
+
+        const queryParams: GroupSearchGetReq = { searchTerm };
+
+        setSearchGroups(
+            await getRequest({
+                path: "/group/search",
+                id_token: auth.user?.id_token ?? "",
+                queryParams,
+            }).then(async (resp) => (await resp.json()) as GroupSearchGetResp[])
+        );
+    };
+
+    const debounceDelay = 500;
+    const debouncedSearch = debounce(handleSearch, debounceDelay);
 
     return (
         <ProtectedRoute>
@@ -92,20 +120,12 @@ const Groups = () => {
                     <div className="flex h-full flex-col justify-between">
                         <div className="space-y-2">
                             {groups.map((g) => (
-                                <div className="flex space-x-2" key={g.uuid}>
-                                    <Link
-                                        href={`/groups/${g.uuid}`}
-                                        className="w-full rounded-lg bg-gray-200 px-4 py-1"
-                                    >
-                                        {g.name}
-                                    </Link>
-                                    <Link
-                                        className="flex items-center rounded-lg bg-gray-200 px-2 py-1"
-                                        href={`/groups/${g.uuid}/files`}
-                                    >
-                                        <BsFolder className="self-center" />
-                                    </Link>
-                                </div>
+                                <Link
+                                    href={`/groups/${g.uuid}`}
+                                    className="flex w-full rounded-lg bg-gray-200 px-4 py-1"
+                                >
+                                    {g.name}
+                                </Link>
                             ))}
                         </div>
                         <Button onClick={() => setShowPopup(true)}>
@@ -115,37 +135,30 @@ const Groups = () => {
                 </PageSection>
                 <PageSection className="w-full" titleBar="Join Groups">
                     <form
-                        onSubmit={async (e) => {
-                            e.preventDefault();
+                        onSubmit={(e) => {
                             const target = e.target as typeof e.target & {
                                 search: { value: string };
                             };
-
-                            // Do not search with empty query
-                            if (!target.search.value) return;
-
-                            const queryParams: GroupSearchGetReq = {
-                                searchTerm: target.search.value,
-                            };
-
-                            setSearchGroups(
-                                await getRequest({
-                                    path: "/group/search",
-                                    id_token: auth.user?.id_token ?? "",
-                                    queryParams,
-                                }).then(
-                                    async (resp) =>
-                                        (await resp.json()) as GroupSearchGetResp[]
-                                )
-                            );
-
-                            console.log(target.search.value);
+                            e.preventDefault();
+                            handleSearch(target.search.value);
                         }}
                     >
-                        <input
-                            name="search"
-                            className="light-border w-full rounded-lg bg-gray-100 px-2 py-1"
-                        />
+                        <div className="flex items-center">
+                            <input
+                                name="search"
+                                className="light-border w-full rounded-lg bg-gray-100 px-2 py-1 pr-10"
+                                placeholder="&#128269; Search..."
+                                onChange={(e) =>
+                                    debouncedSearch(e.target.value)
+                                }
+                            />
+                            <button
+                                className="light-border ml-2 rounded-lg bg-gray-100 px-4 py-1"
+                                type="submit"
+                            >
+                                Search
+                            </button>
+                        </div>
                     </form>
                     <div className="flex flex-col">
                         {searchGroups.map((g) => (
