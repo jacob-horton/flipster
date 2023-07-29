@@ -1,3 +1,4 @@
+import FolderListView from "@components/FolderListView";
 import PageSection from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
 import Requests from "@components/routeGroups/Requests";
@@ -7,7 +8,6 @@ import { GroupInfoGetResp } from "@src/types/GroupInfoGetResp";
 import { GroupJoinPostReq } from "@src/types/GroupJoinPostReq";
 import { GroupLeavePostReq } from "@src/types/GroupLeavePostReq";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuth } from "react-oidc-context";
 
@@ -36,8 +36,6 @@ const Groups = () => {
         },
         enabled: auth.user?.id_token !== undefined && groupUuid !== undefined,
     });
-
-    // TODO: get flashcards if member
 
     return (
         <ProtectedRoute>
@@ -94,12 +92,6 @@ const Groups = () => {
                                         : "Request to join"}
                                 </button>
                             )}
-                            <Link
-                                className="rounded-lg bg-gray-200 px-4 py-2"
-                                href={`/groups/${groupUuid}/files`}
-                            >
-                                Files
-                            </Link>
                             {group.requests?.length ? (
                                 <Requests
                                     onAccept={() => refetch()}
@@ -111,6 +103,21 @@ const Groups = () => {
                                 ""
                             )}
                         </div>
+                    )}
+                    {group?.rootFolder ? (
+                        <>
+                            Path: {router.query.slug?.join("/")}
+                            <FolderListView
+                                selectMultiple={false}
+                                rootFolder={{
+                                    id: group.rootFolder,
+                                    name: "asdf",
+                                    children: [],
+                                }}
+                            />
+                        </>
+                    ) : (
+                        <p>You do not have permission to view these files</p>
                     )}
                 </PageSection>
             </div>

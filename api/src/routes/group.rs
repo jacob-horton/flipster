@@ -105,7 +105,7 @@ exportable! {
     pub struct GroupInfoGetResp {
         uuid: String,
         name: String,
-        root_folder: i32,
+        root_folder: Option<i32>,
         is_public: bool,
         member_type: Option<MemberType>,
         is_request_pending: bool,
@@ -164,9 +164,6 @@ pub async fn group_info(
     )
     .fetch_all(data.db_pool.as_ref());
 
-    // TODO: get flashcards
-    // TODO: return info if public
-
     let (group_info, member_type, request, members, requests) = futures::join!(
         group_info_future,
         member_type_future,
@@ -182,11 +179,19 @@ pub async fn group_info(
     };
 
     let group_info = group_info.unwrap();
+    let permissions =
+        get_user_permissions(group_info.top_level_folder, user_id, &data.db_pool).await;
+
+    let root_folder = if permissions.read_folders {
+        Some(group_info.top_level_folder)
+    } else {
+        None
+    };
 
     let group_details = GroupInfoGetResp {
         uuid: info.uuid.clone(),
         name: group_info.name,
-        root_folder: group_info.top_level_folder,
+        root_folder,
         is_public: group_info.is_public,
         member_type,
         is_request_pending: request.unwrap().is_some(),
@@ -259,40 +264,6 @@ pub async fn join_group(
                 HttpResponse::Ok().body("Invite sent")
             }
         }
-    }
-}
-
-exportable! {
-    pub struct GroupRootFolderGetReq {
-        uuid: String,
-    }
-}
-
-#[get("/group/root_folder")]
-pub async fn group_root_folder(
-    data: Data<AppState>,
-    info: web::Query<GroupRootFolderGetReq>,
-    req: HttpRequest,
-) -> impl Responder {
-    let user_id: i32 = utils::get_user_id(&req).unwrap();
-
-    let group = sqlx::query!(
-        "SELECT id, top_level_folder
-        FROM app_group
-        WHERE uuid = $1",
-        info.uuid
-    )
-    .fetch_one(data.db_pool.as_ref())
-    .await
-    .unwrap();
-
-    // TODO: for group_info use get_user_permissions to return flashcards
-    let permissions = get_user_permissions(group.top_level_folder, user_id, &data.db_pool).await;
-
-    if permissions.read_folders {
-        HttpResponse::Ok().body(group.top_level_folder.to_string())
-    } else {
-        HttpResponse::Unauthorized().body("User does not have the permissions to read this folder")
     }
 }
 

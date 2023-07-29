@@ -7,10 +7,7 @@ use auth::validator;
 use routes::{
     flashcard::{add_flashcard, get_flashcard},
     folder::{add_folder, rename_folder, resolve_path},
-    group::{
-        accept_request, add_group, group_info, group_root_folder, group_search, join_group,
-        leave_group,
-    },
+    group::{accept_request, add_group, group_info, group_search, join_group, leave_group},
     user::{get_groups, get_subfolders, get_top_level_folder},
 };
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
@@ -77,7 +74,6 @@ async fn main() -> std::io::Result<()> {
             .service(group_info)
             .service(group_search)
             .service(accept_request)
-            .service(group_root_folder)
     })
     .bind(("0.0.0.0", 8080))?
     .run()
