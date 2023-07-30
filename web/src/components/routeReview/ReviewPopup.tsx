@@ -1,10 +1,10 @@
 import Button from "@components/Button";
 import Popup, { PopupProps } from "@components/Popup";
-import { useState, MouseEventHandler, ReactNode } from "react";
+import { Mode } from "@src/types/Mode";
+import { useState, MouseEventHandler, ReactNode, MouseEvent } from "react";
 
 const modes = ["flip", "match", "learn"] as const;
-type Mode = (typeof modes)[number];
-type SelectedMode = Map<Mode, boolean>;
+type SelectedModes = Map<Mode, boolean>;
 
 interface OptionButtonProps {
     active: boolean;
@@ -34,21 +34,32 @@ const OptionButton: React.FC<OptionButtonProps> = ({
     );
 };
 
-export default function ReviewPopup({ show, onCancel }: PopupProps) {
+interface ReviewPopupProps extends PopupProps {
+    onSubmit: (e: MouseEvent, modes: Mode[]) => void;
+}
+
+export default function ReviewPopup({
+    show,
+    onCancel,
+    onSubmit,
+}: ReviewPopupProps) {
     // currently selected button used as revision mode
-    const [selectedMode, setSelectedMode] = useState<SelectedMode>(new Map());
+    const [selectedModes, setSelectedModes] = useState<SelectedModes>(
+        new Map()
+    );
     return (
         <Popup show={show} onCancel={onCancel}>
             <div className="flex w-full grow flex-col">
                 <div className="flex justify-between">
                     {modes.map((i) => (
                         <OptionButton
-                            active={selectedMode.get(i) ?? false}
+                            active={selectedModes.get(i) ?? false}
+                            key={i}
                             onClick={() =>
-                                setSelectedMode(
-                                    new Map(selectedMode.entries()).set(
+                                setSelectedModes(
+                                    new Map(selectedModes.entries()).set(
                                         i,
-                                        !selectedMode.get(i)
+                                        !selectedModes.get(i)
                                     )
                                 )
                             }
@@ -57,11 +68,19 @@ export default function ReviewPopup({ show, onCancel }: PopupProps) {
                 </div>
                 <div className="flex grow items-end justify-center">
                     <Button
-                        href="/review/cards"
-                        query={{
-                            mode: Array.from(selectedMode, ([k, v]) => {
-                                return v ? k : undefined;
-                            }).filter((i): i is Mode => !!i),
+                        onClick={(e) => {
+                            if (
+                                !Array.from(selectedModes.values()).some(
+                                    (x) => x
+                                )
+                            )
+                                return alert("Please select some modes.");
+                            return onSubmit(
+                                e,
+                                Array.from(selectedModes, ([k, v]) => {
+                                    return v ? k : undefined;
+                                }).filter((i): i is Mode => !!i)
+                            );
                         }}
                     >
                         Review
