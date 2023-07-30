@@ -25,10 +25,11 @@ interface ReviewQueryParams extends ParsedUrlQuery {
 
 export default function ReviewIndex() {
     const auth = useAuth();
-    // distinct from 'selected'
+    // accessed flashcards are displayed when the parent folder is selected
     const [accessedFlashcards, setAccessedFlashcards] = useState<Flashcard[]>(
         []
     );
+    // accessed flashcards can be selected // TODO: default selected
     const [selectedFlashcards, setSelectedFlashcards] =
         useState<SelectedFlashcards>(new Map());
     const [showPopup, setShowPopup] = useState(false);

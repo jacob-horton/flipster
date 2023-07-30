@@ -45,11 +45,8 @@ function SelectedButton({ onSelect }: SelectedButtonProps) {
                 (selected ? "bg-orange-500" : "bg-gray-100")
             }
             onClick={() => {
+                if (onSelect) onSelect(!selected);
                 setSelected(!selected);
-                if (onSelect) {
-                    // remember state doesn't update until next re-render
-                    onSelect(!selected);
-                }
             }}
         >
             <IconContext.Provider
