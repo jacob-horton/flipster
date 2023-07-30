@@ -76,6 +76,7 @@ const Groups = () => {
                                 <div className="space-x-2">
                                     {group.memberType ? (
                                         <button
+                                            //Absolute positioning
                                             className="absolute bottom-4 right-4 rounded-lg bg-red-500 px-4 py-2 text-white disabled:bg-red-200"
                                             onClick={async () => {
                                                 const payload: GroupLeavePostReq =
