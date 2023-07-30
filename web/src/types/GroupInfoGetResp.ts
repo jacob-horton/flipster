@@ -6,6 +6,7 @@ import type { UserDetails } from "./UserDetails";
 export interface GroupInfoGetResp {
     uuid: string;
     name: string;
+    description: string;
     rootFolder: number | null;
     isPublic: boolean;
     memberType: MemberType | null;

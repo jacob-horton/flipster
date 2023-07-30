@@ -105,6 +105,7 @@ exportable! {
     pub struct GroupInfoGetResp {
         uuid: String,
         name: String,
+        description: String,
         root_folder: Option<i32>,
         is_public: bool,
         member_type: Option<MemberType>,
@@ -123,7 +124,7 @@ pub async fn group_info(
     let user_id: i32 = utils::get_user_id(&req).unwrap();
 
     let group_info_future = sqlx::query!(
-        "SELECT name, top_level_folder, is_public FROM app_group WHERE uuid = $1",
+        "SELECT name, top_level_folder, is_public, description FROM app_group WHERE uuid = $1",
         info.uuid,
     )
     .fetch_one(data.db_pool.as_ref());
@@ -191,6 +192,7 @@ pub async fn group_info(
     let group_details = GroupInfoGetResp {
         uuid: info.uuid.clone(),
         name: group_info.name,
+        description: group_info.description,
         root_folder,
         is_public: group_info.is_public,
         member_type,
