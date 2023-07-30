@@ -49,6 +49,27 @@ const Groups = () => {
                             }
                             className="w-full"
                         >
+                            {" "}
+                            <div>
+                                {group?.description}
+                                <p className="text-xl pt-2">Members:</p>
+                                {group?.requests?.length ? (
+                                    <Requests
+                                        // Decline request?
+                                        onAccept={() => refetch()}
+                                        id_token={auth.user?.id_token ?? ""}
+                                        groupUuid={groupUuid ?? ""}
+                                        requests={group.requests}
+                                    />
+                                ) : (
+                                    ""
+                                )}
+                                {group?.members.map((member, index) => (
+                                    <div key={index}>
+                                        {`${member.firstName} ${member.lastName} | ${member.role}`}
+                                    </div>
+                                ))}
+                            </div>
                             {isLoading || !group || !groupUuid ? (
                                 "Loading"
                             ) : (
@@ -109,9 +130,17 @@ const Groups = () => {
                                     )}
                                 </div>
                             )}
+                        </SectionArticle>,
+
+                        <SectionArticle
+                            titleBar={
+                                <p className="font-semibold">Group Files</p>
+                            }
+                            className="w-full"
+                        >
                             {group?.rootFolder ? (
                                 <>
-                                    <p className="text-xl py-2">Group Files:</p>{" "}
+                                    {" "}
                                     {router.query.slug?.join("/")}
                                     <FolderListView
                                         selectMultiple={false}
@@ -128,34 +157,6 @@ const Groups = () => {
                                     files
                                 </p>
                             )}
-                        </SectionArticle>,
-
-                        <SectionArticle
-                            titleBar={<p className="font-semibold">Info</p>}
-                            className="w-full"
-                        >
-                            {" "}
-                            <div>
-                                {group?.description}
-                                <p className="text-xl pt-2">Members:</p>
-
-                                {group?.requests?.length ? (
-                                    <Requests
-                                        onAccept={() => refetch()}
-                                        id_token={auth.user?.id_token ?? ""}
-                                        groupUuid={groupUuid ?? ""}
-                                        requests={group.requests}
-                                    />
-                                ) : (
-                                    ""
-                                )}
-
-                                {group?.members.map((member, index) => (
-                                    <div key={index}>
-                                        {`${member.firstName} ${member.lastName} | ${member.role}`}
-                                    </div>
-                                ))}
-                            </div>
                         </SectionArticle>,
                     ]}
                 ></PageSection>
