@@ -45,7 +45,14 @@ const Groups = () => {
                     articles={[
                         <SectionArticle
                             titleBar={
-                                <p className="font-semibold">{group?.name}</p>
+                                <div className="flex items-center">
+                                    <p className="flex-1 font-semibold">
+                                        {group?.name}
+                                    </p>
+                                    <text className="p-1 light-border rounded-lg">
+                                        {group?.isPublic ? "Public" : "Private"}
+                                    </text>
+                                </div>
                             }
                             className="w-full"
                         >

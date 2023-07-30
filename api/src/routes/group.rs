@@ -381,6 +381,7 @@ exportable! {
     pub struct GroupSearchGetResp {
         name: String,
         uuid: String,
+        is_public: bool,
     }
 }
 
@@ -396,7 +397,7 @@ pub async fn group_search(
     // `lower` allows for case insensitive search
     let groups = sqlx::query_as!(
         GroupSearchGetResp,
-        "SELECT name, uuid FROM app_group WHERE STRPOS(lower(name), lower($1)) > 0 LIMIT $2",
+        "SELECT name, uuid, is_public FROM app_group WHERE STRPOS(lower(name), lower($1)) > 0 LIMIT $2",
         info.search_term,
         info.n.unwrap_or(20)
     )

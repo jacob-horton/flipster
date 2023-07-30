@@ -3,4 +3,5 @@
 export interface GroupSearchGetResp {
     name: string;
     uuid: string;
+    isPublic: boolean;
 }
