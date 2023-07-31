@@ -99,6 +99,10 @@ const IconView: React.FC<IconViewProps> = ({ currentPath }) => {
                     );
                     return false;
                 }
+                if (resp.status === 400) {
+                    alert("Failed to rename - Invalid folder name");
+                    return false;
+                }
 
                 refetch();
                 return true;
