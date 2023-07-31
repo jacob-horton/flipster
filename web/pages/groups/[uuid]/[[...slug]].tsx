@@ -1,5 +1,5 @@
 import FolderListView from "@components/FolderListView";
-import PageSection from "@components/PageSection";
+import PageSection, { SectionArticle } from "@components/PageSection";
 import ProtectedRoute from "@components/ProtectedRoute";
 import Requests from "@components/routeGroups/Requests";
 import { getRequest, postRequest } from "@src/apiRequest";
@@ -42,84 +42,132 @@ const Groups = () => {
             <div className="flex h-full flex-row space-x-4 p-4">
                 <PageSection
                     className="w-full justify-between"
-                    titleBar={<>Group: {group?.name}</>}
-                >
-                    {isLoading || !group || !groupUuid ? (
-                        "Loading"
-                    ) : (
-                        <div className="space-x-2">
-                            {group.memberType ? (
-                                <button
-                                    className="rounded-lg bg-red-500 px-4 py-2 text-white disabled:bg-red-200"
-                                    onClick={async () => {
-                                        const payload: GroupLeavePostReq = {
-                                            uuid: group.uuid,
-                                        };
-
-                                        await postRequest({
-                                            path: "/group/leave",
-                                            id_token: auth.user?.id_token ?? "",
-                                            payload: JSON.stringify(payload),
-                                        });
-
-                                        refetch();
-                                    }}
-                                    // TODO: Tooltip when disabled - "owners cannot leave their group"
-                                    disabled={group.memberType === "owner"}
-                                >
-                                    Leave group
-                                </button>
+                    articles={[
+                        <SectionArticle
+                            titleBar={
+                                <div className="flex items-center">
+                                    <p className="flex-1 font-semibold">
+                                        {group?.name}
+                                    </p>
+                                    <text className="p-1 light-border rounded-lg">
+                                        {group?.isPublic ? "Public" : "Private"}
+                                    </text>
+                                </div>
+                            }
+                            className="w-full"
+                        >
+                            {" "}
+                            <div>
+                                {group?.description}
+                                <p className="text-xl pt-2">Members:</p>
+                                {group?.requests?.length ? (
+                                    <Requests
+                                        // Decline request?
+                                        onAccept={() => refetch()}
+                                        id_token={auth.user?.id_token ?? ""}
+                                        groupUuid={groupUuid ?? ""}
+                                        requests={group.requests}
+                                    />
+                                ) : (
+                                    ""
+                                )}
+                                {group?.members.map((member, index) => (
+                                    <div key={index}>
+                                        {`${member.firstName} ${member.lastName} | ${member.role}`}
+                                    </div>
+                                ))}
+                            </div>
+                            {isLoading || !group || !groupUuid ? (
+                                "Loading"
                             ) : (
-                                <button
-                                    className="rounded-lg bg-purple-500 px-4 py-2 text-white disabled:bg-purple-200"
-                                    onClick={async () => {
-                                        const payload: GroupJoinPostReq = {
-                                            uuid: group.uuid,
-                                        };
+                                <div className="space-x-2">
+                                    {group.memberType ? (
+                                        <button
+                                            //Absolute positioning
+                                            className="absolute bottom-4 right-4 rounded-lg bg-red-500 px-4 py-2 text-white disabled:bg-red-200"
+                                            onClick={async () => {
+                                                const payload: GroupLeavePostReq =
+                                                    {
+                                                        uuid: group.uuid,
+                                                    };
 
-                                        await postRequest({
-                                            path: "/group/join",
-                                            id_token: auth.user?.id_token ?? "",
-                                            payload: JSON.stringify(payload),
-                                        });
+                                                await postRequest({
+                                                    path: "/group/leave",
+                                                    id_token:
+                                                        auth.user?.id_token ??
+                                                        "",
+                                                    payload:
+                                                        JSON.stringify(payload),
+                                                });
 
-                                        refetch();
-                                    }}
-                                    disabled={group.isRequestPending}
-                                >
-                                    {group.isPublic
-                                        ? "Join"
-                                        : "Request to join"}
-                                </button>
+                                                refetch();
+                                            }}
+                                            // TODO: Tooltip when disabled - "owners cannot leave their group"
+                                            disabled={
+                                                group.memberType === "owner"
+                                            }
+                                        >
+                                            Leave group
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="absolute bottom-4 right-4 rounded-lg bg-purple-500 px-4 py-2 text-white disabled:bg-purple-200"
+                                            onClick={async () => {
+                                                const payload: GroupJoinPostReq =
+                                                    {
+                                                        uuid: group.uuid,
+                                                    };
+
+                                                await postRequest({
+                                                    path: "/group/join",
+                                                    id_token:
+                                                        auth.user?.id_token ??
+                                                        "",
+                                                    payload:
+                                                        JSON.stringify(payload),
+                                                });
+
+                                                refetch();
+                                            }}
+                                            disabled={group.isRequestPending}
+                                        >
+                                            {group.isPublic
+                                                ? "Join"
+                                                : "Request to join"}
+                                        </button>
+                                    )}
+                                </div>
                             )}
-                            {group.requests?.length ? (
-                                <Requests
-                                    onAccept={() => refetch()}
-                                    id_token={auth.user?.id_token ?? ""}
-                                    groupUuid={groupUuid ?? ""}
-                                    requests={group.requests}
-                                />
+                        </SectionArticle>,
+
+                        <SectionArticle
+                            titleBar={
+                                <p className="font-semibold">Group Files</p>
+                            }
+                            className="w-full"
+                        >
+                            {group?.rootFolder ? (
+                                <>
+                                    {" "}
+                                    {router.query.slug?.join("/")}
+                                    <FolderListView
+                                        selectMultiple={false}
+                                        rootFolder={{
+                                            id: group.rootFolder,
+                                            name: "All",
+                                            children: [],
+                                        }}
+                                    />
+                                </>
                             ) : (
-                                ""
+                                <p className="py-2">
+                                    You do not have permission to view these
+                                    files
+                                </p>
                             )}
-                        </div>
-                    )}
-                    {group?.rootFolder ? (
-                        <>
-                            Path: {router.query.slug?.join("/")}
-                            <FolderListView
-                                selectMultiple={false}
-                                rootFolder={{
-                                    id: group.rootFolder,
-                                    name: "asdf",
-                                    children: [],
-                                }}
-                            />
-                        </>
-                    ) : (
-                        <p>You do not have permission to view these files</p>
-                    )}
-                </PageSection>
+                        </SectionArticle>,
+                    ]}
+                ></PageSection>
             </div>
         </ProtectedRoute>
     );

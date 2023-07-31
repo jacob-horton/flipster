@@ -44,7 +44,9 @@ const Groups = () => {
         // Do not search with empty query
         if (!searchTerm) return;
 
-        const queryParams: GroupSearchGetReq = { searchTerm };
+        const queryParams: GroupSearchGetReq = {
+            searchTerm,
+        };
 
         setSearchGroups(
             await getRequest({
@@ -120,12 +122,20 @@ const Groups = () => {
                     <div className="flex h-full flex-col justify-between">
                         <div className="space-y-2">
                             {groups.map((g) => (
-                                <Link
-                                    href={`/groups/${g.uuid}`}
-                                    className="flex w-full rounded-lg bg-gray-200 px-4 py-1"
-                                >
-                                    {g.name}
-                                </Link>
+                                <div className="flex space-x-2" key={g.uuid}>
+                                    <Link
+                                        href={`/groups/${g.uuid}`}
+                                        className="w-full rounded-lg bg-gray-200 px-4 py-1"
+                                    >
+                                        {g.name}
+                                    </Link>
+                                    <Link
+                                        className="flex items-center rounded-lg bg-gray-200 px-2 py-1"
+                                        href={`/groups/${g.uuid}/files`}
+                                    >
+                                        <BsFolder className="self-center" />
+                                    </Link>
+                                </div>
                             ))}
                         </div>
                         <Button onClick={() => setShowPopup(true)}>
@@ -143,7 +153,7 @@ const Groups = () => {
                             handleSearch(target.search.value);
                         }}
                     >
-                        <div className="flex items-center">
+                        <div className="flex items-center pb-1">
                             <input
                                 name="search"
                                 className="light-border w-full rounded-lg bg-gray-100 px-2 py-1 pr-10"
@@ -153,7 +163,7 @@ const Groups = () => {
                                 }
                             />
                             <button
-                                className="light-border ml-2 rounded-lg bg-gray-100 px-4 py-1"
+                                className="light-border bg-gray-100 rounded-lg px-4 py-1 ml-2"
                                 type="submit"
                             >
                                 Search
@@ -162,7 +172,17 @@ const Groups = () => {
                     </form>
                     <div className="flex flex-col">
                         {searchGroups.map((g) => (
-                            <Link href={`/groups/${g.uuid}`}>{g.name}</Link>
+                            <Link
+                                href={`/groups/${g.uuid}`}
+                                className="flex items-center"
+                            >
+                                <div className="flex-1 p-1 light-border rounded-lg ">
+                                    {g.name}
+                                </div>
+                                <div className="px-2 p-1 light-border rounded-lg ">
+                                    {g.isPublic ? "Public" : "Private"}
+                                </div>
+                            </Link>
                         ))}
                     </div>
                 </PageSection>
