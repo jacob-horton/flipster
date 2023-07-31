@@ -166,7 +166,6 @@ pub async fn add_folder(
     payload: web::Json<SubFolderInsert>,
     req: HttpRequest,
 ) -> impl Responder {
-    // TODO: do not allow symbols?
     if !is_valid_folder_name(&payload.name) {
         return HttpResponse::BadRequest().body("Invalid folder name");
     }
