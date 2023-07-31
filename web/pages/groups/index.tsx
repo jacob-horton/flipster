@@ -46,7 +46,6 @@ const Groups = () => {
 
         const queryParams: GroupSearchGetReq = {
             searchTerm,
-            n: BigInt(25),
         };
 
         setSearchGroups(
