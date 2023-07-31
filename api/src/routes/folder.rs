@@ -156,6 +156,10 @@ exportable! {
     }
 }
 
+fn is_valid_folder_name(name: &str) -> bool {
+    !name.is_empty() && name.chars().all(|c| c.is_alphanumeric() || c == ' ')
+}
+
 #[post("/folder/add")]
 pub async fn add_folder(
     data: Data<AppState>,
@@ -163,6 +167,9 @@ pub async fn add_folder(
     req: HttpRequest,
 ) -> impl Responder {
     // TODO: do not allow symbols?
+    if !is_valid_folder_name(&payload.name) {
+        return HttpResponse::BadRequest().body("Invalid folder name");
+    }
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     if !get_user_permissions(payload.parent_folder_id, user_id, &data.db_pool)
         .await
@@ -227,6 +234,10 @@ pub async fn rename_folder(
     {
         return HttpResponse::Unauthorized()
             .body("User does not have permission to edit this folder");
+    }
+
+    if !is_valid_folder_name(&payload.new_name) {
+        return HttpResponse::BadRequest().body("Invalid folder name");
     }
 
     let result = sqlx::query_as!(
