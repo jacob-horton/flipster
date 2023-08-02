@@ -37,6 +37,7 @@ async function getFoldersFromNames(auth: AuthContextProps, names: string) {
 const Files = () => {
     const [currentPath, setCurrentPath] = useState<FolderData[]>([]);
     const [view, setView] = useState<"icon" | "list">("icon");
+    const [selectedFolders, setSelectedFolders] = useState<number[]>([]);
 
     const router = useRouter();
     const slug = router.query.slug;
@@ -95,6 +96,8 @@ const Files = () => {
                     {view === "icon" && <IconView currentPath={currentPath} />}
                     {view === "list" && (
                         <FolderListView
+                            selected={selectedFolders}
+                            setSelected={setSelectedFolders}
                             selectMultiple={false}
                             rootFolder={rootFolder}
                         />

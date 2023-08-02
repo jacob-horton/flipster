@@ -1,25 +1,20 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import ListViewNode from "./ListViewNode";
 import { Folder } from "@src/types/Folder";
 
 interface FolderListViewProps {
     selectMultiple: boolean;
-    onSelectedFoldersChange?: (folderIds: number[]) => void;
+    selected: number[];
+    setSelected?: Dispatch<SetStateAction<number[]>>;
     rootFolder: Folder;
 }
 
 const FolderListView: React.FC<FolderListViewProps> = ({
     selectMultiple,
-    onSelectedFoldersChange,
+    selected,
+    setSelected,
     rootFolder,
 }) => {
-    const [selected, setSelected] = useState<number[]>([]);
-
-    useEffect(() => {
-        // NOTE: must be useCallback, otherwise it will rerender constantly. enforce?
-        if (onSelectedFoldersChange) onSelectedFoldersChange(selected);
-    }, [selected, onSelectedFoldersChange]);
-
     if (rootFolder?.id === undefined) {
         return <p>Loading</p>;
     } else {
@@ -34,9 +29,12 @@ const FolderListView: React.FC<FolderListViewProps> = ({
                 path={[]}
                 selected={selected}
                 setSelected={(id: number) => {
+                    if (!setSelected) return;
                     if (selectMultiple) {
                         if (selected.includes(id)) {
-                            setSelected(selected.filter((i) => i != id));
+                            setSelected((selected) =>
+                                selected.filter((i) => i != id)
+                            );
                         } else {
                             setSelected((selected) => [...selected, id]);
                         }
