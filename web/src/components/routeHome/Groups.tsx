@@ -28,7 +28,7 @@ const Groups = () => {
             icon={<MdGroups size={28} className="space-x-4 space-y-4" />}
             bgIcon={<MdGroups size={200} />}
         >
-            <div className="space-y-2 h-60 overflow-auto">
+            <div className="h-60 space-y-2 overflow-auto">
                 {groups.map((g) => (
                     <div className="flex space-x-2" key={g.uuid}>
                         <Link

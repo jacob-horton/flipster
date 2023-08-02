@@ -163,7 +163,7 @@ const Groups = () => {
                                 }
                             />
                             <button
-                                className="light-border bg-gray-100 rounded-lg px-4 py-1 ml-2"
+                                className="light-border ml-2 rounded-lg bg-gray-100 px-4 py-1"
                                 type="submit"
                             >
                                 Search
@@ -176,10 +176,10 @@ const Groups = () => {
                                 href={`/groups/${g.uuid}`}
                                 className="flex items-center"
                             >
-                                <div className="flex-1 p-1 light-border rounded-lg ">
+                                <div className="light-border flex-1 rounded-lg p-1 ">
                                     {g.name}
                                 </div>
-                                <div className="px-2 p-1 light-border rounded-lg ">
+                                <div className="light-border rounded-lg p-1 px-2 ">
                                     {g.isPublic ? "Public" : "Private"}
                                 </div>
                             </Link>

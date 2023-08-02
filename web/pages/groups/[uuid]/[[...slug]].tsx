@@ -49,7 +49,7 @@ const Groups = () => {
                                     <p className="flex-1 font-semibold">
                                         {group?.name}
                                     </p>
-                                    <text className="p-1 light-border rounded-lg">
+                                    <text className="light-border rounded-lg p-1">
                                         {group?.isPublic ? "Public" : "Private"}
                                     </text>
                                 </div>
@@ -59,7 +59,7 @@ const Groups = () => {
                             {" "}
                             <div>
                                 {group?.description}
-                                <p className="text-xl pt-2">Members:</p>
+                                <p className="pt-2 text-xl">Members:</p>
                                 {group?.requests?.length ? (
                                     <Requests
                                         // Decline request?
