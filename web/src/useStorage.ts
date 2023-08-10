@@ -1,9 +1,16 @@
 import { useState } from "react";
 
-function useStorage(storage: Storage, key: string, defaultVal: string) {
+function useStorage(
+    storage: Storage | undefined,
+    key: string,
+    defaultVal: string
+) {
     const [val, setVal] = useState<string>(() => {
+        if (storage === undefined) return defaultVal;
+
         const presentVal = storage.getItem(key);
         if (presentVal !== null) return presentVal;
+
         storage.setItem(key, defaultVal);
         return defaultVal;
     });
@@ -22,7 +29,7 @@ function useStorage(storage: Storage, key: string, defaultVal: string) {
                 newVal = newValOrGetter(oldVal);
             }
 
-            storage.setItem(key, newVal);
+            storage && storage.setItem(key, newVal);
             return newVal;
         });
     }
@@ -30,43 +37,12 @@ function useStorage(storage: Storage, key: string, defaultVal: string) {
     return [val, setValWrapper] as const;
 }
 
-class dummyStorage implements Storage {
-    readonly length = 0;
-
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    clear() {}
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    getItem(_: string) {
-        return null;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    key(_: number) {
-        return null;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-    removeItem(_: string) {}
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-    setItem(_: string, __: string) {}
-}
-
 export function useSessionStorage(key: string, defaultVal: string) {
-    let storage;
-    if (typeof window !== "undefined") {
-        storage = sessionStorage;
-    } else {
-        storage = new dummyStorage();
-    }
-
+    const storage = typeof window !== "undefined" ? sessionStorage : undefined;
     return useStorage(storage, key, defaultVal);
 }
 
 export function useLocalStorage(key: string, defaultVal: string) {
-    let storage;
-    if (typeof window !== "undefined") {
-        storage = localStorage;
-    } else {
-        storage = new dummyStorage();
-    }
-
+    const storage = typeof window !== "undefined" ? localStorage : undefined;
     return useStorage(storage, key, defaultVal);
 }
