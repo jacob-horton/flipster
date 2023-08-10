@@ -15,6 +15,7 @@ import { getRequest } from "@src/apiRequest";
 import { ParsedUrlQuery } from "querystring";
 import { NextFlashcardGetResp } from "@src/types/NextFlashcardGetResp";
 import { Mode } from "@src/types/Mode";
+import { useSessionStorage } from "@src/useStorage";
 
 type SelectedFlashcards = Map<number, boolean>;
 
@@ -25,6 +26,12 @@ interface ReviewQueryParams extends ParsedUrlQuery {
 
 export default function ReviewIndex() {
     const auth = useAuth();
+    // breaking setState convention to indicate storage?
+    const [reviewModes, storeReviewModes] = useSessionStorage(
+        "review-modes",
+        ""
+    );
+    const [reviewFIDs, storeReviewFIDs] = useSessionStorage("review-fids", "");
     // accessed flashcards are displayed when the parent folder is selected
     const [accessedFlashcards, setAccessedFlashcards] = useState<Flashcard[]>(
         []
@@ -33,8 +40,6 @@ export default function ReviewIndex() {
     const [selectedFlashcards, setSelectedFlashcards] =
         useState<SelectedFlashcards>(new Map());
     const [showPopup, setShowPopup] = useState(false);
-    const router = useRouter();
-    const query = router.query as ReviewQueryParams;
 
     // expand the index section when numbers exceed double digits (rel. to font size)
     // TODO fix that this is called for every flashcard without using another state
@@ -80,20 +85,23 @@ export default function ReviewIndex() {
      * It would be good to document this and link here instead.
      */
     const { data, isLoading: gettingMode } = useQuery({
-        queryKey: ["next", query.modes, query.flashcardIds, auth.user],
+        queryKey: ["next", reviewModes, reviewFIDs, auth.user],
         queryFn: async () => {
             if (!auth.user?.id_token) {
                 return Promise.reject("Unauthorised");
             }
-            if (!query.modes || !query.flashcardIds) {
+            if (!reviewModes || !reviewFIDs) {
                 return Promise.reject(
-                    `Queried with modes ${query.modes} and flashcardIds ${query.flashcardIds}, one of which was undefined.`
+                    `Queried with modes ${reviewModes} and flashcardIds ${reviewFIDs}, one of which was undefined.`
                 );
             }
             const resp = await getRequest({
                 path: "/review/next",
                 id_token: auth.user.id_token,
-                queryParams: query,
+                queryParams: {
+                    modes: reviewModes.split(","),
+                    flashcardIds: reviewFIDs.split(","),
+                } as ReviewQueryParams,
             });
             if (resp.status != 200) {
                 return Promise.reject(resp.body);
@@ -101,7 +109,7 @@ export default function ReviewIndex() {
                 return (await resp.json()) as NextFlashcardGetResp;
             }
         },
-        enabled: !!(query.modes && query.flashcardIds && auth.user?.id_token),
+        enabled: !!(reviewModes && reviewFIDs && auth.user?.id_token),
     });
     const mode = data?.mode;
     const flashcardIds = data?.flashcardIds;
@@ -112,11 +120,12 @@ export default function ReviewIndex() {
                 Loading your files...
             </ProtectedRoute>
         );
-    } else if (!query.modes) {
+    } else if (!reviewModes) {
         // modes not selected
         // TODO: move into own component
         return (
             <div className="flex h-full flex-col items-center p-4">
+                <span>{reviewModes ? reviewModes : "none"}</span>
                 <PageSection
                     className="min-h-0 w-full grow"
                     articles={[
@@ -172,19 +181,14 @@ export default function ReviewIndex() {
                         setShowPopup(false);
                     }}
                     onSubmit={(_, modes) => {
-                        // makes the button work as a link with query params
-                        router.push({
-                            pathname: "/review",
-                            query: {
-                                modes,
-                                flashcardIds: Array.from(
-                                    selectedFlashcards,
-                                    ([k, v]) => {
-                                        return v ? String(k) : undefined;
-                                    }
-                                ).filter((i): i is string => !!i),
-                            } as ReviewQueryParams,
-                        });
+                        storeReviewModes(modes.join(","));
+                        storeReviewFIDs(
+                            Array.from(selectedFlashcards, ([k, v]) => {
+                                return v ? String(k) : undefined;
+                            })
+                                .filter((i): i is string => !!i)
+                                .join(",")
+                        );
                     }}
                 />
             </div>
