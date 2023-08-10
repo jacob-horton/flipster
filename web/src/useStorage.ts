@@ -1,35 +1,39 @@
 import { useState } from "react";
 
-function useStorage(
+// https://github.com/microsoft/TypeScript/issues/37663
+type ValOrGetter<T> = T | ((x: T) => T);
+function isGetter<T>(valOrGetter: ValOrGetter<T>): valOrGetter is (x: T) => T {
+    return typeof valOrGetter === "function";
+}
+
+function useStorage<T>(
     storage: Storage | undefined,
     key: string,
-    defaultVal: string
+    defaultVal: T
 ) {
-    const [val, setVal] = useState<string>(() => {
+    const [val, setVal] = useState<T>(() => {
         if (storage === undefined) return defaultVal;
 
         const presentVal = storage.getItem(key);
-        if (presentVal !== null) return presentVal;
+        if (presentVal !== null) return JSON.parse(presentVal);
 
-        storage.setItem(key, defaultVal);
+        storage.setItem(key, JSON.stringify(defaultVal));
         return defaultVal;
     });
 
-    function setValWrapper(newVal: string): void;
-    function setValWrapper(newValGetter: (oldVal: string) => string): void;
-    function setValWrapper(
-        newValOrGetter: string | ((oldVal: string) => string)
-    ) {
+    function setValWrapper(newVal: T): void;
+    function setValWrapper(newValGetter: (oldVal: T) => T): void;
+    function setValWrapper(newValOrGetter: T | ((oldVal: T) => T)) {
         setVal((oldVal) => {
             let newVal;
 
-            if (typeof newValOrGetter === "string") {
-                newVal = newValOrGetter;
-            } else {
+            if (isGetter(newValOrGetter)) {
                 newVal = newValOrGetter(oldVal);
+            } else {
+                newVal = newValOrGetter;
             }
 
-            storage && storage.setItem(key, newVal);
+            storage && storage.setItem(key, JSON.stringify(newVal));
             return newVal;
         });
     }
