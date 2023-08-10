@@ -1,17 +1,17 @@
 import { useState } from "react";
 
 function useStorage(storage: Storage, key: string, defaultVal: string) {
-    const [val, setVal] = useState<string | null>(() => {
+    const [val, setVal] = useState<string>(() => {
+        const presentVal = storage.getItem(key);
+        if (presentVal !== null) return presentVal;
         storage.setItem(key, defaultVal);
         return defaultVal;
     });
 
     function setValWrapper(newVal: string): void;
+    function setValWrapper(newValGetter: (oldVal: string) => string): void;
     function setValWrapper(
-        newValGetter: (oldVal: string | null) => string
-    ): void;
-    function setValWrapper(
-        newValOrGetter: string | ((oldVal: string | null) => string)
+        newValOrGetter: string | ((oldVal: string) => string)
     ) {
         setVal((oldVal) => {
             let newVal;
@@ -63,7 +63,7 @@ export function useSessionStorage(key: string, defaultVal: string) {
 export function useLocalStorage(key: string, defaultVal: string) {
     let storage;
     if (typeof window !== "undefined") {
-        storage = sessionStorage;
+        storage = localStorage;
     } else {
         storage = new dummyStorage();
     }
