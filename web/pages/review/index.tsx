@@ -5,7 +5,7 @@ import { Flashcard } from "@src/types/Flashcard";
 import { getFlashcards } from "@src/getFlashcards";
 import { useAuth } from "react-oidc-context";
 import FolderListView from "@components/FolderListView";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import ReviewPopup from "@components/routeReview/ReviewPopup";
 import { useQuery } from "@tanstack/react-query";
 import getRootFolder from "@src/getRootFolder";
@@ -17,11 +17,14 @@ import { NextFlashcardGetResp } from "@src/types/NextFlashcardGetResp";
 import { Mode } from "@src/types/Mode";
 import { useSessionStorage } from "@src/useStorage";
 
-type SelectedFlashcards = Map<number, boolean>;
-
 interface ReviewQueryParams extends ParsedUrlQuery {
     modes: Mode[];
     flashcardIds: string[];
+}
+
+function calcMaxWidth(fIds: number[]) {
+    const fidLength = Math.max(...fIds).toString().length;
+    return Math.max(6, fidLength * 2 + 2);
 }
 
 export default function ReviewIndex() {
@@ -32,56 +35,46 @@ export default function ReviewIndex() {
         ""
     );
     const [reviewFIDs, storeReviewFIDs] = useSessionStorage("review-fids", "");
-    // accessed flashcards are displayed when the parent folder is selected
-    const [accessedFlashcards, setAccessedFlashcards] = useState<Flashcard[]>(
-        []
-    );
-    // accessed flashcards can be selected // TODO: default selected
-    const [selectedFlashcards, setSelectedFlashcards] =
-        useState<SelectedFlashcards>(new Map());
+    const [selectedFolders, setSelectedFolders] = useState<number[]>([]);
+    const [selectedFlashcards, setSelectedFlashcards] = useState<
+        Map<number, boolean>
+    >(new Map());
+    const defaultSelection = true;
     const [showPopup, setShowPopup] = useState(false);
 
-    // expand the index section when numbers exceed double digits (rel. to font size)
-    // TODO fix that this is called for every flashcard without using another state
-    function calcMaxWidth() {
-        const fidLength = Math.max(
-            ...accessedFlashcards.map((f) => f.id)
-        ).toString().length;
-        return Math.max(6, fidLength * 2 + 2);
-    }
+    // TODO: make this the FolderListView default?
+    const { data: rootFolder } = useQuery({
+        queryKey: ["rootFolder", auth.user],
+        queryFn: async () =>
+            (await getRootFolder(auth.user?.id_token)) ??
+            Promise.reject("Unauthorised"),
+        enabled: !!auth.user?.id_token,
+    });
 
-    const onSelectedFoldersChange = useCallback(
-        async (folderIds: number[]) => {
+    const { data: accessedFlashcards } = useQuery({
+        queryKey: ["accessedFlashcards", selectedFolders, auth.user?.id_token],
+        queryFn: async () => {
             let flashcards: Flashcard[] = [];
             if (!auth.user?.id_token) return flashcards;
-            for (const fId of folderIds) {
+            for (const fId of selectedFolders) {
                 flashcards = flashcards.concat(
                     await getFlashcards(auth.user.id_token, fId)
                 );
             }
-            setAccessedFlashcards(flashcards);
+            return flashcards;
         },
-        [auth]
-    );
-
-    // TODO: make this the FolderListView default?
-    const { data: rootFolder } = useQuery({
-        queryKey: ["user", auth.user],
-        queryFn: async () =>
-            (await getRootFolder(auth.user?.id_token)) ??
-            Promise.reject("Unauthorised"),
-        enabled: !!auth.user,
+        enabled: !!(auth.user?.id_token && selectedFolders),
+        keepPreviousData: true,
     });
 
     /**
      * One version of this page uses the 'modes' query params. This
      * essentially stores the state of the review in the link, so the
-     * page can keep firing off new requests for the next flashcards.
+     * pages can keep firing off new requests for the next flashcards.
      *
      * If query params exist, the user is reviewing flashcards (not selecting).
-     * This page sends a get request with the modes (TODO: and sel fids) to
-     * the API, which sends back the next mode (TODO: and fids) that
-     * the user will review the flashcard in.
+     * This page sends a get request with the modes and flashcard ids to
+     * the API, which sends back the next mode and ids that the user review.
      * It would be good to document this and link here instead.
      */
     const { data, isLoading: gettingMode } = useQuery({
@@ -111,64 +104,73 @@ export default function ReviewIndex() {
         },
         enabled: !!(reviewModes && reviewFIDs && auth.user?.id_token),
     });
+
     const mode = data?.mode;
     const flashcardIds = data?.flashcardIds;
-    if (!auth.user?.id_token || !rootFolder) {
-        return (
-            <ProtectedRoute>
-                {/* Should only appear if getting rootFolder? */}
-                Loading your files...
-            </ProtectedRoute>
-        );
+    const maxWidth = accessedFlashcards
+        ? calcMaxWidth(Array.from(accessedFlashcards.keys()))
+        : 0;
+
+    if (!auth.user?.id_token || !rootFolder || !accessedFlashcards) {
+        return <ProtectedRoute>{`${accessedFlashcards}`}</ProtectedRoute>;
     } else if (!reviewModes) {
         // modes not selected
         // TODO: move into own component
+        const foldersArticle = (
+            <SectionArticle className="w-full" titleBar="Review">
+                <FolderListView
+                    rootFolder={rootFolder}
+                    selectMultiple={true}
+                    selected={selectedFolders}
+                    setSelected={setSelectedFolders}
+                />
+            </SectionArticle>
+        );
+        const flashcards = accessedFlashcards.map((f, i) => {
+            const selected = selectedFlashcards.get(f.id) ?? defaultSelection;
+            return (
+                <FlashcardComponent
+                    key={f.id}
+                    flashcard={{
+                        ...f,
+                        id: i + 1,
+                    }}
+                    mode="select"
+                    selected={selected}
+                    onClick={() =>
+                        setSelectedFlashcards(
+                            (prevState) =>
+                                new Map(prevState.set(f.id, !selected))
+                        )
+                    }
+                    indexWidth={maxWidth}
+                />
+            );
+        });
+
+        const flashcardsArticle = (
+            <SectionArticle
+                titleBar="Flashcards"
+                className="mb-4 w-full overflow-auto"
+            >
+                <div className="grow space-y-2">{flashcards}</div>
+            </SectionArticle>
+        );
+
         return (
             <div className="flex h-full flex-col items-center p-4">
                 <span>{reviewModes ? reviewModes : "none"}</span>
                 <PageSection
                     className="min-h-0 w-full grow"
-                    articles={[
-                        <SectionArticle className="w-full" titleBar="Review">
-                            <FolderListView
-                                rootFolder={rootFolder}
-                                selectMultiple={true}
-                                onSelectedFoldersChange={
-                                    onSelectedFoldersChange
-                                }
-                            />
-                        </SectionArticle>,
-                        <SectionArticle
-                            titleBar="Flashcards"
-                            className="mb-4 w-full overflow-auto"
-                        >
-                            <div className="grow space-y-2">
-                                {accessedFlashcards.map((f, i) => (
-                                    <FlashcardComponent
-                                        key={f.id}
-                                        flashcard={{
-                                            ...f,
-                                            id: i + 1,
-                                        }}
-                                        mode="select"
-                                        onSelect={(selected) =>
-                                            setSelectedFlashcards(
-                                                new Map(
-                                                    selectedFlashcards.entries()
-                                                ).set(i, selected)
-                                            )
-                                        }
-                                        indexWidth={calcMaxWidth()}
-                                    />
-                                ))}
-                            </div>
-                        </SectionArticle>,
-                    ]}
+                    articles={[foldersArticle, flashcardsArticle]}
                 />
                 <span className="p-2" />
                 <Button
                     onClick={() => {
-                        Array.from(selectedFlashcards.values()).some((x) => x)
+                        accessedFlashcards.some(
+                            (f) =>
+                                selectedFlashcards.get(f.id) ?? defaultSelection
+                        )
                             ? setShowPopup(true)
                             : alert("Please select some flashcards to review.");
                     }}
@@ -183,8 +185,11 @@ export default function ReviewIndex() {
                     onSubmit={(_, modes) => {
                         storeReviewModes(modes.join(","));
                         storeReviewFIDs(
-                            Array.from(selectedFlashcards, ([k, v]) => {
-                                return v ? String(k) : undefined;
+                            Array.from(accessedFlashcards, (f) => {
+                                return selectedFlashcards.get(f.id) ??
+                                    defaultSelection
+                                    ? f.id.toString()
+                                    : undefined;
                             })
                                 .filter((i): i is string => !!i)
                                 .join(",")

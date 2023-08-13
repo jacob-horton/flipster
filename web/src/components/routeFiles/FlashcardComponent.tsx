@@ -1,5 +1,5 @@
 import { Flashcard } from "@src/types/Flashcard";
-import { useState } from "react";
+import { MouseEventHandler } from "react";
 
 import { BsCheck } from "react-icons/bs";
 import { CiEdit } from "react-icons/ci";
@@ -33,21 +33,18 @@ const RoundedSection: React.FC<RoundedSectionProps> = ({
 };
 
 interface SelectedButtonProps {
-    onSelect?: (selected: boolean) => void;
+    selected: boolean;
+    onClick: MouseEventHandler;
 }
 
-function SelectedButton({ onSelect }: SelectedButtonProps) {
-    const [selected, setSelected] = useState(false);
+function SelectedButton({ selected, onClick }: SelectedButtonProps) {
     return (
         <button
             className={
                 "light-border ml-1 self-center rounded-full " +
                 (selected ? "bg-orange-500" : "bg-gray-100")
             }
-            onClick={() => {
-                if (onSelect) onSelect(!selected);
-                setSelected(!selected);
-            }}
+            onClick={onClick}
         >
             <IconContext.Provider
                 value={{ color: selected ? "white" : "gray" }}
@@ -68,19 +65,24 @@ const EditButton = () => {
     );
 };
 
-type FlashcardProps = {
+interface BaseFlashcardProps {
     flashcard: Flashcard;
     indexWidth: number;
-    onSelect?: (selected: boolean) => void;
-    mode: "edit" | "select";
-};
+}
 
-const FlashcardComponent: React.FC<FlashcardProps> = ({
-    flashcard,
-    mode,
-    indexWidth,
-    onSelect,
-}) => {
+interface EditFlashcardProps extends BaseFlashcardProps {
+    mode: "edit";
+}
+
+interface SelectFlashcardProps extends BaseFlashcardProps, SelectedButtonProps {
+    mode: "select";
+}
+
+type FlashcardProps = EditFlashcardProps | SelectFlashcardProps;
+
+const FlashcardComponent: React.FC<FlashcardProps> = (props) => {
+    const flashcard = props.flashcard;
+    const indexWidth = props.indexWidth;
     const fid = flashcard.id;
     return (
         <div className="flex w-full flex-row space-x-1 text-sm">
@@ -99,8 +101,11 @@ const FlashcardComponent: React.FC<FlashcardProps> = ({
                     {flashcard.definition}
                 </span>
             </RoundedSection>
-            {mode === "select" ? (
-                <SelectedButton onSelect={onSelect} />
+            {props.mode === "select" ? (
+                <SelectedButton
+                    selected={props.selected}
+                    onClick={props.onClick}
+                />
             ) : (
                 <EditButton />
             )}
