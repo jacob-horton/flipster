@@ -9,11 +9,13 @@ import { GroupJoinPostReq } from "@src/types/GroupJoinPostReq";
 import { GroupLeavePostReq } from "@src/types/GroupLeavePostReq";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { useAuth } from "react-oidc-context";
 
 const Groups = () => {
     const router = useRouter();
     const auth = useAuth();
+    const [selectedFolders, setSelectedFolders] = useState<number[]>([]);
 
     let groupUuid: string | undefined = undefined;
     if (typeof router.query.uuid === "string") {
@@ -152,6 +154,8 @@ const Groups = () => {
                                     {router.query.slug?.join("/")}
                                     <FolderListView
                                         selectMultiple={false}
+                                        selected={selectedFolders}
+                                        setSelected={setSelectedFolders}
                                         rootFolder={{
                                             id: group.rootFolder,
                                             name: "All",
