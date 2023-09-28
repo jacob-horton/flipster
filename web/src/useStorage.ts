@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+export const reviewModesKey = "review-modes";
+export const reviewFidsKey = "review-fids";
+
 // https://github.com/microsoft/TypeScript/issues/37663
 type ValOrGetter<T> = T | ((x: T) => T);
 function isGetter<T>(valOrGetter: ValOrGetter<T>): valOrGetter is (x: T) => T {

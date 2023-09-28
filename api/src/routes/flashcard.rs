@@ -88,3 +88,47 @@ pub async fn get_flashcard(
 
     HttpResponse::Ok().json(flashcards)
 }
+
+exportable! {
+    pub struct FlashcardFromIDGet {
+        flashcard_id: i32
+    }
+}
+
+exportable! {
+    pub struct FlashcardFromIDResp {
+        id: i32,
+        folder_id: i32,
+        term: String,
+        definition: String
+    }
+}
+
+#[get("/flashcard/fromid")]
+pub async fn get_flashcard_from_id(
+    data: Data<AppState>,
+    info: web::Query<FlashcardFromIDGet>,
+    req: HttpRequest,
+) -> impl Responder {
+    let user_id: i32 = utils::get_user_id(&req).unwrap();
+    let flashcards = sqlx::query_as!(
+        // TODO: replace "select id where id"
+        FlashcardFromIDResp,
+        "SELECT id, folder_id, term, definition FROM flashcard WHERE id = $1",
+        info.flashcard_id
+    )
+    .fetch_all(data.db_pool.as_ref())
+    .await
+    .expect("Could not find flashcard");
+    let flashcard = flashcards.first().expect("Could not find flashcard");
+
+    if !get_user_permissions(flashcard.folder_id, user_id, &data.db_pool)
+        .await
+        .read_flashcards
+    {
+        return HttpResponse::Unauthorized()
+            .body("User does not have permission to view this flashcard");
+    }
+
+    HttpResponse::Ok().json(flashcard)
+}
