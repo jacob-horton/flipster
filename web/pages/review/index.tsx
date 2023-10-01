@@ -36,11 +36,13 @@ async function getAccessedFlashcards(
     if (!auth.user?.id_token) return flashcards;
     // TODO: this is inefficient. it should be done in one request, or make better
     // usage of QueryCache
+    const flashcardRequests = [];
     for (const folderId of selectedFolders) {
-        flashcards = flashcards.concat(
-            await getFlashcards(auth.user.id_token, folderId)
-        );
+        flashcardRequests.push(getFlashcards(auth.user.id_token, folderId));
     }
+    (await Promise.all(flashcardRequests)).forEach(
+        (folderCards) => (flashcards = flashcards.concat(folderCards))
+    );
     return flashcards;
 }
 
