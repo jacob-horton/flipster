@@ -72,7 +72,6 @@ export default function ReviewCards() {
                 path: "/flashcard/fromid",
                 id_token: auth.user.id_token,
                 queryParams: {
-                    modes: reviewModes.split(","),
                     flashcardId: parseInt(upcomingReviews.flashcardIds),
                 } as FlashcardFromIDGet,
             });
