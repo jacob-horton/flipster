@@ -1,63 +1,55 @@
 import { useState } from "react";
 
-function useStorage(storage: Storage, key: string, defaultVal: string) {
-  const [val, setVal] = useState<string | null>(() => {
-    storage.setItem(key, defaultVal);
-    return defaultVal
-  });
+export const reviewModesKey = "review-modes";
+export const reviewFidsKey = "review-fids";
 
-  function setValWrapper(newValGetter: string | ((oldVal: string | null) => string)) {
-    setVal((oldVal) => {
-      let newVal;
-
-      if (typeof newValGetter === 'string') {
-        newVal = newValGetter;
-      } else {
-        newVal = newValGetter(oldVal);
-      }
-
-      storage.setItem(key, newVal);
-      return newVal;
-    });
-  }
-
-  return [val, setValWrapper] as const;
+// https://github.com/microsoft/TypeScript/issues/37663
+type ValOrGetter<T> = T | ((x: T) => T);
+function isGetter<T>(valOrGetter: ValOrGetter<T>): valOrGetter is (x: T) => T {
+    return typeof valOrGetter === "function";
 }
 
+function useStorage<T>(
+    storage: Storage | undefined,
+    key: string,
+    defaultVal: T
+) {
+    const [val, setVal] = useState<T>(() => {
+        if (storage === undefined) return defaultVal;
 
-class dummyStorage implements Storage {
-  readonly length = 0;
+        const presentVal = storage.getItem(key);
+        if (presentVal !== null) return JSON.parse(presentVal);
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  clear() { }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  getItem(_: string) { return null; }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  key(_: number) { return null; }
-  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-  removeItem(_: string) { }
-  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-  setItem(_: string, __: string) { }
+        storage.setItem(key, JSON.stringify(defaultVal));
+        return defaultVal;
+    });
+
+    function setValWrapper(newVal: T): void;
+    function setValWrapper(newValGetter: (oldVal: T) => T): void;
+    function setValWrapper(newValOrGetter: T | ((oldVal: T) => T)) {
+        setVal((oldVal) => {
+            let newVal;
+
+            if (isGetter(newValOrGetter)) {
+                newVal = newValOrGetter(oldVal);
+            } else {
+                newVal = newValOrGetter;
+            }
+
+            storage && storage.setItem(key, JSON.stringify(newVal));
+            return newVal;
+        });
+    }
+
+    return [val, setValWrapper] as const;
 }
 
 export function useSessionStorage(key: string, defaultVal: string) {
-  let storage;
-  if (typeof window !== 'undefined') {
-    storage = sessionStorage;
-  } else {
-    storage = new dummyStorage();
-  }
-
-  return useStorage(storage, key, defaultVal)
+    const storage = typeof window !== "undefined" ? sessionStorage : undefined;
+    return useStorage(storage, key, defaultVal);
 }
 
 export function useLocalStorage(key: string, defaultVal: string) {
-  let storage;
-  if (typeof window !== 'undefined') {
-    storage = sessionStorage;
-  } else {
-    storage = new dummyStorage();
-  }
-
-  return useStorage(storage, key, defaultVal)
+    const storage = typeof window !== "undefined" ? localStorage : undefined;
+    return useStorage(storage, key, defaultVal);
 }

@@ -5,7 +5,7 @@ use actix_web::{http, web::Data, App, HttpServer};
 use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::validator;
 use routes::{
-    flashcard::{add_flashcard, get_flashcard},
+    flashcard::{add_flashcard, get_flashcard, get_flashcard_from_id},
     folder::{add_folder, rename_folder, resolve_path},
     group::{accept_request, add_group, group_info, group_search, join_group, leave_group},
     review::get_next_flashcard,
@@ -76,6 +76,7 @@ async fn main() -> std::io::Result<()> {
             .service(group_search)
             .service(accept_request)
             .service(get_next_flashcard)
+            .service(get_flashcard_from_id)
     })
     .bind(("0.0.0.0", 8080))?
     .run()
