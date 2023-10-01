@@ -97,7 +97,6 @@ exportable! {
 
 exportable! {
     pub struct FlashcardFromIDResp {
-        id: i32,
         folder_id: i32,
         term: String,
         definition: String
@@ -112,9 +111,8 @@ pub async fn get_flashcard_from_id(
 ) -> impl Responder {
     let user_id: i32 = utils::get_user_id(&req).unwrap();
     let flashcards = sqlx::query_as!(
-        // TODO: replace "select id where id"
         FlashcardFromIDResp,
-        "SELECT id, folder_id, term, definition FROM flashcard WHERE id = $1",
+        "SELECT folder_id, term, definition FROM flashcard WHERE id = $1",
         info.flashcard_id
     )
     .fetch_all(data.db_pool.as_ref())
