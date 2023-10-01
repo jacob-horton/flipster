@@ -15,7 +15,7 @@ import { FlashcardFromIDGet } from "@src/types/FlashcardFromIDGet";
 import Button from "@components/Button";
 /*
 This page is accessed when the user has set modes and flashcards in localStorage. 
-This page sends a request to /review/next to get the next 'packet' of
+This page sends a request to /review/next to get the next bunch of
 upcomingReview info. Then, it requests the flashcard info from ID via 
 /flashcard/fromid and displays this.
 The actual interfaces for the revision are in /src/components/routeReview
