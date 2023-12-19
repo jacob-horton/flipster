@@ -2,6 +2,7 @@ version: "3.9"
 
 services:
   postgres_auth:
+    restart: unless-stoppped
     container_name: postgres_auth
     image: "postgres:latest"
     environment:
@@ -17,6 +18,7 @@ services:
       - 5432:5432
 
   keycloak_auth:
+    restart: unless-stoppped
     container_name: keycloak_auth
     image: "quay.io/keycloak/keycloak:latest"
     command: start-dev --db postgres --db-url-host postgres_auth --db-username ${KC_DB_USER} --db-password ${KC_DB_PASSWORD}
@@ -31,6 +33,7 @@ services:
       - backend
 
   database:
+    restart: unless-stoppped
     container_name: database
     image: "postgres:latest"
     ports:
