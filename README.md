@@ -34,7 +34,7 @@ Where `-p` specifies the port number of the website.
 
 ---
 
-To run the back end, go to the 'api` directory (`cd api`), and run:
+To run the back end, go to the `api` directory (`cd api`), and run:
 
 ```bash
 cargo run
