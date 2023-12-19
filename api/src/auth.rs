@@ -76,13 +76,13 @@ pub async fn validator(
     // Get token from creds
     let jwt = credentials.token();
 
-    // TODO: either don't store username, or update it when JWT changes
     match get_claims(jwt).await {
         Ok(claims) => {
-            let user = sqlx::query!("SELECT id FROM app_user WHERE jwt_sub = $1", claims.sub)
-                .fetch_optional(db_pool.as_ref())
-                .await
-                .expect("Failed to search for user");
+            let user_id =
+                sqlx::query_scalar!("SELECT id FROM app_user WHERE jwt_sub = $1", claims.sub)
+                    .fetch_optional(db_pool.as_ref())
+                    .await
+                    .expect("Failed to search for user");
 
             let mut req = req; // Make mutable
             let headers = req.headers_mut();
@@ -91,28 +91,27 @@ pub async fn validator(
                 HeaderValue::from_str(&claims.sub).unwrap(),
             );
 
-            let user_id = match user {
-                Some(user) => user.id,
+            let user_id = match user_id {
+                Some(user_id) => user_id,
                 None => {
-                    let flashcards = sqlx::query!(
+                    // TODO: extract creating account into another function
+                    let tlf = sqlx::query_scalar!(
                         "INSERT INTO folder (name) VALUES ('Your Files') RETURNING id",
                     )
                     .fetch_one(db_pool.as_ref())
                     .await
                     .expect("Failed to create folder for new user");
 
-                    let user = sqlx::query!(
-                            "INSERT INTO app_user (first_name, last_name, username, flashcards, jwt_sub) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+                    sqlx::query_scalar!(
+                            "INSERT INTO app_user (first_name, last_name, username, top_level_folder, jwt_sub) VALUES ($1, $2, $3, $4, $5) RETURNING id",
                             claims.given_name,
                             claims.family_name,
                             claims.preferred_username,
-                            flashcards.id,
+                            tlf,
                             claims.sub)
                         .fetch_one(db_pool.as_ref())
                         .await
-                        .expect("Failed to insert new user");
-
-                    user.id
+                        .expect("Failed to insert new user")
                 }
             };
 

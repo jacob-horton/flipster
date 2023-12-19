@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 .light-border {
-  @apply border-[1.5px] border-black border-opacity-10;
+    @apply border-[1.5px] border-black border-opacity-10;
 }
 
 /* See: https://greywyvern.com/337 */
 .show-transition {
-  transition: visibility 0s linear 0.2s, opacity 0.2s linear 0s;
+    transition: visibility 0s linear 0.2s, opacity 0.2s linear 0s;
 }
 /* 
 Matches hovering over a div (e.g. the one containing whatever shows the tooltip) 
 and applies to its adjacent sibling satisfying class selector.
 */
 div:hover + .show-transition {
-  transition: visibility 0s linear 0s, opacity 0.2s linear 0s;
+    transition: visibility 0s linear 0s, opacity 0.2s linear 0s;
 }

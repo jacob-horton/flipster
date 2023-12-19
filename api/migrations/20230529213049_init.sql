@@ -14,10 +14,7 @@ CREATE TABLE folder(
     ON DELETE CASCADE,
 
   CONSTRAINT name_chk
-    CHECK (char_length(name) <= 64),
-
-  CONSTRAINT unique_name_chk
-    UNIQUE(name, parent_id)
+    CHECK (char_length(name) <= 64)
 );
 
 CREATE TABLE flashcard(
@@ -42,8 +39,7 @@ CREATE TABLE flashcard(
 
 CREATE TABLE app_user(
   id            SERIAL PRIMARY KEY                      NOT NULL,
-  first_name    TEXT                                    NOT NULL,
-  last_name     TEXT                                    NOT NULL,
+  name          TEXT                                    NOT NULL,
   username      TEXT                                    NOT NULL,
   date_created  TIMESTAMPTZ                             NOT NULL DEFAULT now(),
   flashcards    INT                                     NOT NULL,
@@ -53,11 +49,8 @@ CREATE TABLE app_user(
     FOREIGN KEY(flashcards)
     REFERENCES folder(id),
 
-  CONSTRAINT fisrt_name_chk
-    CHECK (char_length(first_name) <= 64),
-
-  CONSTRAINT last_name_chk
-    CHECK (char_length(last_name) <= 64),
+  CONSTRAINT name_chk
+    CHECK (char_length(name) <= 64),
 
   CONSTRAINT username_chk
     CHECK (char_length(username) <= 16)
@@ -163,8 +156,8 @@ CREATE TABLE card_revised(
     ON DELETE CASCADE
 );
 
-CREATE INDEX jwt_sub_idx ON app_user USING HASH(jwt_sub)
-
+-- TODO: CASCADING DELETES
+-- TODO: LIMIT TO LENGTHS
 -- TODO: Flashcard images
 -- TODO: PDFs/other files
 -- TODO: Revision type for `card_revised` e.g. true/false, multiple choice, type answer, match, ...

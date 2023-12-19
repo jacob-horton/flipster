@@ -6,29 +6,31 @@ Flashcard revision web application with (planned) $\LaTeX$ support.
 
 # Installing
 
-See ![Development Setup](https://github.com/jacob-horton/flipster/wiki/Development-Setup)
+See [Development Setup](https://github.com/jacob-horton/flipster/wiki/Development-Setup).
 
 # Contributing
 
-See the ![style guide](https://github.com/jacob-horton/flipster/wiki/Style-Guide)
+Contributions are welcome; see the [style guide](https://github.com/jacob-horton/flipster/wiki/Style-Guide).
 
 # Commands
 
 **Using make**
+
 Make has several useful commands configured. The most useful one is `make run`, which will run the front end and the back end and update both when files are modified.
 
-This requires [cargo watch](https://github.com/watchexec/cargo-watch), which will rerun a cargo command when a file change is detected. In this case, `make run` will use `cargo watch -x run`
+This requires [cargo watch](https://github.com/watchexec/cargo-watch), which will rerun a cargo command when a file change is detected. In this case, `make run` will use `cargo watch -x run`.
 
-If you have [tmux](https://github.com/tmux/tmux) and would like to use it, `make run-tmux` will start the front and back end in separate tmux sessions. `make stop-tmux` will kill these sessions
+If you have [tmux](https://github.com/tmux/tmux) and would like to use it, `make run-tmux` will start the front and back end in separate tmux sessions. `make stop-tmux` will kill these sessions.
 
 **Manually**
+
 To run the front end, go to the `web` directory (`cd web`), and run:
 
 ```bash
 yarn dev -p 5173
 ```
 
-Where `-p` specifies the port number of the website
+Where `-p` specifies the port number of the website.
 
 ---
 
@@ -44,13 +46,13 @@ If you would like it to automatically rebuild when you make file changes, see **
 cargo watch -x run
 ```
 
-Finally, go to http://localhost:5173 to view the website
+Finally, go to http://localhost:5173 to view the website.
 
 # Running
 
-You can run both web and API at the same time using `make run`, or `make run-tmux` to run the web and API in separate tmux sessions
+You can run both web and API at the same time using `make run`, or `make run-tmux` to run the web and API in separate tmux sessions.
 
-Linting can be run on both web and API using `make lint`, and similarly for `make format`
+Linting can be run on both web and API using `make lint`, and similarly for `make format`.
 
 # Directories
 
