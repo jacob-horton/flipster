@@ -14,7 +14,10 @@ CREATE TABLE folder(
     ON DELETE CASCADE,
 
   CONSTRAINT name_chk
-    CHECK (char_length(name) <= 64)
+    CHECK (char_length(name) <= 64),
+
+  CONSTRAINT unique_name_chk
+    UNIQUE (name, parent_id)
 );
 
 CREATE TABLE flashcard(
@@ -38,39 +41,49 @@ CREATE TABLE flashcard(
 );
 
 CREATE TABLE app_user(
-  id            SERIAL PRIMARY KEY                      NOT NULL,
-  name          TEXT                                    NOT NULL,
-  username      TEXT                                    NOT NULL,
-  date_created  TIMESTAMPTZ                             NOT NULL DEFAULT now(),
-  flashcards    INT                                     NOT NULL,
-  jwt_sub       TEXT                                    NOT NULL,
+  id                  SERIAL PRIMARY KEY                      NOT NULL,
+  first_name          TEXT                                    NOT NULL,
+  last_name           TEXT                                    NOT NULL,
+  username            TEXT                                    NOT NULL,
+  date_created        TIMESTAMPTZ                             NOT NULL DEFAULT now(),
+  top_level_folder    INT                                     NOT NULL,
+  jwt_sub             TEXT                                    NOT NULL,
 
-  CONSTRAINT fk_flashcards
-    FOREIGN KEY(flashcards)
+  CONSTRAINT fk_tlf
+    FOREIGN KEY(top_level_folder)
     REFERENCES folder(id),
 
-  CONSTRAINT name_chk
-    CHECK (char_length(name) <= 64),
+  CONSTRAINT first_name_chk
+    CHECK (char_length(first_name) <= 64),
+
+  CONSTRAINT last_name_chk
+    CHECK (char_length(last_name) <= 64),
 
   CONSTRAINT username_chk
     CHECK (char_length(username) <= 16)
 );
 
 CREATE TABLE app_group(
-  id            SERIAL PRIMARY KEY  NOT NULL,
-  name          TEXT                NOT NULL,
-  description   TEXT                NOT NULL,
-  is_public     BOOL                NOT NULL,
-  date_created  TIMESTAMPTZ         NOT NULL DEFAULT now(),
+  id                SERIAL PRIMARY KEY  NOT NULL,
+  uuid              TEXT                NOT NULL,
+  name              TEXT                NOT NULL,
+  description       TEXT                NOT NULL,
+  is_public         BOOL                NOT NULL,
+  date_created      TIMESTAMPTZ         NOT NULL DEFAULT now(),
+  top_level_folder  INT                 NOT NULL,
 
   CONSTRAINT name_chk
     CHECK (char_length(name) <= 64),
 
   CONSTRAINT description_chk
-    CHECK (char_length(description) <= 1024)
+    CHECK (char_length(description) <= 1024),
+
+  CONSTRAINT fk_tlf
+    FOREIGN KEY(top_level_folder)
+    REFERENCES folder(id)
 );
 
-CREATE TYPE member_type AS ENUM ('member', 'admin', 'owner');
+CREATE TYPE member_type AS ENUM ('member', 'admin', 'owner', 'viewer');
 
 CREATE TABLE group_member(
   id            SERIAL PRIMARY KEY                        NOT NULL,
@@ -156,10 +169,14 @@ CREATE TABLE card_revised(
     ON DELETE CASCADE
 );
 
--- TODO: CASCADING DELETES
--- TODO: LIMIT TO LENGTHS
--- TODO: Flashcard images
--- TODO: PDFs/other files
--- TODO: Revision type for `card_revised` e.g. true/false, multiple choice, type answer, match, ...
--- TODO: Icon path for group
+CREATE TABLE join_request(
+  id            SERIAL PRIMARY KEY  NOT NULL,
+  app_group_id  INT                 NOT NULL,
+  app_user_id   INT                 NOT NULL,
+  date_sent     TIMESTAMPTZ         NOT NULL DEFAULT now()
+);
 
+
+-- Using HASH type because JWT/UUID should only need to be accessed via =, and no comparisons should be required
+CREATE INDEX jwt_sub_idx ON app_user USING HASH (jwt_sub);
+CREATE INDEX uuid_idx ON app_group USING HASH (uuid);
