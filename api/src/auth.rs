@@ -1,7 +1,7 @@
 use core::fmt;
 use std::{env, error::Error, sync::Arc};
 
-use actix_web::dev::ServiceRequest;
+use actix_web::{dev::ServiceRequest, HttpMessage};
 use actix_web_httpauth::extractors::{
     bearer::{self, BearerAuth},
     AuthenticationError,
@@ -47,6 +47,11 @@ struct Claims {
     preferred_username: String, // Username
 }
 
+#[derive(Debug, Clone)]
+pub struct UserData {
+    pub id: i32,
+}
+
 async fn fetch_jwks(uri: &str) -> Result<Jwks, Box<dyn Error>> {
     let res = reqwest::get(uri).await?;
     let body = res.text().await?;
@@ -70,56 +75,53 @@ async fn get_claims(token: &str) -> Result<Claims, Box<dyn Error>> {
 
 pub async fn validator(
     db_pool: Arc<PgPool>,
-    req: ServiceRequest,
+    mut req: ServiceRequest,
     credentials: BearerAuth,
 ) -> Result<ServiceRequest, (actix_web::Error, ServiceRequest)> {
     // Get token from creds
     let jwt = credentials.token();
 
-    // TODO: either don't store username, or update it when JWT changes
     match get_claims(jwt).await {
         Ok(claims) => {
-            let user = sqlx::query!("SELECT id FROM app_user WHERE jwt_sub = $1", claims.sub)
-                .fetch_optional(db_pool.as_ref())
-                .await
-                .expect("Failed to search for user");
+            let user_id =
+                sqlx::query_scalar!("SELECT id FROM app_user WHERE jwt_sub = $1", claims.sub)
+                    .fetch_optional(db_pool.as_ref())
+                    .await
+                    .expect("Failed to search for user");
 
-            let mut req = req; // Make mutable
             let headers = req.headers_mut();
             headers.insert(
                 HeaderName::from_lowercase(b"sub").unwrap(),
                 HeaderValue::from_str(&claims.sub).unwrap(),
             );
 
-            let user_id = match user {
-                Some(user) => user.id,
+            // Get user or create if they don't exist (if they have valid JWT, they should have
+            // account here as they will have account in keycloak)
+            let user_id = match user_id {
+                Some(user_id) => user_id,
                 None => {
-                    let flashcards = sqlx::query!(
+                    // TODO: extract creating account into another function
+                    let tlf = sqlx::query_scalar!(
                         "INSERT INTO folder (name) VALUES ('Your Files') RETURNING id",
                     )
                     .fetch_one(db_pool.as_ref())
                     .await
                     .expect("Failed to create folder for new user");
 
-                    let user = sqlx::query!(
-                            "INSERT INTO app_user (first_name, last_name, username, flashcards, jwt_sub) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-                            claims.given_name,
-                            claims.family_name,
-                            claims.preferred_username,
-                            flashcards.id,
-                            claims.sub)
-                        .fetch_one(db_pool.as_ref())
+                    sqlx::query_scalar!(
+                        "INSERT INTO app_user (first_name, last_name, username, top_level_folder, jwt_sub) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+                        claims.given_name,
+                        claims.family_name,
+                        claims.preferred_username,
+                        tlf,
+                        claims.sub
+                    ).fetch_one(db_pool.as_ref())
                         .await
-                        .expect("Failed to insert new user");
-
-                    user.id
+                        .expect("Failed to insert new user")
                 }
             };
 
-            headers.insert(
-                HeaderName::from_lowercase(b"user_id").unwrap(),
-                HeaderValue::from(user_id),
-            );
+            req.extensions_mut().insert(UserData { id: user_id });
 
             Ok(req)
         }
