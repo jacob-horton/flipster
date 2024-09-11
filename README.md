@@ -1,3 +1,6 @@
+> [!warning]
+> We have stopped work on Flipster. It was a project that we used to learn about web-apps and working as a team. We have gained a lot of knowledge from this, and realised that our approach in many aspects could be better. We have therefore decided, it would not be worth the time and effort to restart this, as we would not learn much. Flipster has served it's purpose for us and will be left to rest peacefully 🪦
+
 # Flipster
 
 ![Flipster logo](./logo.svg)
